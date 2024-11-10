@@ -4,61 +4,58 @@
             <h5 class="card-title">Derecha-botones</h5>
             <div class="row g-2 flex-grow-1">
                 <div class="col-6 d-flex">
-                    <button class="btn btn-dark w-100">
+                    <a href="{{ route('views.promo') }}" class="btn btn-dark w-100 d-flex flex-column align-items-center justify-content-center " >
+                        <span>🏷️</span>
+                        <span class="ms-2">Promociones</span>
+                    </a>
+                    
+                </div>
+                <div class="col-6 d-flex">
+                    <a href="{{ route('views.ventas') }}" class="btn btn-dark w-100 d-flex flex-column align-items-center justify-content-center " >
+                        <span>📊</span>
+                        <span class="ms-2">Ventas</span>
+                    </a>
+                </div>
+                <div class="col-6 d-flex">
+                    <a href="{{ route('views.historial') }}" class="btn btn-dark w-100 d-flex flex-column align-items-center justify-content-center " >
+                        <span>📊</span>
+                        <span class="ms-2">Historial de ventas</span>
+                    </a>
+                </div>
+                <div class="col-6 d-flex">
+                    <a href="{{ route('views.gastos') }}" class="btn btn-dark w-100 d-flex flex-column align-items-center justify-content-center " >
+                        <span>💰</span>
+                        <span class="ms-2">Gastos</span>
+                    </a>
+                </div>
+                <div class="col-6 d-flex">
+                    <button class="btn btn-dark w-100" data-bs-toggle="modal" data-bs-target="#promocionesModal">
                         <div>🏷️</div>
-                        Promociones
+                        Aplicar promociones
                     </button>
                 </div>
-                <div class="col-6 d-flex">
-                    <button class="btn btn-dark w-100">
-                        <div>📊</div>
-                        Ventas
-                    </button>
+              
+                
+                <div class="col-6 d-flex ">
+                    <a href="{{ route('views.anuladas') }}" class="btn btn-dark w-100 d-flex flex-column align-items-center justify-content-center " >
+                        <span>❌</span>
+                        <span class="ms-2">Ventas anuladas</span>
+                    </a>
                 </div>
                 <div class="col-6 d-flex">
-                    <button class="btn btn-dark w-100">
-                        <div>📊</div>
-                        Historial de ventas
-                    </button>
+                    <a href="{{ route('views.lista') }}" class="btn btn-dark w-100 d-flex flex-column align-items-center justify-content-center " >
+                        <span>📋</span>
+                        <span class="ms-2"> Lista de productos</span>
+                    </a>
                 </div>
                 <div class="col-6 d-flex">
-                    <button class="btn btn-dark w-100">
-                        <div>💰</div>
-                        Gastos
-                    </button>
-                </div>
-                <div class="col-6 d-flex">
-                    <button class="btn btn-dark w-100">
-                        <div>🏷️%</div>
-                        Aplicar promociones o Descuento
-                    </button>
-                </div>
-                <div class="col-6 d-flex">
-                    <button class="btn btn-dark w-100">
-                        <div>📦</div>
-                        Agregar stock
-                    </button>
-                </div>
-                <div class="col-6 d-flex">
-                    <button class="btn btn-dark w-100">
-                        <div>⏳</div>
-                        Productos próximos a vencer
-                    </button>
-                </div>
-                <div class="col-6 d-flex">
-                    <button class="btn btn-dark w-100">
-                        <div>❌</div>
-                        Ventas anuladas
-                    </button>
-                </div>
-                <div class="col-6 d-flex">
-                    <button class="btn btn-dark w-100">
-                        <div>📋</div>
-                        Lista de productos
-                    </button>
+                    <a href="" class="btn btn-dark w-100 d-flex flex-column align-items-center justify-content-center " >
+                        <span>🤝</span>
+                        <span class="ms-2"> Lista de proveedores</span>
+                    </a>
                 </div>
                 
-                <div class="col-6 d-flex">
+                <div class="col-12 d-flex">
                     <button class="btn btn-dark w-100">
                         <div>🚪</div>
                         Cerrar sesión
