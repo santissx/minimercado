@@ -25,7 +25,14 @@ Route::get('/lista', function () {
 
 
 //rutas para promociones
-Route::POST('/promociones', [Promocioncontroller::class, 'agregar'])->name('promociones.agregar');
 Route::get('/promociones', [Promocioncontroller::class, 'mostrar'])->name('views.promo');
+Route::POST('/promociones', [Promocioncontroller::class, 'agregar'])->name('promociones.agregar');
 Route::get('/promociones/modificar', [PromocionController::class, 'modificar'])->name('promociones.modificar');
 Route::delete('/promociones/{id_promocion}', [PromocionController::class, 'borrar'])->name('promociones.borrar');
+
+
+//rutas para lista
+Route::get('/lista', [listacontroller::class, 'mostrar'])->name('views.lista');
+Route::POST('/lista', [listacontroller::class, 'agregar'])->name('lista.agregar');
+Route::get('/lista/modificar', [listacontroller::class, 'modificar'])->name('lista.modificar');
+Route::delete('/lista/{id_producto}', [listacontroller::class, 'borrar'])->name('lista.borrar');

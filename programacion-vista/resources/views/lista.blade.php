@@ -20,16 +20,33 @@
                                 <th>Precio</th>
                                 <th>Proveedor</th>
                                 <th>Stock</th>
+                                <th style="text-align: center">acciones</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <!-- Aquí irían las filas de productos -->
+                            @foreach ($productos as $producto)
+                            <tr>
+                                <td>{{ $producto->id_producto }}</td>
+                                <td>{{ $producto->nombre }}</td>
+                                <td>{{ $producto->codigo }}</td>
+                                <td>{{ $producto->codigo_barra }}</td>
+                                <td>{{ $producto->precio }}</td>
+                                <td>{{ $producto->id_proveedor }}</td>
+                                <td>{{ $producto->stock }}</td>
+                                <td class="d-flex justify-content-center align-items-center gap-2">
+                                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#vermodificarproducModal" data-id="{{ $producto->id_producto }}" onclick="document.getElementById('modal_id_producto').value = {{ $producto->id_producto }}">Modificar producto</button>
+                                    <form class="m-0 d-flex" action="{{route('lista.borrar' , ['id_producto' => $producto->id_producto])}}" method="POST">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn btn-danger ">Eliminar promo</button>
+                                    </form>
+                                </td>
+                            </tr>
+                            @endforeach
                         </tbody>
                     </table>
                 </div>
                 <div class="action-buttons">
-                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modificarModal">Modificar Producto</button>
-                    <button class="btn btn-danger me-2" >Eliminar Producto</button>
                     <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#agregarModal">Agregar Producto</button>
                 </div>
             </div>
@@ -51,11 +68,10 @@
 <div class="modal fade" id="agregarModal" tabindex="-1" aria-labelledby="veragregarLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content bg-dark">
-            <form >
+            <form action="{{route ('lista.agregar')}}" method="POST">
                 @csrf 
                 <div class="modal-header">
                     <h5 class="modal-title" id="verlistaLabel">Agregar Producto</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <!-- Campos para agregar productos -->
@@ -77,14 +93,8 @@
                     </div>
                     <div class="mb-3">
                         <label for="proveedor" class="form-label">Proveedor</label>
-                        <select class="form-select" id="proveedor" name="proveedor" required>
-                            <option value="" selected disabled>Seleccione un proveedor</option>
-                        {{--
-                            @foreach($proveedores as $proveedor) 
-                           <option value="{{ $proveedor->id }}">{{ $proveedor->nombre }}</option>
-                            @endforeach
-                            
-                        --}}
+                       
+                        <input type="number" class="form-control" id="id_proveedor" name="id_proveedor" min="0" required>
                     </select>
                     </div>
                     <div class="mb-3">
@@ -102,14 +112,14 @@
 </div>
 
 <!-- Modal modificiar -->
-<div class="modal fade" id="modificarModal" tabindex="-1" aria-labelledby="vermodificarLabel" aria-hidden="true">
+<div class="modal fade" id="vermodificarproducModal" tabindex="-1" aria-labelledby="vermodificarproducLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content bg-dark">
-            <form >
+            <form action="{{ route('lista.modificar') }}" method="GET">
                 @csrf 
                 <div class="modal-header">
+                    <input type="text" name="id_promocion" id="modal_id_producto">
                     <h5 class="modal-title" id="verlistaLabel">Modificar Producto</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <!-- Campos para modificar productos -->
@@ -131,13 +141,7 @@
                     </div>
                     <div class="mb-3">
                         <label for="proveedor" class="form-label">Proveedor</label>
-                        <select class="form-select" id="proveedor" name="proveedor" required>
-                            <option value="" selected disabled>Seleccione un proveedor</option>
-                        {{--
-                            @foreach($proveedores as $proveedor) 
-                           <option value="{{ $proveedor->id }}">{{ $proveedor->nombre }}</option>
-                            @endforeach
-                        --}}
+                        <input type="number" class="form-control" id="id_proveedor" name="id_proveedor" min="1" required>
                     </select>
                     </div>
                     <div class="mb-3">
