@@ -34,7 +34,7 @@
                                 <td>{{ $producto->id_proveedor }}</td>
                                 <td>{{ $producto->stock }}</td>
                                 <td class="d-flex justify-content-center align-items-center gap-2">
-                                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#vermodificarproduc" data-id="{{ $producto->id_producto }}" onclick="document.getElementById('modal_id_producto').value = {{ $producto->id_producto }}">Modificar producto</button>
+                                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#vermodificarproducModal" data-id="{{ $producto->id_producto }}" onclick="document.getElementById('modal_id_producto').value = {{ $producto->id_producto }}">Modificar producto</button>
                                     <form class="m-0 d-flex" action="{{route('lista.borrar' , ['id_producto' => $producto->id_producto])}}" method="POST">
                                         @csrf
                                         @method('DELETE')
@@ -72,9 +72,9 @@
                 @csrf 
                 <div class="modal-header">
                     <h5 class="modal-title" id="verlistaLabel">Agregar Producto</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
+                    <!-- Campos para agregar productos -->
                     <div class="mb-3">
                         <label for="nombre" class="form-label">Nombre</label>
                         <input type="text" class="form-control" id="nombre" name="nombre" required>
@@ -92,10 +92,9 @@
                         <input type="number" class="form-control" id="precio" name="precio" step="0.01" min="0" required>
                     </div>
                     <div class="mb-3">
-                        <label for="id_proveedor" class="form-label">Proveedor</label>
-                        
-                            <input type="number" class="form-control" id="id_proveedor" name="id_proveedor" min="0" required>
-                            
+                        <label for="proveedor" class="form-label">Proveedor</label>
+                       
+                        <input type="number" class="form-control" id="id_proveedor" name="id_proveedor" min="0" required>
                     </select>
                     </div>
                     <div class="mb-3">
@@ -104,7 +103,7 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="submit" class="btn btn-success">Agregar Promoción</button>
+                    <button type="submit" class="btn btn-success">Guardar Producto</button>
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
                 </div>
             </form>
@@ -112,24 +111,18 @@
     </div>
 </div>
 
-
-
-<!-- Modal modificar -->
-<div class="modal fade" id="vermodificarproduc" tabindex="-1" aria-labelledby="vermodificarproducLabel" aria-hidden="true">
+<!-- Modal modificiar -->
+<div class="modal fade" id="vermodificarproducModal" tabindex="-1" aria-labelledby="vermodificarproducLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content bg-dark">
             <form action="{{ route('lista.modificar') }}" method="GET">
-               
-                @csrf  
-                <input type="text" name="id_producto" id="modal_id_producto">
+                @csrf 
                 <div class="modal-header">
-                    <h5 class="modal-title" id="vermodificarLabel">Modificar Promocion</h5>
-                </div>
-                <div class="modal-header">
-                    <h5 class="modal-title" id="verlistaLabel">Agregar Producto</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <input type="text" name="id_promocion" id="modal_id_producto">
+                    <h5 class="modal-title" id="verlistaLabel">Modificar Producto</h5>
                 </div>
                 <div class="modal-body">
+                    <!-- Campos para modificar productos -->
                     <div class="mb-3">
                         <label for="nombre" class="form-label">Nombre</label>
                         <input type="text" class="form-control" id="nombre" name="nombre" required>
@@ -147,10 +140,8 @@
                         <input type="number" class="form-control" id="precio" name="precio" step="0.01" min="0" required>
                     </div>
                     <div class="mb-3">
-                        <label for="id_proveedor" class="form-label">Proveedor</label>
-                        
-                            <input type="number" class="form-control" id="id_proveedor" name="id_proveedor" min="0" required>
-                            
+                        <label for="proveedor" class="form-label">Proveedor</label>
+                        <input type="number" class="form-control" id="id_proveedor" name="id_proveedor" min="1" required>
                     </select>
                     </div>
                     <div class="mb-3">
@@ -159,7 +150,7 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="submit" class="btn btn-success">Agregar Promoción</button>
+                    <button type="submit" class="btn btn-primary">Modificar Producto</button>
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
                 </div>
             </form>

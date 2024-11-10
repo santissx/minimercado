@@ -130,7 +130,7 @@
             <form action="{{ route('promociones.modificar') }}" method="GET">
                
                 @csrf  
-                <input type="hidden" name="id_promocion" id="modal_id_promocion">
+                <input type="text" name="id_promocion" id="modal_id_promocion">
                 <div class="modal-header">
                     <h5 class="modal-title" id="vermodificarLabel">Modificar Promocion</h5>
                 </div>
