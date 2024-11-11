@@ -1,3 +1,4 @@
+@auth
 <div class="right-top mb-3">
     <div class="card">
         <div class="card-body d-flex flex-column">
@@ -49,19 +50,45 @@
                     </a>
                 </div>
                 <div class="col-6 d-flex">
-                    <a href="" class="btn btn-dark w-100 d-flex flex-column align-items-center justify-content-center " >
+                    <a href="{{route('views.proveedores')}}" class="btn btn-dark w-100 d-flex flex-column align-items-center justify-content-center " >
                         <span>🤝</span>
                         <span class="ms-2"> Lista de proveedores</span>
                     </a>
                 </div>
-                
-                <div class="col-12 d-flex">
-                    <button class="btn btn-dark w-100">
-                        <div>🚪</div>
-                        Cerrar sesión
-                    </button>
-                </div>
+                @if(Auth::check())
+                    @if(Auth::user()->rol === 'administrador')
+                        <div class="col-6 d-flex">
+                            <a href="" class="btn btn-dark w-100 d-flex flex-column align-items-center justify-content-center">
+                                <span aria-hidden="true">👥</span>
+                                <span class="ms-2">Lista de empleados</span>
+                            </a>
+                        </div>
+                    <div class="col-6 d-flex">
+                        <form method="POST" action="{{ route('logout') }}" class="w-100 m-0 d-flex">
+                            @csrf
+                            <button type="submit" class="btn btn-dark w-100 d-flex flex-column align-items-center justify-content-center">
+                                <span aria-hidden="true">🚪</span>
+                                <span class="ms-2">Cerrar sesión</span>
+                            </button>
+                        </form>
+                    </div>
+                    @elseif(Auth::user()->rol === 'empleado')
+                    <div class="col-12 d-flex">
+                        <form method="POST" action="{{ route('logout') }}" class="w-100 m-0 d-flex">
+                            @csrf
+                            <button type="submit" class="btn btn-dark w-100 d-flex flex-column align-items-center justify-content-center">
+                                <span aria-hidden="true">🚪</span>
+                                <span class="ms-2">Cerrar sesión</span>
+                            </button>
+                        </form>
+                    </div>
+                @endif
+                @endif
+
             </div>
         </div>
     </div>
 </div>
+@else
+    <script>window.location = "{{ route('login') }}";</script>
+@endauth
