@@ -1,5 +1,5 @@
 <!-- resources/views/layouts/app.blade.php -->
-
+@auth
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -24,7 +24,7 @@
                 <input class="form-control" type="search" placeholder="BUSCAR POR NOMBRE, CODIGO O CUALQUIERA...">
             </form>
             <span class="navbar-text">
-                Usuario - Puesto
+                {{ auth()->user()->name }}
             </span>
         </div>
     </nav>
@@ -37,3 +37,6 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
+@else
+    <script>window.location = "{{ route('login') }}";</script>
+@endauth

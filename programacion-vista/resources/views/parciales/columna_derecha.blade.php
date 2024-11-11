@@ -58,7 +58,7 @@
                 @if(Auth::check())
                     @if(Auth::user()->rol === 'administrador')
                         <div class="col-6 d-flex">
-                            <a href="" class="btn btn-dark w-100 d-flex flex-column align-items-center justify-content-center">
+                            <a href="{{ route('views.empleados') }}" class="btn btn-dark w-100 d-flex flex-column align-items-center justify-content-center">
                                 <span aria-hidden="true">👥</span>
                                 <span class="ms-2">Lista de empleados</span>
                             </a>
