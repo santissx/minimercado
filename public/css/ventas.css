@@ -80,3 +80,10 @@ body {
     bottom: 1rem;
     right: 1rem;
 }
+
+td .btn {
+    padding: 0.8rem 0.5rem; /* Reduce el padding */
+    font-size: 1rem;       /* Ajusta el tamaño de la fuente */
+    height: auto;            /* Deja que la altura dependa del contenido */
+    line-height: 1;          /* Ajusta la altura de la línea */
+}

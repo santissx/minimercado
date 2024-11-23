@@ -21,6 +21,7 @@
                                 <th>monto final</th>
                                 <th>metodo de pago</th>
                                 <th>promociones aplicadas</th>
+                                <th>Acciones</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -49,8 +50,8 @@
                         
                 </div>
                 <div class="action-buttons "> 
-                    <button class="btn btn-danger me-2">Anular venta</button>
-                    <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#verinfo">Ver detalle</button>
+                    <button class="btn btn-danger me-2">Anular</button>
+                    <button class="btn btn-info" data-bs-toggle="modal" data-bs-target="#verinfo">Detalle</button>
                 </div>
             </div>
         </div>

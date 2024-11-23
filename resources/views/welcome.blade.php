@@ -11,7 +11,17 @@
             <!-- Cuadro de Venta -->
             <div class="card mb-3 flex-grow-1 left-table position-relative">
                 <div class="card-body d-flex flex-column">
-                    <h5 class="card-title">Venta</h5>
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="card-title">Venta</h5>
+                        <select class="form-select w-auto" name="lista_precio">
+                            <option selected>Lista de precio</option>
+                            <!-- Opciones de lista de precios -->
+                            <option value="1">Lista 1</option>
+                            <option value="2">Lista 2</option>
+                            <option value="3">Lista 3</option>
+                        </select>
+                    </div>
+                    
                     <div class="table-responsive flex-grow-1">
                         <table class="table table-dark table-striped">
                             <thead>
@@ -29,7 +39,8 @@
                         </table>
                     </div>
                     <div class="action-buttons">
-                      
+                        <button type="button" class="btn btn-primary me-2">Agregar Producto</button>
+                        <button type="button" class="btn btn-primary me-2">Agregar Promocion</button>
                         <button type="button" class="btn btn-danger me-2">Eliminar producto</button>
                         <button type="submit" class="btn btn-success">Guardar venta</button>
                     </div>
@@ -71,44 +82,8 @@
         @include('parciales.columna_derecha')
     </div>
 </div>
+
 @endsection
 
 
-<!-- Modal -->
-<div class="modal fade " id="promocionesModal" tabindex="-1" aria-labelledby="verpromosLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg ">
-        <div class="modal-content bg-dark">
-            <div class="modal-body">
-                <!-- productos vendidos en la venta -->
-                <div class="card mb-3 flex-grow-1 left-table position-relative">
-                    <div class="card-body d-flex flex-column">
-                        <h5 class="card-title">Promociones disponibles</h5>
-                        <div class="table-responsive flex-grow-1">
-                            <table class="table table-dark table-striped">
-                                <thead>
-                                    <tr>
-                                        <th>id</th>
-                                        <th>descripción</th>
-                                        <th>estado</th>
-                                        <th>fecha inicio</th>
-                                        <th>fecha fin</th>
-                                        <th>tipo de descuento</th>
-                                        <th>porcentaje/descuento</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <!-- Aquí irían las filas de productos -->
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-success">Seleccionar Promoción</button>
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-            </div>
-        </div>
-    </div>
-</div>
 

@@ -35,11 +35,11 @@
                                 <td>{{ $gasto->id_proveedor }}</td>
                                 <td>{{ $gasto->id_usuario }}</td>
                                 <td class="d-flex justify-content-center align-items-center gap-2">
-                                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#vermodificargastos" data-id="{{ $gasto->id_gasto }}" onclick="document.getElementById('modal_id_gasto').value = {{ $gasto->id_gasto }}">Modificar Gasto</button>
+                                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#vermodificargastos" data-id="{{ $gasto->id_gasto }}" onclick="document.getElementById('modal_id_gasto').value = {{ $gasto->id_gasto }}">Modificar</button>
                                     <form class="m-0 d-flex" action="{{route('gastos.borrar' , ['id_gasto' => $gasto->id_gasto])}}" method="POST">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit" class="btn btn-danger ">Eliminar gasto</button>
+                                        <button type="submit" class="btn btn-danger ">Eliminar</button>
                                     </form>
                                 </td>
                             </tr>

@@ -30,12 +30,12 @@
                     </a>
                 </div>
                 <div class="col-6 d-flex">
-                    <button class="btn btn-dark w-100" data-bs-toggle="modal" data-bs-target="#promocionesModal">
-                        <div>🏷️</div>
-                        Aplicar promociones
-                    </button>
+                    <a href="{{ route('views.compras') }}" class="btn btn-dark w-100 d-flex flex-column align-items-center justify-content-center " >
+                        <span>🛒</span>
+                        <span class="ms-2">Compras</span>
+                    </a>
+                        
                 </div>
-              
                 
                 <div class="col-6 d-flex ">
                     <a href="{{ route('views.anuladas') }}" class="btn btn-dark w-100 d-flex flex-column align-items-center justify-content-center " >
@@ -55,15 +55,21 @@
                         <span class="ms-2"> Lista de proveedores</span>
                     </a>
                 </div>
+                <div class="col-6 d-flex">
+                    <a href="{{route('views.clientes')}}" class="btn btn-dark w-100 d-flex flex-column align-items-center justify-content-center " >
+                        <span>🤝</span>
+                        <span class="ms-2"> Clientes C/cuenta_corriente</span>
+                    </a>
+                </div>
                 @if(Auth::check())
                     @if(Auth::user()->rol === 'administrador')
                         <div class="col-6 d-flex">
-                            <a href="" class="btn btn-dark w-100 d-flex flex-column align-items-center justify-content-center">
+                            <a href="{{ route('views.empleados') }}" class="btn btn-dark w-100 d-flex flex-column align-items-center justify-content-center">
                                 <span aria-hidden="true">👥</span>
                                 <span class="ms-2">Lista de empleados</span>
                             </a>
                         </div>
-                    <div class="col-6 d-flex">
+                    <div class="col-12 d-flex">
                         <form method="POST" action="{{ route('logout') }}" class="w-100 m-0 d-flex">
                             @csrf
                             <button type="submit" class="btn btn-dark w-100 d-flex flex-column align-items-center justify-content-center">
@@ -73,7 +79,7 @@
                         </form>
                     </div>
                     @elseif(Auth::user()->rol === 'empleado')
-                    <div class="col-12 d-flex">
+                    <div class="col-6 d-flex">
                         <form method="POST" action="{{ route('logout') }}" class="w-100 m-0 d-flex">
                             @csrf
                             <button type="submit" class="btn btn-dark w-100 d-flex flex-column align-items-center justify-content-center">

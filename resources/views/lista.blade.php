@@ -17,9 +17,10 @@
                                 <th>Nombre</th>
                                 <th>Codigo</th>
                                 <th>Codigo de barra</th>
-                                <th>Precio</th>
+                                <th>Precio lista</th>
                                 <th>Proveedor</th>
                                 <th>Stock</th>
+                                <th>Categoria</th>
                                 <th style="text-align: center">acciones</th>
                             </tr>
                         </thead>
@@ -30,15 +31,16 @@
                                 <td>{{ $producto->nombre }}</td>
                                 <td>{{ $producto->codigo }}</td>
                                 <td>{{ $producto->codigo_barra }}</td>
-                                <td>{{ $producto->precio }}</td>
+                                <td>{{ $producto->precio_lista }}</td>
                                 <td>{{ $producto->id_proveedor }}</td>
                                 <td>{{ $producto->stock }}</td>
-                                <td class="d-flex justify-content-center align-items-center gap-2">
-                                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#vermodificarproducModal" data-id="{{ $producto->id_producto }}" onclick="document.getElementById('modal_id_producto').value = {{ $producto->id_producto }}">Modificar producto</button>
+                                <td>{{ $producto->id_categoria }}</td>
+                                <td class="d-flex justify-content-center align-items-center gap-2 ">
+                                    <button class="btn btn-primary " data-bs-toggle="modal" data-bs-target="#vermodificarproducModal" data-id="{{ $producto->id_producto }}" onclick="document.getElementById('modal_id_producto').value = {{ $producto->id_producto }}">Modificar</button>
                                     <form class="m-0 d-flex" action="{{route('lista.borrar' , ['id_producto' => $producto->id_producto])}}" method="POST">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit" class="btn btn-danger ">Eliminar promo</button>
+                                        <button type="submit" class="btn btn-danger ">Eliminar</button>
                                     </form>
                                 </td>
                             </tr>
@@ -88,13 +90,17 @@
                         <input type="text" class="form-control" id="codigo_barra" name="codigo_barra" required>
                     </div>
                     <div class="mb-3">
-                        <label for="precio" class="form-label">Precio</label>
-                        <input type="number" class="form-control" id="precio" name="precio" step="0.01" min="0" required>
+                        <label for="precio_lista" class="form-label">Precio</label>
+                        <input type="number" class="form-control" id="precio_lista" name="precio_lista" step="0.01" min="0" required>
                     </div>
                     <div class="mb-3">
-                        <label for="proveedor" class="form-label">Proveedor</label>
-                       
+                        <label for="id_proveedor" class="form-label">Proveedor</label>
                         <input type="number" class="form-control" id="id_proveedor" name="id_proveedor" min="0" required>
+                    </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="id_categoria" class="form-label">Proveedor</label>
+                        <input type="number" class="form-control" id="id_categoria" name="id_categoria" min="0" required>
                     </select>
                     </div>
                     <div class="mb-3">

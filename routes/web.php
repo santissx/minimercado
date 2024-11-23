@@ -6,7 +6,8 @@ use App\Http\Controllers\Promocioncontroller;
 use App\Http\Controllers\listacontroller;
 use App\Http\Controllers\proveedorescontroller;
 use App\Http\Controllers\gastoscontroller;
-
+use App\Http\Controllers\empleadoscontroller;
+use App\Http\Controllers\ventaController;
 
 //rutas del login 
 
@@ -15,7 +16,7 @@ Route::get('/', function () {
 });
 
 Route::get('/dashboard', function () {
-    return view('dashboard');
+    return view('welcome');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
@@ -31,6 +32,10 @@ require __DIR__.'/auth.php';
 Route::get('/', function () {
     return view('welcome');
 }) ->name('views.ventas');
+
+Route::get('/compras', function () {
+    return view('compras');
+}) ->name('views.compras');
 Route::get('/ventas', function () {
     return view('welcome');
 }) ->name('views.ventas');
@@ -52,6 +57,12 @@ Route::get('/lista', function () {
 Route::get('/proveedores', function () {
     return view('proveedores');
 }) ->name('views.proveedores');
+Route::get('/empleados', function () {
+    return view('empleados');
+}) ->name('views.empleados');
+Route::get('/clientes', function () {
+    return view('clientes');
+}) ->name('views.clientes');
 
 
 
@@ -81,3 +92,9 @@ Route::get('/gastos', [gastoscontroller::class, 'mostrar'])->name('views.gastos'
 Route::POST('/gastos', [gastoscontroller::class, 'agregar'])->name('gastos.agregar');
 Route::get('/gastos/modificar', [gastoscontroller::class, 'modificar'])->name('gastos.modificar');
 Route::delete('/gastos/{id_gasto}', [gastoscontroller::class, 'borrar'])->name('gastos.borrar');
+
+//ruta para empleados
+Route::get('/empleados', [empleadoscontroller::class, 'mostrar'])->name('views.empleados');
+Route::POST('/empleados', [empleadoscontroller::class, 'agregar'])->name('empleados.agregar');
+Route::get('/empleados/modificar', [empleadoscontroller::class, 'modificar'])->name('empleados.modificar');
+Route::delete('/empleados/{id}', [empleadoscontroller::class, 'borrar'])->name('empleados.borrar');

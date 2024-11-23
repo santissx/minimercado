@@ -22,8 +22,9 @@ class listacontroller extends Controller
             'nombre' => 'required|string|max:255',
             'codigo' => 'nullable|string|max:255',
             'codigo_barra' => 'required|string|max:255',
-            'precio' => 'required|numeric||regex:/^\d{1,10}(\.\d{0,2})?$/',
+            'precio_lista' => 'required|numeric||regex:/^\d{1,10}(\.\d{0,2})?$/',
             'id_proveedor' => 'required|int|min:1',
+            'id_categoria' => 'required|int|min:1',
             'stock' => 'required|int',
         ]);
 
@@ -31,8 +32,9 @@ class listacontroller extends Controller
             'nombre' => $request->input('nombre'),
             'codigo' => $request->input('codigo'),
             'codigo_barra' => $request->input('codigo_barra'),
-            'precio' => $request->input('precio'),
+            'precio_lista' => $request->input('precio_lista'),
             'id_proveedor' => $request->input('id_proveedor'),
+            'id_categoria' => $request->input('id_categoria'),
             'stock' => $request->input('stock'),
 
         ]);
@@ -51,8 +53,9 @@ class listacontroller extends Controller
             'nombre' => 'required|string|max:255',
             'codigo' => 'nullable|string|max:255',
             'codigo_barra' => 'required|string|max:255',
-            'precio' => 'required|numeric||regex:/^\d{1,10}(\.\d{0,2})?$/',
+            'precio_lista' => 'required|numeric||regex:/^\d{1,10}(\.\d{0,2})?$/',
             'id_proveedor' => 'required|int|min:1',
+            'id_categoria' => 'required|int|min:1',
             'stock' => 'required|int',
         ]);
 
@@ -62,8 +65,9 @@ class listacontroller extends Controller
             'nombre' => 'required|string|max:255',
             'codigo' => 'nullable|string|max:255',
             'codigo_barra' => 'required|string|max:255',
-            'precio' => 'required|numeric||regex:/^\d{1,10}(\.\d{0,2})?$/',
+            'precio_lista' => 'required|numeric||regex:/^\d{1,10}(\.\d{0,2})?$/',
             'id_proveedor' => 'required|int|min:1',
+            'id_categoria' => 'required|int|min:1',
             'stock' => 'required|int',
         ]);
           return redirect()->route('views.lista')->with('success', 'Producto modificada correctamente.');

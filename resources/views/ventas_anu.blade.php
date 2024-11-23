@@ -27,7 +27,7 @@
                     </table>
                 </div>
                 <div class="action-buttons">   
-                    <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#verinfo">Ver detalle</button>
+                    <button class="btn btn-info" data-bs-toggle="modal" data-bs-target="#verinfo">Ver detalle</button>
                 </div>
             </div>
         </div>
