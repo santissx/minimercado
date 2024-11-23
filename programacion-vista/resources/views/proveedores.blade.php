@@ -17,6 +17,7 @@
                                 <th>Teléfono</th>
                                 <th>Dirección</th>
                                 <th>Email</th>
+                                <th>Nombre y Numero de Preventista</th>
                                 <th style="text-align: center">Acciones</th>
                             </tr>
                         </thead>
@@ -28,6 +29,7 @@
                                 <td>{{ $proveedor->telefono }}</td>
                                 <td>{{ $proveedor->direccion }}</td>
                                 <td>{{ $proveedor->email }}</td>
+                                <td>{{ $proveedor->nombre_preventista }} - {{ $proveedor->num_preventista }} </td>
                                 <td class="d-flex justify-content-center align-items-center gap-2">
                                     <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#vermodificarproveedor" data-id="{{ $proveedor->id_proveedor }}" onclick="document.getElementById('modal_id_proveedor').value = {{ $proveedor->id_proveedor }}">Modificar</button>
                                     <form class="m-0 d-flex" action="{{route('proveedores.borrar' , ['id_proveedor' => $proveedor->id_proveedor])}}" method="POST">
@@ -80,6 +82,14 @@
                     <div class="mb-3">
                         <label for="email" class="form-label">Email</label>
                         <input type="email" class="form-control" id="email" name="email" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="nom_preventista" class="form-label">nombre preventista</label>
+                        <input type="text" class="form-control" id="nom_preventista" name="nom_preventista" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="num_preventista" class="form-label">Numero preventista</label>
+                        <input type="int" class="form-control" id="num_preventista" name="num_preventista" required>
                     </div>
                 </div>
                 <div class="modal-footer">

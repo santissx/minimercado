@@ -7,7 +7,7 @@ use App\Http\Controllers\listacontroller;
 use App\Http\Controllers\proveedorescontroller;
 use App\Http\Controllers\gastoscontroller;
 use App\Http\Controllers\empleadoscontroller;
-
+use App\Http\Controllers\ventaController;
 
 //rutas del login 
 
@@ -32,6 +32,10 @@ require __DIR__.'/auth.php';
 Route::get('/', function () {
     return view('welcome');
 }) ->name('views.ventas');
+
+Route::get('/compras', function () {
+    return view('compras');
+}) ->name('views.compras');
 Route::get('/ventas', function () {
     return view('welcome');
 }) ->name('views.ventas');
@@ -56,6 +60,9 @@ Route::get('/proveedores', function () {
 Route::get('/empleados', function () {
     return view('empleados');
 }) ->name('views.empleados');
+Route::get('/clientes', function () {
+    return view('clientes');
+}) ->name('views.clientes');
 
 
 

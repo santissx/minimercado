@@ -41,11 +41,11 @@
                                 <td>{{ $promocion->descuento }}</td>
                                 <td>{{ $promocion->tipo_descuento }}</td>
                                 <td class="d-flex justify-content-center align-items-center gap-2">
-                                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#vermodificarpromos" data-id="{{ $promocion->id_promocion }}" onclick="document.getElementById('modal_id_promocion').value = {{ $promocion->id_promocion }}">Modificar promo</button>
+                                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#vermodificarpromos" data-id="{{ $promocion->id_promocion }}" onclick="document.getElementById('modal_id_promocion').value = {{ $promocion->id_promocion }}">Modificar</button>
                                     <form class="m-0 d-flex" action="{{route('promociones.borrar' , ['id_promocion' => $promocion->id_promocion])}}" method="POST">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit" class="btn btn-danger ">Eliminar promo</button>
+                                        <button type="submit" class="btn btn-danger ">Eliminar</button>
                                     </form>
                                 </td>
                             </tr>

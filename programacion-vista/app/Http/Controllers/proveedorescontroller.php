@@ -23,6 +23,8 @@ class proveedorescontroller extends Controller
             'telefono' => 'nullable|int',
             'direccion' => 'required|string|max:255',
             'email' => 'required|string|max:255',
+            'nom_preventista' => 'required|string|max:255',
+            'num_preventista' => 'required|int|max:15',
         ]);
 
         DB::table('proveedores')->insert([
@@ -30,6 +32,8 @@ class proveedorescontroller extends Controller
             'telefono' => $request->input('telefono'),
             'direccion' => $request->input('direccion'),
             'email' => $request->input('email'),
+            'nombre_preventista' => $request->input('nombre_preventista'),
+            'num_preventista' => $request->input('num_preventista'),
         ]);
 
           // Redirigir a la vista de promociones (quizás con un mensaje de éxito)
@@ -47,6 +51,8 @@ class proveedorescontroller extends Controller
             'telefono' => 'nullable|int',
             'direccion' => 'required|string|max:255',
             'email' => 'required|string|max:255',
+            'nom_preventista' => 'required|string|max:255',
+            'num_preventista' => 'required|int|max:15',
         ]);
 
         DB::table('proveedores')
@@ -56,6 +62,8 @@ class proveedorescontroller extends Controller
             'telefono' => $request->input('telefono'),
             'direccion' => $request->input('direccion'),
             'email' => $request->input('email'),
+            'nombre_preventista' => $request->input('nombre_preventista'),
+            'num_preventista' => $request->input('num_preventista'),
         ]);
           return redirect()->route('views.proveedores')->with('success', 'Proveedor modificado correctamente.');
 
