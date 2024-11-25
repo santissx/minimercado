@@ -14,6 +14,7 @@ class PromocionController extends Controller
         $promociones = DB::table('promociones')->get();
     
         return view('promociones',['promociones' => $promociones]);
+
     }
 
 
@@ -26,7 +27,6 @@ class PromocionController extends Controller
             'fecha_inicio' => 'required|date',
             'fecha_fin' => 'required|date|after_or_equal:fecha_inicio',
             'descuento' => 'required|numeric|min:0',
-            'tipo_descuento' => 'required|in:porcentaje,monto',
         ]);
 
         DB::table('promociones')->insert([
@@ -35,7 +35,6 @@ class PromocionController extends Controller
             'fecha_inicio' => $request->input('fecha_inicio'),
             'fecha_fin' => $request->input('fecha_fin'),
             'descuento' => $request->input('descuento'),
-            'tipo_descuento' => $request->input('tipo_descuento'),
 
         ]);
 
@@ -49,26 +48,24 @@ class PromocionController extends Controller
        
         // Validación de datos
         $request->validate([
-            'id_promocion' => 'required|exists:promociones,id_promocion|int', // Asegúrate de que el id exista
-            'nombre' => 'required|string|max:255',
-            'descripcion' => 'nullable|string|max:255',
-            'fecha_inicio' => 'required|date',
-            'fecha_fin' => 'required|date|after_or_equal:fecha_inicio',
-            'descuento' => 'required|numeric|min:0',
-            'estado' => 'required|int|in:0,1', // Asegúrate de que el estado sea un entero
-            'tipo_descuento' => 'required|in:porcentaje,monto', // Puede ser 'porcentaje' o 'monto'
+            'modal_id_promocion' => 'required|exists:promociones,id_promocion|int', // Asegúrate de que el id exista
+            'modal_nombre' => 'required|string|max:255',
+            'modal_descripcion' => 'nullable|string|max:255',
+            'modal_fecha_inicio' => 'required|date',
+            'modal_fecha_fin' => 'required|date|after_or_equal:fecha_inicio',
+            'modal_descuento' => 'required|numeric|min:0',
+            'modal_estado' => 'required|int|in:0,1', // Asegúrate de que el estado sea un entero
         ]);
 
         DB::table('promociones')
-        ->where('id_promocion', $request->input('id_promocion'))
+        ->where('id_promocion', $request->input('modal_id_promocion'))
         ->update([
-            'nombre' => $request->input('nombre'),
-            'descripcion' => $request->input('descripcion'),
-            'fecha_inicio' => $request->input('fecha_inicio'),
-            'fecha_fin' => $request->input('fecha_fin'),
-            'descuento' => $request->input('descuento'),
-            'estado' => $request->input('estado'),
-            'tipo_descuento' => $request->input('tipo_descuento'),
+            'nombre' => $request->input('modal_nombre'),
+            'descripcion' => $request->input('modal_descripcion'),
+            'fecha_inicio' => $request->input('modal_fecha_inicio'),
+            'fecha_fin' => $request->input('modal_fecha_fin'),
+            'descuento' => $request->input('modal_descuento'),
+            'estado' => $request->input('modal_estado'),
         ]);
           return redirect()->route('views.promo')->with('success', 'Promoción modificada correctamente.');
 

@@ -15,27 +15,37 @@
                         <thead>
                             <tr>
                                 <th>id</th>
+                                <th>Motivo</th>
                                 <th>descripción</th>
                                 <th>monto</th>
                                 <th>fecha</th>
                                 <th>categoria</th>
-                                <th>proveedor</th>
                                 <th>usuario</th>
-                                <th>acciones</th>
+                                <th style="text-align: center">acciones</th>
                             </tr>
                         </thead>
                         <tbody>
                             @foreach ($gastos as $gasto)
                             <tr>
                                 <td>{{ $gasto->id_gasto }}</td>
+                                <td>{{ $gasto->motivo }}</td>
                                 <td>{{ $gasto->descripcion }}</td>
                                 <td>{{ $gasto->monto }}</td>
                                 <td>{{ $gasto->fecha_gasto }}</td>
                                 <td>{{ $gasto->categoria }}</td>
-                                <td>{{ $gasto->id_proveedor }}</td>
-                                <td>{{ $gasto->id_usuario }}</td>
+                                <td>{{ $gasto->id_usuario }} - {{ $gasto->nombre_usuario }}</td>
                                 <td class="d-flex justify-content-center align-items-center gap-2">
-                                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#vermodificargastos" data-id="{{ $gasto->id_gasto }}" onclick="document.getElementById('modal_id_gasto').value = {{ $gasto->id_gasto }}">Modificar</button>
+                                    <button class="btn btn-primary" 
+                                    data-bs-toggle="modal" 
+                                    data-bs-target="#vermodificargastos"
+                                    data-id="{{ $gasto->id_gasto }}"
+                                    data-motivo="{{ $gasto->motivo }}"
+                                    data-descripcion="{{ $gasto->descripcion }}"
+                                    data-monto="{{ $gasto->monto }}"
+                                    data-fecha_gasto="{{ $gasto->fecha_gasto }}"
+                                    data-categoria="{{ $gasto->categoria }}">
+                                    Modificar
+                                    </button>
                                     <form class="m-0 d-flex" action="{{route('gastos.borrar' , ['id_gasto' => $gasto->id_gasto])}}" method="POST">
                                         @csrf
                                         @method('DELETE')
@@ -61,7 +71,9 @@
 
     
 </div>
-@endsection 
+
+
+
 
 <!-- Modal agregar de gastos -->
 <div class="modal fade" id="veragregargastos" tabindex="-1" aria-labelledby="veragregargastosLabel" aria-hidden="true">
@@ -76,6 +88,10 @@
                 <div class="modal-body">
                     <!-- Campos para agregar productos -->
                    
+                    <div class="mb-3">
+                        <label for="motivo" class="form-label">Motivo</label>
+                        <input type="text" class="form-control" id="motivo" name="motivo" >
+                    </div>
                     <div class="mb-3">
                         <label for="descripcion" class="form-label">Descripción</label>
                         <input type="text" class="form-control" id="descripcion" name="descripcion" required>
@@ -93,10 +109,6 @@
                             <option value="cotidiano">Cotidiano</option>
                             <option value="deudas">Deudas</option>
                         </select>
-                    </div>
-                    <div class="mb-3">
-                        <label for="proveedor" class="form-label">Proveedor</label>
-                        <input type="number" class="form-control" id="id_proveedor" name="id_proveedor" required>
                     </div>
                     <div class="mb-3">
                         <label for="id_usuario" class="form-label">Usuario</label>
@@ -128,6 +140,10 @@
                 </div>
                 <div class="modal-body">
                     <div class="mb-3">
+                        <label for="motivo" class="form-label">Motivo</label>
+                        <input type="text" class="form-control" id="motivo" name="motivo" >
+                    </div>
+                    <div class="mb-3">
                         <label for="descripcion" class="form-label">Descripción</label>
                         <input type="text" class="form-control" id="descripcion" name="descripcion" required>
                     </div>
@@ -144,14 +160,6 @@
                             <option value="deudas">Deudas</option>
                         </select>
                     </div>
-                    <div class="mb-3">
-                        <label for="proveedor" class="form-label">Proveedor</label>
-                        <input type="number" class="form-control" id="id_proveedor" name="id_proveedor" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="id_usuario" class="form-label">Usuario</label>
-                        <input type="number" class="form-control" id="id_usuario" name="id_usuario" value="{{ auth()->id() }}" readonly>
-                    </div>
                 </div>
                 <div class="modal-footer">
                     <button type="submit" class="btn btn-success">Modificar Gasto</button>
@@ -161,3 +169,28 @@
         </div>
     </div>
 </div>
+
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const modificargastosModal = document.getElementById('vermodificargastos');
+        modificargastosModal.addEventListener('show.bs.modal', function (event) {
+            const button = event.relatedTarget;
+    
+            const id = button.getAttribute('data-id');
+            const descripcion = button.getAttribute('data-descripcion');
+            const monto = button.getAttribute('data-monto');
+            const categoria = button.getAttribute('data-categoria');
+            const motivo = button.getAttribute('data-motivo');
+            modificargastosModal.querySelector('#modal_id_gasto').value = id;
+            modificargastosModal.querySelector('#descripcion').value = descripcion;
+            modificargastosModal.querySelector('#monto').value = monto;
+            modificargastosModal.querySelector('#categoria').value = categoria;
+            modificargastosModal.querySelector('#motivo').value = motivo;
+        });
+    });
+    </script>
+@endsection 
+
+

@@ -24,7 +24,7 @@ class proveedorescontroller extends Controller
             'direccion' => 'required|string|max:255',
             'email' => 'required|string|max:255',
             'nom_preventista' => 'required|string|max:255',
-            'num_preventista' => 'required|int|max:15',
+            'num_preventista' => 'required|int|numeric:15',
         ]);
 
         DB::table('proveedores')->insert([
@@ -32,7 +32,7 @@ class proveedorescontroller extends Controller
             'telefono' => $request->input('telefono'),
             'direccion' => $request->input('direccion'),
             'email' => $request->input('email'),
-            'nombre_preventista' => $request->input('nombre_preventista'),
+            'nombre_preventista' => $request->input('nom_preventista'),
             'num_preventista' => $request->input('num_preventista'),
         ]);
 
@@ -41,30 +41,30 @@ class proveedorescontroller extends Controller
 
     }
     public function modificar(Request $request)
-    {
-
-       
+    {     
         // Validación de datos
         $request->validate([
-            'id_proveedor' => 'required|exists:proveedores,id_proveedor|int', // Asegúrate de que el id exista
-            'nombre' => 'required|string|max:255',
-            'telefono' => 'nullable|int',
-            'direccion' => 'required|string|max:255',
-            'email' => 'required|string|max:255',
-            'nom_preventista' => 'required|string|max:255',
-            'num_preventista' => 'required|int|max:15',
+            'modal_id_proveedor' => 'required|exists:proveedores,id_proveedor|int', // Asegúrate de que el id exista
+            'modal_nombre' => 'required|string|max:255',
+            'modal_telefono' => 'required|int',
+            'modal_direccion' => 'required|string|max:255',
+            'modal_email' => 'required|string|max:255',
+            'modal_nom_preventista' => 'required|string|max:255',
+            'modal_num_preventista' => 'required|int|numeric:15',
         ]);
 
         DB::table('proveedores')
-        ->where('id_proveedor', $request->input('id_proveedor'))
+        ->where('id_proveedor', $request->input('modal_id_proveedor'))
         ->update([
-            'nombre' => $request->input('nombre'),
-            'telefono' => $request->input('telefono'),
-            'direccion' => $request->input('direccion'),
-            'email' => $request->input('email'),
-            'nombre_preventista' => $request->input('nombre_preventista'),
-            'num_preventista' => $request->input('num_preventista'),
+            'nombre' => $request->input('modal_nombre'),
+            'telefono' => $request->input('modal_telefono'),
+            'direccion' => $request->input('modal_direccion'),
+            'email' => $request->input('modal_email'),
+            'nombre_preventista' => $request->input('modal_nom_preventista'),
+            'num_preventista' => $request->input('modal_num_preventista'),
         ]);
+
+        
           return redirect()->route('views.proveedores')->with('success', 'Proveedor modificado correctamente.');
 
     }

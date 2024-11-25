@@ -8,12 +8,10 @@ use App\Http\Controllers\proveedorescontroller;
 use App\Http\Controllers\gastoscontroller;
 use App\Http\Controllers\empleadoscontroller;
 use App\Http\Controllers\ventaController;
+use App\Http\Controllers\clienteController;
+use App\Http\Controllers\ComprasController;
 
 //rutas del login 
-
-Route::get('/', function () {
-    return view('welcome');
-});
 
 Route::get('/dashboard', function () {
     return view('welcome');
@@ -33,15 +31,9 @@ Route::get('/', function () {
     return view('welcome');
 }) ->name('views.ventas');
 
-Route::get('/compras', function () {
-    return view('compras');
-}) ->name('views.compras');
 Route::get('/ventas', function () {
     return view('welcome');
 }) ->name('views.ventas');
-Route::get('/promociones', function () {
-    return view('promociones');
-}) ->name('views.promo');
 Route::get('/historial', function () {
     return view('historial');
 }) ->name('views.historial');
@@ -54,15 +46,12 @@ Route::get('/anuladas', function () {
 Route::get('/lista', function () {
     return view('lista');
 }) ->name('views.lista');
-Route::get('/proveedores', function () {
-    return view('proveedores');
-}) ->name('views.proveedores');
 Route::get('/empleados', function () {
     return view('empleados');
 }) ->name('views.empleados');
-Route::get('/clientes', function () {
-    return view('clientes');
-}) ->name('views.clientes');
+Route::get('/compras', function () {
+    return view('compras');
+}) ->name('views.compras');
 
 
 
@@ -76,8 +65,10 @@ Route::delete('/promociones/{id_promocion}', [PromocionController::class, 'borra
 //rutas para lista
 Route::get('/lista', [listacontroller::class, 'mostrar'])->name('views.lista');
 Route::POST('/lista', [listacontroller::class, 'agregar'])->name('lista.agregar');
-Route::get('/lista/modificar', [listacontroller::class, 'modificar'])->name('lista.modificar');
+Route::POST('/lista/modificar', [listacontroller::class, 'modificar'])->name('lista.modificar');
 Route::delete('/lista/{id_producto}', [listacontroller::class, 'borrar'])->name('lista.borrar');
+Route::post('/lista/aumentar-precio-venta', [listacontroller::class, 'aumentarPrecioPorProveedor'])->name('productos.aumentarPrecio');
+Route::post('/lista/aumentar-precio-lista', [listacontroller::class, 'aumentarPreciolistaPorProveedor'])->name('productos.aumentarPreciolista');
 
 //rutas para proveedores
 
@@ -98,3 +89,16 @@ Route::get('/empleados', [empleadoscontroller::class, 'mostrar'])->name('views.e
 Route::POST('/empleados', [empleadoscontroller::class, 'agregar'])->name('empleados.agregar');
 Route::get('/empleados/modificar', [empleadoscontroller::class, 'modificar'])->name('empleados.modificar');
 Route::delete('/empleados/{id}', [empleadoscontroller::class, 'borrar'])->name('empleados.borrar');
+
+//ruta para clientes
+Route::get('/clientes', [clienteController::class, 'mostrar'])->name('views.clientes');
+Route::POST('/clientes', [clienteController::class, 'agregar'])->name('clientes.agregar');
+Route::get('/clientes/modificar', [clienteController::class, 'modificar'])->name('clientes.modificar');
+Route::delete('/clientes/{id_cliente}', [clienteController::class, 'borrar'])->name('clientes.borrar');
+
+
+//rutas para compras
+Route::get('/compras', [ComprasController::class, 'mostrar'])->name('views.compras');
+Route::post('/compras', [ComprasController::class, 'agregar'])->name('compras.agregar');
+// Ruta para obtener productos según el proveedor en select dependiente (ajax)
+Route::get('/productos-por-proveedor/{id}', [ComprasController::class, 'getProductosPorProveedor'])->name('productos-por-proveedor');

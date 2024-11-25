@@ -13,13 +13,6 @@
                 <div class="card-body d-flex flex-column">
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <h5 class="card-title">Venta</h5>
-                        <select class="form-select w-auto" name="lista_precio">
-                            <option selected>Lista de precio</option>
-                            <!-- Opciones de lista de precios -->
-                            <option value="1">Lista 1</option>
-                            <option value="2">Lista 2</option>
-                            <option value="3">Lista 3</option>
-                        </select>
                     </div>
                     
                     <div class="table-responsive flex-grow-1">
