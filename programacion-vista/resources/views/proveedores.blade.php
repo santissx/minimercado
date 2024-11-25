@@ -31,7 +31,19 @@
                                 <td>{{ $proveedor->email }}</td>
                                 <td>{{ $proveedor->nombre_preventista }} - {{ $proveedor->num_preventista }} </td>
                                 <td class="d-flex justify-content-center align-items-center gap-2">
-                                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#vermodificarproveedor" data-id="{{ $proveedor->id_proveedor }}" onclick="document.getElementById('modal_id_proveedor').value = {{ $proveedor->id_proveedor }}">Modificar</button>
+                                    <button class="btn btn-primary" 
+                                    data-bs-toggle="modal" 
+                                    data-bs-target="#vermodificarproveedor"
+                                    data-id="{{ $proveedor->id_proveedor }}"
+                                    data-nombre="{{ $proveedor->nombre }}"
+                                    data-telefono="{{ $proveedor->telefono }}"
+                                    data-direccion="{{ $proveedor->direccion }}"
+                                    data-email="{{ $proveedor->email }}"
+                                    data-nom_preventista="{{ $proveedor->nombre_preventista }}"
+                                    data-num_preventista="{{ $proveedor->num_preventista }}">
+                                    Modificar
+                                    </button>
+                                    
                                     <form class="m-0 d-flex" action="{{route('proveedores.borrar' , ['id_proveedor' => $proveedor->id_proveedor])}}" method="POST">
                                         @csrf
                                         @method('DELETE')
@@ -54,7 +66,8 @@
         @include('parciales.columna_derecha')
     </div>
 </div>
-@endsection
+
+
 
 <!-- Modal agregar proveedor -->
 <div class="modal fade" id="veragregarproveedor" tabindex="-1" aria-labelledby="veragregarproveedorLabel" aria-hidden="true">
@@ -107,27 +120,34 @@
         <div class="modal-content bg-dark">
             <form action="{{ route('proveedores.modificar') }}" method="GET">
                 @csrf
-               
-                <input type="text" name="id_proveedor" id="modal_id_proveedor">
+                <input type="text" name="modal_id_proveedor" id="modal_id_proveedor">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="vermodificarLabel">Modificar Proveedor</h5>
+                    <h5 class="modal-title" id="vermodificarproveedorLabel">Modificar Proveedor</h5>
                 </div>
                 <div class="modal-body">
                     <div class="mb-3">
-                        <label for="nombre" class="form-label">Nombre</label>
-                        <input type="text" class="form-control" id="nombre" name="nombre" required>
+                        <label for="modal_nombre" class="form-label">Nombre</label>
+                        <input type="text" class="form-control" id="modal_nombre" name="modal_nombre" required>
                     </div>
                     <div class="mb-3">
-                        <label for="telefono" class="form-label">Teléfono</label>
-                        <input type="text" class="form-control" id="telefono" name="telefono" required>
+                        <label for="modal_telefono" class="form-label">Teléfono</label>
+                        <input type="text" class="form-control" id="modal_telefono" name="modal_telefono" required>
                     </div>
                     <div class="mb-3">
-                        <label for="direccion" class="form-label">Dirección</label>
-                        <input type="text" class="form-control" id="direccion" name="direccion" required>
+                        <label for="modal_direccion" class="form-label">Dirección</label>
+                        <input type="text" class="form-control" id="modal_direccion" name="modal_direccion" required>
                     </div>
                     <div class="mb-3">
-                        <label for="email" class="form-label">Email</label>
-                        <input type="email" class="form-control" id="email" name="email" required>
+                        <label for="modal_email" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="modal_email" name="modal_email" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="modal_nom_preventista" class="form-label">nombre preventista</label>
+                        <input type="text" class="form-control" id="modal_nom_preventista" name="modal_nom_preventista" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="modal_num_preventista" class="form-label">numero del preventista</label>
+                        <input type="int" class="form-control" id="modal_num_preventista" name="modal_num_preventista" required>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -138,3 +158,37 @@
         </div>
     </div>
 </div>
+
+
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const vermodificarproveedorModal = document.getElementById('vermodificarproveedor');
+        vermodificarproveedorModal.addEventListener('show.bs.modal', function (event) {
+            const button = event.relatedTarget;
+    
+            const id = button.getAttribute('data-id');
+            const nombre = button.getAttribute('data-nombre');
+            const telefono = button.getAttribute('data-telefono');
+            const direccion = button.getAttribute('data-direccion');
+            const email = button.getAttribute('data-email');
+            const nom_preventista = button.getAttribute('data-nom_preventista');
+            const num_preventista = button.getAttribute('data-num_preventista');
+    
+            vermodificarproveedorModal.querySelector('#modal_id_proveedor').value = id;
+            vermodificarproveedorModal.querySelector('#modal_nombre').value = nombre;
+            vermodificarproveedorModal.querySelector('#modal_telefono').value = telefono;
+            vermodificarproveedorModal.querySelector('#modal_direccion').value = direccion;
+            vermodificarproveedorModal.querySelector('#modal_email').value = email;
+            vermodificarproveedorModal.querySelector('#modal_nom_preventista').value = nom_preventista;
+            vermodificarproveedorModal.querySelector('#modal_num_preventista').value = num_preventista;
+        });
+    });
+</script>
+
+
+
+@endsection
+
+
