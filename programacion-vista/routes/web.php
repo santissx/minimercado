@@ -10,6 +10,7 @@ use App\Http\Controllers\empleadoscontroller;
 use App\Http\Controllers\ventaController;
 use App\Http\Controllers\clienteController;
 use App\Http\Controllers\ComprasController;
+use App\Http\Controllers\ProductoController;
 
 //rutas del login 
 
@@ -102,3 +103,12 @@ Route::get('/compras', [ComprasController::class, 'mostrar'])->name('views.compr
 Route::post('/compras', [ComprasController::class, 'agregar'])->name('compras.agregar');
 // Ruta para obtener productos según el proveedor en select dependiente (ajax)
 Route::get('/productos-por-proveedor/{id}', [ComprasController::class, 'getProductosPorProveedor'])->name('productos-por-proveedor');
+Route::delete('/compras/{id_compra}', [ComprasController::class, 'eliminar'])->name('compras.eliminar');
+
+
+//rutas de ventas 
+
+Route::get('/buscar-productos', [ProductoController::class, 'buscar'])->name('productos.buscar');
+
+// Ruta para buscar promociones
+Route::get('/buscar-promociones', [PromocionController::class, 'buscar'])->name('buscar.promociones');

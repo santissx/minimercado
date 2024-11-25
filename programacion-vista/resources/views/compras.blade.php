@@ -42,9 +42,11 @@
                                     </td>
                                     <td>{{ $compra->id_proveedor }} - {{ $compra->proveedor }}</td>
                                     <td class="d-flex justify-content-center align-items-center gap-2">
-                                        <button class="btn btn-info" data-bs-toggle="modal" data-bs-target="" data-id="" onclick="">Ver Detalle</button>
-                                        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="" data-id="" onclick="">Modificar</button>
-                                        <button type="submit" class="btn btn-danger">Eliminar</button>
+                                        <form action="{{ route('compras.eliminar', $compra->id_compra) }}" method="POST" >
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="btn btn-danger">Eliminar</button>
+                                        </form>
                                     </td>
                                 </tr>
                             @endforeach
@@ -186,8 +188,7 @@
                     select.innerHTML = '<option value="">Seleccione un producto</option>';
                 });
             }
-        }
-
+            }
         // Eliminar un producto
         productosContainer.addEventListener('click', (event) => {
             if (event.target.classList.contains('remove-producto')) {

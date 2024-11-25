@@ -82,4 +82,16 @@ public function agregar(Request $request)
     // Redirigir a la lista de compras con un mensaje de éxito
     return redirect()->route('views.compras')->with('success', 'Compra agregada correctamente.');
 }
+
+public function eliminar($id_compra)
+{
+    // Eliminar los registros relacionados en productosxcompras
+    DB::table('productosxcompras')->where('id_compra', $id_compra)->delete();
+
+    // Eliminar la compra
+    DB::table('compras')->where('id_compra', $id_compra)->delete();
+
+    // Redirigir con un mensaje de éxito
+    return redirect()->route('views.compras')->with('success', 'Compra eliminada correctamente.');
+}
 }
