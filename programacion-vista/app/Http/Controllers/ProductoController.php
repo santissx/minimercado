@@ -19,5 +19,5 @@ class ProductoController extends Controller
 
         return response()->json($productos); // Devuelve los datos en formato JSON
     }
-  
+
 }

@@ -81,20 +81,5 @@ class PromocionController extends Controller
     }
 
 
-    public function buscar(Request $request)
-{
-    $termino = $request->get('q');
-    if (empty($termino)) {
-        return response()->json([], 200); // Si no se pasa término, se devuelve un arreglo vacío
-    }
-
-    // Filtramos las promociones que coinciden con el nombre o código
-    $promociones = DB::table('promociones')
-        ->where('nombre', 'like', "%$termino%")
-        ->orWhere('codigo', 'like', "%$termino%")
-        ->get();
-
-    return response()->json($promociones);
-}
     }
 

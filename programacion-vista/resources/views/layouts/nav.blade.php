@@ -14,15 +14,7 @@
 <body>
     <!-- Barra de navegación -->
     <nav class="navbar navbar-expand-lg navbar-dark">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="#">
-                <span class="me-2">*</span>
-                <span class="me-2">|||</span>
-                <span>🏷️</span>
-            </a>
-            <form class="d-flex flex-grow-1 mx-4">
-                <input class="form-control" type="search" placeholder="BUSCAR POR NOMBRE, CODIGO O CUALQUIERA...">
-            </form>
+        
             <span class="navbar-text">
                 {{ auth()->user()->name }}
             </span>

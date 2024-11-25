@@ -7,11 +7,12 @@ use App\Http\Controllers\listacontroller;
 use App\Http\Controllers\proveedorescontroller;
 use App\Http\Controllers\gastoscontroller;
 use App\Http\Controllers\empleadoscontroller;
-use App\Http\Controllers\ventaController;
 use App\Http\Controllers\clienteController;
 use App\Http\Controllers\ComprasController;
 use App\Http\Controllers\ProductoController;
-
+use App\Http\Controllers\VentaController;
+use App\Http\Controllers\HistorialController;
+use App\Http\Controllers\VentasAnuController;
 //rutas del login 
 
 Route::get('/dashboard', function () {
@@ -27,10 +28,6 @@ Route::middleware('auth')->group(function () {
 require __DIR__.'/auth.php';
 
 //rutas del sistema
-
-Route::get('/', function () {
-    return view('welcome');
-}) ->name('views.ventas');
 
 Route::get('/ventas', function () {
     return view('welcome');
@@ -109,6 +106,21 @@ Route::delete('/compras/{id_compra}', [ComprasController::class, 'eliminar'])->n
 //rutas de ventas 
 
 Route::get('/buscar-productos', [ProductoController::class, 'buscar'])->name('productos.buscar');
+// Ruta para obtener los métodos de pago
+Route::get('/ventas', [VentaController::class, 'mostrar'])->name('views.ventas');
 
-// Ruta para buscar promociones
-Route::get('/buscar-promociones', [PromocionController::class, 'buscar'])->name('buscar.promociones');
+Route::post('/ventas/guardar', [VentaController::class, 'guardar'])->name('ventas.guardar');
+
+Route::get('/obtener-clientes-corrientes', [VentaController::class, 'obtenerClientesCorrientes']);
+
+
+//rutas para historial
+Route::get('/historial', [HistorialController::class, 'mostrar'])->name('views.historial');
+Route::delete('/ventas/{id}/anular', [HistorialController::class, 'anularVenta'])->name('ventas.anular');
+
+Route::get('/detalle-venta/{id}', [HistorialController::class, 'obtenerDetalleVenta'])->name('detalle.venta');
+
+Route::post('/ventas/anular', [HistorialController::class, 'anularVenta'])->name('ventas.anular');
+
+
+Route::get('/anuladas', [VentasAnuController::class, 'index'])->name('views.anuladas');
