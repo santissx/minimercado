@@ -1,7 +1,7 @@
 
 @extends('layouts.nav')
 
-@section('title', 'Historial')
+@section('title', 'Gastos')
 
 @section('ladoizq')
 <div class="row h-100">
@@ -10,7 +10,7 @@
         <div class="card mb-3 flex-grow-1 left-table position-relative">
             <div class="card-body d-flex flex-column">
                 <h5 class="card-title">Historial de gastos</h5>
-                <div class="table-responsive flex-grow-1">
+                <div class="table-responsive flex-grow-1 table-scrollgr">
                     <table class="table table-dark table-striped">
                         <thead>
                             <tr>
@@ -57,11 +57,13 @@
                         </tbody>
                     </table>
                 </div>
-                <div class="action-buttons">   
-                    <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#veragregargastos">Agregar Gastos</button>
-                </div>
+            </div>
+            <div class="action-buttons mt-3">   
+                <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#veragregargastos">Agregar Gastos</button>
             </div>
         </div>
+       
+        <strong> <label for="totalcompras" >Gastos totales: ${{ number_format($totalgastos, 2) }}</label>  </strong>
     </div>
 
     <!-- Columna derecha superior -->
@@ -133,7 +135,7 @@
             <form action="{{ route('gastos.modificar') }}" method="GET">
                 @csrf
                
-                <input type="text" name="id_gasto" id="modal_id_gasto">
+                <input type="hidden" name="id_gasto" id="modal_id_gasto">
                 <div class="modal-header">
                     <h5 class="modal-title" id="vermodifgastosLabel">modificar Gasto</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>

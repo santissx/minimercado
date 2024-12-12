@@ -1,21 +1,31 @@
+
 @extends('layouts.nav')
 
 @section('title', 'Venta')
 
 @section('ladoizq')
+@if ($errors->any())
+    <div class="alert alert-danger">
+        @foreach ($errors->all() as $error)
+            <p>{{ $error }}</p>
+        @endforeach
+    </div>
+@endif
+
 <form method="POST" action="{{ route('ventas.guardar') }}">
     @csrf
     <div class="row h-100">
         <div class="col-lg-8 d-flex flex-column">
             <!-- Cuadro de Venta -->
             <div class="card mb-3 flex-grow-1 left-table position-relative">
-                <div class="card-body d-flex flex-column">
+                
+                <div class="card-body d-flex flex-column ">
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <h5 class="card-title">Venta</h5>
                     </div>
 
-                    <div class="table-responsive flex-grow-1">
-                        <table class="table table-dark table-striped">
+                    <div class="table-responsive flex-grow-1  table-scroll">
+                        <table class="table table-dark table-striped ">
                             <thead>
                                 <tr>
                                     <th>Código del producto</th>
@@ -31,14 +41,15 @@
                         </table>
                     </div>
 
-                    <div class="action-buttons">
-                        <button type="button" class="btn btn-primary me-2" data-bs-toggle="modal" data-bs-target="#buscarProductoModal">
-                            Agregar Producto
-                        </button>
-                        <button type="submit" class="btn btn-success">Guardar venta</button>
-                    </div>
+                </div>
+                <div class="action-buttons">
+                    <button type="button" class="btn btn-primary me-2" data-bs-toggle="modal" data-bs-target="#buscarProductoModal">
+                        Agregar Producto
+                    </button>
+                    <button type="submit" class="btn btn-success">Guardar venta</button>
                 </div>
             </div>
+            
 
             <!-- Cuadro de Ventas Totales -->
             <div class="card">
@@ -91,6 +102,7 @@
                             <th>Código de barra</th>
                             <th>Nombre</th>
                             <th>Precio</th>
+                            <th>Stock</th>
                             <th>Acciones</th>
                         </tr>
                     </thead>
@@ -107,7 +119,7 @@
     document.getElementById('buscarProductoInput').addEventListener('input', function () {
         const termino = this.value;
 
-        if (termino.length > 2) { // Realiza la búsqueda después de 3 caracteres
+        if (termino.length > 1) { 
             fetch(`/buscar-productos?q=${encodeURIComponent(termino)}`)
                 .then(response => response.json())
                 .then(data => {
@@ -120,6 +132,7 @@
                             <td>${producto.codigo_barra}</td>
                             <td>${producto.nombre}</td>
                             <td>${producto.precio_venta}</td>
+                            <td>${producto.stock}</td>
                             <td>
                                 <button class="btn btn-success btn-sm agregar-producto" data-id="${producto.id_producto}">
                                     Agregar
@@ -134,7 +147,7 @@
     });
 
     //capturar evento agregar y agregar el producto:
-    document.addEventListener('click', function (e) {
+document.addEventListener('click', function (e) {
     if (e.target.classList.contains('agregar-producto')) {
         const fila = e.target.closest('tr'); // Encuentra la fila del producto
         const id_producto = e.target.dataset.id;
@@ -145,11 +158,7 @@
         const codigo_barra = fila.cells[0].textContent.trim();
         const nombre = fila.cells[1].textContent.trim();
         const precio = parseFloat(fila.cells[2].textContent.trim()); // Convertir a número
-
-        if (!id_producto) {
-            console.error('ID del producto es inválido.');
-            return;
-        }
+        const stock = parseInt(fila.cells[3].textContent.trim()); // Obtener el stock
 
         // Añadir producto a la tabla de ventas
         const tablaVentas = document.querySelector('.table tbody');
@@ -159,7 +168,7 @@
             <td>${codigo_barra}</td>
             <td>${nombre}</td>
             <td>
-                <input type="number" name="productos[${id_producto}][cantidad]" value="1" min="1" class="form-control cantidad" data-precio="${precio}" onchange="actualizarTotal(this)">
+                <input type="number" name="productos[${id_producto}][cantidad]" value="1" min="1" max="${stock}" class="form-control cantidad" data-precio="${precio}" data-stock="${stock}" onchange="actualizarTotal(this)">
                 <input type="hidden" name="productos[${id_producto}][id_producto]" value="${id_producto}">
                 <input type="hidden" name="productos[${id_producto}][precio]" value="${precio}">
             </td>
@@ -223,7 +232,7 @@ function toggleClientesCorrientes() {
     const metodoPago = document.getElementById('metodo_pago');
     const clientesCorrientesContainer = document.getElementById('clientes_corrientes_container');
     
-    if (metodoPago.value === '3') { // Assuming '3' is the id for 'Cliente Corriente'
+    if (metodoPago.value === '3') { 
         clientesCorrientesContainer.style.display = 'block';
         cargarClientesCorrientes();
     } else {
@@ -247,8 +256,7 @@ function cargarClientesCorrientes() {
         })
         .catch(error => console.error('Error:', error));
 }
-
-// Add this line to ensure the initial state is correct when the page loads
 document.addEventListener('DOMContentLoaded', toggleClientesCorrientes);
 </script>
 @endsection
+

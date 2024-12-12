@@ -5,11 +5,19 @@
 @section('ladoizq')
 <div class="row h-100">
     <div class="col-lg-8 d-flex flex-column">
-        <!-- Cuadro de promociones -->
+        <form action="{{ route('views.lista') }}" method="GET" class="d-flex align-items-center mb-3">
+            <input type="search" name="search" class="form-control me-2" placeholder="Busque su producto" value="{{ $search }}">
+            <button type="submit" class="btn btn-primary">Buscar</button>
+        </form>
+        @if($productos->isEmpty())
+            <div class="alert alert-info" role="alert">
+                No se encontraron productos que coincidan con su búsqueda.
+            </div>
+        @else
         <div class="card mb-3 flex-grow-1 left-table position-relative">
             <div class="card-body d-flex flex-column">
                 <h5 class="card-title">Lista de Productos</h5>
-                <div class="table-responsive flex-grow-1">
+                <div class="table-responsive flex-grow-1 table-scrolllis" >
                     <table class="table table-dark table-striped">
                         <thead>
                             <tr>
@@ -22,7 +30,10 @@
                                 <th>Stock</th>
                                 <th>Proveedor</th>
                                 <th>Categoria</th>
+                                <th>Estado</th>
+                                @if(Auth::user()->rol === 'administrador')
                                 <th style="text-align: center">acciones</th>
+                                @endif
                             </tr>
                         </thead>
                         <tbody>
@@ -37,6 +48,9 @@
                                 <td>{{ $producto->stock }}</td>
                                 <td>{{ $producto->id_proveedor }} - {{ $producto->nombre_proveedor }}</td>
                                 <td>{{ $producto->id_categoria }} - {{ $producto->categoria }}</td>
+                                <td>{{ $producto->estado }}</td>
+                                
+                                @if(Auth::user()->rol === 'administrador')
                                 <td class="d-flex justify-content-center align-items-center gap-2 ">
                                     <button class="btn btn-primary" 
                                     data-bs-toggle="modal" 
@@ -49,7 +63,8 @@
                                     data-precio_venta="{{ $producto->precio_venta }}"
                                     data-stock="{{ $producto->stock }}"
                                     data-id_proveedor="{{ $producto->id_proveedor }}"
-                                    data-id_categoria="{{ $producto->id_categoria }}">
+                                    data-id_categoria="{{ $producto->id_categoria }}"
+                                    data-estado="{{ $producto->estado }}">
                                     Modificar
                                    </button>
                                     <form class="m-0 d-flex" action="{{route('lista.borrar' , ['id_producto' => $producto->id_producto])}}" method="POST">
@@ -58,11 +73,18 @@
                                         <button type="submit" class="btn btn-danger ">Eliminar</button>
                                     </form>
                                 </td>
+                                @endif
                             </tr>
                             @endforeach
                         </tbody>
                     </table>
                 </div>
+                
+            </div>
+            
+            @if(Auth::check())
+                    @if(Auth::user()->rol === 'administrador')
+                   
                 <div class="action-buttons">
                     <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#aumentarPreciosventaModal">
                         Aumentar precios de venta por proveedor
@@ -72,9 +94,11 @@
                     </button>
                     <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#agregarModal">Agregar Producto</button>
                 </div>
-            </div>
+                @endif
+            @endif
+            @endif
         </div>
-
+        
     </div>
 
     <!-- Columna derecha superior -->
@@ -144,6 +168,7 @@
                         <label for="stock" class="form-label">Stock</label>
                         <input type="number" class="form-control" id="stock" name="stock" min="0" required>
                     </div>
+                    
                 </div>
                 <div class="modal-footer">
                     <button type="submit" class="btn btn-success">Guardar Producto</button>
@@ -211,6 +236,13 @@
                     <div class="mb-3">
                         <label for="stock" class="form-label">Stock</label>
                         <input type="number" class="form-control" id="stock" name="stock" min="0" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="estado" class="form-label">Estado</label>
+                        <select name="estado" id='estado'>
+                            <option value="activo">Activo</option>
+                            <option value="desactivado" >Desactivado</option>
+                          </select>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -307,6 +339,7 @@
             const stock = button.getAttribute('data-stock');
             const id_proveedor = button.getAttribute('data-id_proveedor');
             const id_categoria = button.getAttribute('data-id_categoria');
+            const estado = button.getAttribute('data-estado');
     
             vermodificarproducModal.querySelector('#id_producto').value = id_producto;
             vermodificarproducModal.querySelector('#nombre').value = nombre;
@@ -317,6 +350,7 @@
             vermodificarproducModal.querySelector('#stock').value = stock;
             vermodificarproducModal.querySelector('#id_proveedor').value = id_proveedor;
             vermodificarproducModal.querySelector('#id_categoria').value = id_categoria;
+            vermodificarproducModal.querySelector('#estado').value = estado;
         });
     });
 </script>

@@ -8,7 +8,7 @@
         <div class="card mb-3 flex-grow-1 left-table position-relative">
             <div class="card-body d-flex flex-column">
                 <h5 class="card-title">Proveedores</h5>
-                <div class="table-responsive flex-grow-1">
+                <div class="table-responsive flex-grow-1 table-scrollgr">
                     <table class="table table-dark table-striped">
                         <thead>
                             <tr>
@@ -18,6 +18,7 @@
                                 <th>Dirección</th>
                                 <th>Email</th>
                                 <th>Nombre y Numero de Preventista</th>
+                                <th>Estado</th>
                                 <th style="text-align: center">Acciones</th>
                             </tr>
                         </thead>
@@ -30,6 +31,7 @@
                                 <td>{{ $proveedor->direccion }}</td>
                                 <td>{{ $proveedor->email }}</td>
                                 <td>{{ $proveedor->nombre_preventista }} - {{ $proveedor->num_preventista }} </td>
+                                <td>{{ $proveedor->estado }}</td>
                                 <td class="d-flex justify-content-center align-items-center gap-2">
                                     <button class="btn btn-primary" 
                                     data-bs-toggle="modal" 
@@ -40,7 +42,8 @@
                                     data-direccion="{{ $proveedor->direccion }}"
                                     data-email="{{ $proveedor->email }}"
                                     data-nom_preventista="{{ $proveedor->nombre_preventista }}"
-                                    data-num_preventista="{{ $proveedor->num_preventista }}">
+                                    data-num_preventista="{{ $proveedor->num_preventista }}"
+                                    data-estado="{{ $proveedor->estado }}">
                                     Modificar
                                     </button>
                                     
@@ -120,7 +123,7 @@
         <div class="modal-content bg-dark">
             <form action="{{ route('proveedores.modificar') }}" method="GET">
                 @csrf
-                <input type="text" name="modal_id_proveedor" id="modal_id_proveedor">
+                <input type="hidden" name="modal_id_proveedor" id="modal_id_proveedor">
                 <div class="modal-header">
                     <h5 class="modal-title" id="vermodificarproveedorLabel">Modificar Proveedor</h5>
                 </div>
@@ -147,7 +150,14 @@
                     </div>
                     <div class="mb-3">
                         <label for="modal_num_preventista" class="form-label">numero del preventista</label>
-                        <input type="int" class="form-control" id="modal_num_preventista" name="modal_num_preventista" required>
+                        <input type="text" class="form-control" id="modal_num_preventista" name="modal_num_preventista" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="modal_estado" class="form-label">Estado</label>
+                        <select id="modal_estado" class="form-control" name="modal_estado"  required>
+                            <option value="activo">activo</option>
+                            <option value="desactivado">desactivado</option>
+                        </select>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -175,6 +185,7 @@
             const email = button.getAttribute('data-email');
             const nom_preventista = button.getAttribute('data-nom_preventista');
             const num_preventista = button.getAttribute('data-num_preventista');
+            const estado = button.getAttribute('data-estado');
     
             vermodificarproveedorModal.querySelector('#modal_id_proveedor').value = id;
             vermodificarproveedorModal.querySelector('#modal_nombre').value = nombre;
@@ -183,6 +194,7 @@
             vermodificarproveedorModal.querySelector('#modal_email').value = email;
             vermodificarproveedorModal.querySelector('#modal_nom_preventista').value = nom_preventista;
             vermodificarproveedorModal.querySelector('#modal_num_preventista').value = num_preventista;
+            vermodificarproveedorModal.querySelector('#modal_estado').value = estado;
         });
     });
 </script>

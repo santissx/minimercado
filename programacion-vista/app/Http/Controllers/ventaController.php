@@ -22,8 +22,9 @@ class VentaController extends Controller
     {
         $clientesCorrientes = DB::table('clientes_corrientes')
             ->select('id_cliente', 'nombre_y_apellido', 'dni')
+            ->where('estado', 'activo')
             ->get();
-        
+         
         return response()->json($clientesCorrientes);
     }
   
@@ -55,7 +56,8 @@ class VentaController extends Controller
                     ->first();
 
                     if (!$productoInfo || $productoInfo->stock < $producto['cantidad']) {
-                        throw new \Exception('Stock insuficiente para el producto: ' . $productoInfo->nombre);
+                        // Si no hay suficiente stock, redirigir con un mensaje de error específico
+                        return redirect()->back()->with('error', 'Stock insuficiente para el producto: ' . $productoInfo->nombre);
                     }
     
                     $montoTotal += $producto['precio'] * $producto['cantidad'];
@@ -97,7 +99,7 @@ class VentaController extends Controller
         } catch (\Exception $e) {
             // Si algo sale mal, deshacer la transacción
             DB::rollBack();
-            return back()->with('error', 'Error al guardar la venta: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'No se pudo guardar la venta. Inténtalo nuevamente.');
         }
     }
 }

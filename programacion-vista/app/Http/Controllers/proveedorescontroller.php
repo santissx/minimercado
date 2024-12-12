@@ -51,6 +51,7 @@ class proveedorescontroller extends Controller
             'modal_email' => 'required|string|max:255',
             'modal_nom_preventista' => 'required|string|max:255',
             'modal_num_preventista' => 'required|int|numeric:15',
+            'modal_estado' => 'required|string|max:255',
         ]);
 
         DB::table('proveedores')
@@ -62,6 +63,7 @@ class proveedorescontroller extends Controller
             'email' => $request->input('modal_email'),
             'nombre_preventista' => $request->input('modal_nom_preventista'),
             'num_preventista' => $request->input('modal_num_preventista'),
+            'estado' => $request->input('modal_estado'),
         ]);
 
         
@@ -73,7 +75,7 @@ class proveedorescontroller extends Controller
      
         DB::table('proveedores')
         ->where('id_proveedor', $id_proveedor)
-        ->delete();
+        ->update(['estado' => 'desactivado']);
         return redirect()->route('views.proveedores')->with('success', 'Proveedor eliminado correctamente.');
 
     }

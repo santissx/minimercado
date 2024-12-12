@@ -9,13 +9,13 @@
         <div class="card mb-3 flex-grow-1 left-table position-relative">
             <div class="card-body d-flex flex-column">
                 <h5 class="card-title">Lista de Compras</h5>
-                <div class="table-responsive flex-grow-1">
+                <div class="table-responsive flex-grow-1 table-scrollcom">
                     <table class="table table-dark table-striped">
                         <thead>
                             <tr>
                                 <th>ID Compra</th>
                                 <th>Monto Compra</th>
-                                <th>Fecha</th>
+                                <th>Fecha (A-M-D)</th>
                                 <th>Productos</th>
                                 <th>Proveedor</th>
                                 <th>Acciones</th>
@@ -53,11 +53,38 @@
                         </tbody>
                     </table>
                 </div>
-                <div class="action-buttons">
-                    <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#agregarCompraModal">Agregar Compra</button>
-                </div>
+                
             </div>
+            <div class="action-buttons">
+                <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#agregarCompraModal">Agregar Compra</button>
+            </div>
+
+            <strong> <label for="totalcompras" >Gasto en compras total: ${{ number_format($totalcompras, 2) }}</label>  </strong>
         </div>
+
+        <div class="filtros mb-3">
+            <form method="GET" action="{{ route('views.compras') }}">
+
+                <label for="selectproveedor" class="form-label">Filtrar por proveedor</label>
+                        <select class="form-select" id="selectproveedor" name="proveedor">
+                            <option value="">Selecciona un proveedor</option>
+                            @foreach ($proveedores as $proveedor)
+                                <option value="{{ $proveedor->id_proveedor }}">{{ $proveedor->nombre }}</option>
+                            @endforeach
+                        </select>
+
+                <label for="rango" class="form-label">Filtrar por rango de fechas</label>
+                <div class="input-group">
+                    <input type="date" class="form-control" name="fechainicio" placeholder="Fecha inicio">
+                    <span class="input-group-text">a</span>
+                    <input type="date" class="form-control" name="fechafin" placeholder="Fecha fin">
+                </div>
+                <button type="submit" class="btn btn-primary mt-3">Aplicar filtros</button>
+            </form>
+
+                
+        </div>
+
     </div>
 
     <div class="col-lg-4 right-column">

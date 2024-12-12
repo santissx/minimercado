@@ -50,6 +50,7 @@ class empleadoscontroller extends Controller
             'name' => 'required|string|max:255', 
             'email' => 'required|string|email|max:255|unique:users,email,' . $request->input('id'), 
             'rol' => 'required|in:administrador,empleado', 
+            'estado' => 'required|in:activo,desactivado', 
         ]);
 
         DB::table('users')
@@ -59,6 +60,7 @@ class empleadoscontroller extends Controller
             'name' => $request->input('name'),
             'email' => $request->input('email'),
             'rol' => $request->input('rol'),
+            'estado' => $request->input('estado'),
 
         ]);
           return redirect()->route('views.empleados')->with('success', 'Empleado modificado correctamente.');
@@ -69,8 +71,8 @@ class empleadoscontroller extends Controller
      
         DB::table('users')
         ->where('id', $id)
-    ->delete();
-        return redirect()->route('views.empleados')->with('success', 'Empleado eliminado correctamente.');
+        ->update(['estado' => 'desactivado']);
+        return redirect()->route('views.empleados')->with('success', 'Empleado dado de baja correctamente.');
 
     }
 }

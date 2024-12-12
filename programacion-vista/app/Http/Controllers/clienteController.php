@@ -44,6 +44,7 @@ class clienteController extends Controller
             'nombre_y_apellido' => 'required|string|max:255',
             'dni' => 'required|digits_between:5,12',
             'telefono' => 'required|digits_between:8,15',
+            'estado' => 'required|string|max:255',
         ]);
 
         DB::table('clientes_corrientes')
@@ -53,6 +54,7 @@ class clienteController extends Controller
             'nombre_y_apellido' => $request->input('nombre_y_apellido'),
             'DNI' => $request->input('dni'),
             'telefono' => $request->input('telefono'),
+            'estado' => $request->input('estado'),
 
         ]);
           return redirect()->route('views.clientes')->with('success', 'cliente modificado correctamente.');
@@ -63,8 +65,8 @@ class clienteController extends Controller
      
         DB::table('clientes_corrientes')
         ->where('id_cliente', $id_cliente)
-    ->delete();
-        return redirect()->route('views.clientes')->with('success', 'cliente eliminad correctamente.');
+        ->update(['estado' => 'desactivado']);
+        return redirect()->route('views.clientes')->with('success', 'cliente eliminado correctamente.');
 
     }
 }

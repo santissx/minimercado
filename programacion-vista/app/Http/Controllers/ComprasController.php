@@ -7,10 +7,22 @@ use Illuminate\Support\Facades\DB;
 
 class ComprasController extends Controller
 {
-    public function mostrar()
+    public function mostrar(Request $request)
     {
+
+        $proveedorId = $request->input('proveedor');
+        $fechaInicio = $request->input('fechainicio');
+        $fechaFin = $request->input('fechafin');
+
+        if ($fechaInicio) {
+            $fechaInicio = date('Y-m-d 00:00:00', strtotime($fechaInicio)); // Desde la medianoche
+        }
+        if ($fechaFin) {
+            $fechaFin = date('Y-m-d 23:59:59', strtotime($fechaFin)); // Hasta el final del día
+        }
+
         // Obtener las compras con sus productos asociados y sus proveedores
-        $compras = DB::table('compras')
+        $query = DB::table('compras')
             ->leftJoin('productosxcompras', 'compras.id_compra', '=', 'productosxcompras.id_compra')
             ->leftJoin('productos', 'productosxcompras.id_producto', '=', 'productos.id_producto')
             ->leftJoin('proveedores', 'productos.id_proveedor', '=', 'proveedores.id_proveedor')
@@ -22,20 +34,35 @@ class ComprasController extends Controller
                 'productosxcompras.cantidad_agregada',
                 'proveedores.id_proveedor as id_proveedor',
                 'proveedores.nombre as proveedor'
-            )
-            ->get();
+            );
+           
+            if ($proveedorId) {
+                $query->where('proveedores.id_proveedor', $proveedorId);
+            }
 
-          
+            if ($fechaInicio && $fechaFin) {
+                $query->whereBetween('compras.fecha', [$fechaInicio, $fechaFin]);
+            } elseif ($fechaInicio) {
+                $query->where('compras.fecha', '>=', $fechaInicio);
+            } elseif ($fechaFin) {
+                $query->where('compras.fecha', '<=', $fechaFin);
+            }
+            $compras = $query->get();
     // Agrupar los productos por compra
     $comprasAgrupadas = $compras->groupBy('id_compra');
 
     // Obtener la lista de proveedores
     $proveedores = DB::table('proveedores')->get();
 
+    // Calcular el total de compras
+    $totalcompras = DB::table('compras')
+    ->sum('monto_compra');
+
     // Pasar los datos a la vista
     return view('compras', [
         'compras' => $comprasAgrupadas,
         'proveedores' => $proveedores,
+        'totalcompras' => $totalcompras,
     ]);
 
     }

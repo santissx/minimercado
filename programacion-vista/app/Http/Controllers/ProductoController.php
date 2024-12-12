@@ -13,8 +13,11 @@ class ProductoController extends Controller
 
         // Búsqueda por nombre o código
         $productos = DB::table('productos')
-            ->where('nombre', 'like', '%' . $termino . '%')
-            ->orWhere('codigo', 'like', '%' . $termino . '%')
+             ->where(function ($query) use ($termino) {
+            $query->where('nombre', 'like', '%' . $termino . '%')
+            ->orWhere('codigo', 'like', '%' . $termino . '%');
+            })
+        ->where('estado', 'activo')
             ->get(); // Devuelve los resultados
 
         return response()->json($productos); // Devuelve los datos en formato JSON

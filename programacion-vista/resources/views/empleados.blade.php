@@ -10,7 +10,7 @@
         <div class="card mb-3 flex-grow-1 left-table position-relative">
             <div class="card-body d-flex flex-column">
                 <h5 class="card-title">Usuarios</h5>
-                <div class="table-responsive flex-grow-1">
+                <div class="table-responsive flex-grow-1 table-scrollgr" >
                     <table class="table table-dark table-striped">
                         <thead>
                             <tr>
@@ -18,6 +18,7 @@
                                 <th>Nombre</th>
                                 <th>Email</th>
                                 <th>Rol</th>
+                                <th>Estado</th>
                                 <th style="text-align: center">Acciones</th>
                             </tr>
                         </thead>
@@ -28,8 +29,15 @@
                                 <td>{{ $usuario->name }}</td>
                                 <td>{{ $usuario->email }}</td>
                                 <td>{{ $usuario->rol }}</td>
+                                <td>{{ $usuario->estado }}</td>
                                 <td class="d-flex justify-content-center align-items-center gap-2">
-                                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#vermodificarusuario" data-id="{{ $usuario->id }}" onclick="document.getElementById('modal_id_usuario').value = {{ $usuario->id }}">Modificar</button>
+                                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#vermodificarusuario" 
+                                    data-id="{{ $usuario->id }}"
+                                    data-name="{{ $usuario->name }}"
+                                    data-email="{{ $usuario->email }}"
+                                    data-rol="{{ $usuario->rol }}"
+                                    data-estado="{{ $usuario->estado }}"
+                                     onclick="document.getElementById('modal_id_usuario').value = {{ $usuario->id }}">Modificar</button>
                                     <form class="m-0 d-flex" action="{{route('empleados.borrar' , ['id' => $usuario->id])}}" method="POST">
                                         @csrf
                                         @method('DELETE')
@@ -112,17 +120,24 @@
                 <div class="modal-body">
                     <div class="mb-3">
                         <label for="name" class="form-label">Nombre</label>
-                        <input type="text" class="form-control" id="name" name="name" required>
+                        <input type="text" class="form-control" id="name" name="name"  required>
                     </div>
                     <div class="mb-3">
                         <label for="email" class="form-label">Email</label>
-                        <input type="email" class="form-control" id="email" name="email" required>
+                        <input type="email" class="form-control" id="email" name="email"  required>
                     </div>
                     <div class="mb-3">
                         <label for="rol" class="form-label">Rol</label>
-                        <select id="rol" class="form-control" name="rol" required>
+                        <select id="rol" class="form-control" name="rol"   required>
                             <option value="administrador">Administrador</option>
                             <option value="empleado">Empleado</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="estado" class="form-label">Estado</label>
+                        <select id="estado" class="form-control" name="estado"   required>
+                            <option value="activo">activo</option>
+                            <option value="desactivado">desactivado</option>
                         </select>
                     </div>
                 </div>
@@ -134,6 +149,26 @@
         </div>
     </div>
 </div>
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const modificarusuarioModal = document.getElementById('vermodificarusuario');
+        modificarusuarioModal.addEventListener('show.bs.modal', function (event) {
+            const button = event.relatedTarget;
+            const id = button.getAttribute('data-id');
+            const name = button.getAttribute('data-name');
+            const email = button.getAttribute('data-email');
+            const rol = button.getAttribute('data-rol');
+            const estado = button.getAttribute('data-estado');
+            modificarusuarioModal.querySelector('#modal_id_usuario').value = id;
+            modificarusuarioModal.querySelector('#name').value = name;
+            modificarusuarioModal.querySelector('#email').value = email;
+            modificarusuarioModal.querySelector('#rol').value = rol;
+            modificarusuarioModal.querySelector('#estado').value = estado;
+        });
+    });
+    </script>
 @else
     <script>window.location = "{{ route('views.ventas') }}";</script>
 @endif

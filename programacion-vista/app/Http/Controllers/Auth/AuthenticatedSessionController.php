@@ -23,25 +23,34 @@ class AuthenticatedSessionController extends Controller
      * Handle an incoming authentication request.
      */
     public function store(LoginRequest $request): RedirectResponse
-    {
-         // Intenta autenticar al usuario
-    $request->authenticate();
+{
+        // Intenta autenticar al usuario
+        $request->authenticate();
 
-    // Regenera la sesión
-    $request->session()->regenerate();
+        // Obtiene el usuario autenticado
+        $user = Auth::user();
 
-      // Obtiene el usuario autenticado
-      $user = Auth::user();
+        // Verifica si el estado del usuario es "activo"
+        if ($user->estado !== 'activo') {
+            // Si el estado no es "activo", cierra la sesión y lanza un error
+            Auth::logout();
+            return redirect()->back()->withErrors([
+                'email' => 'Tu cuenta no está activa. Por favor, contacta al administrador.',
+            ]);
+        }
 
-      // Redirige según el rol del usuario
-      if ($user->rol === 'administrador') {
-          return redirect()->intended(route('views.ventas'));
-      } elseif ($user->rol === 'empleado') {
-          return redirect()->intended(route('views.ventas'));
-      } else {
-          // Si no tiene un rol reconocido, redirige a una ruta por defecto
-          return redirect()->intended(route('login'));
-      }
+        // Regenera la sesión
+        $request->session()->regenerate();
+
+        // Redirige según el rol del usuario
+        if ($user->rol === 'administrador') {
+            return redirect()->intended(route('views.ventas'));
+        } elseif ($user->rol === 'empleado') {
+            return redirect()->intended(route('views.ventas'));
+        } else {
+            // Si no tiene un rol reconocido, redirige a una ruta por defecto
+            return redirect()->intended(route('login'));
+        }
 }
     /**
      * Destroy an authenticated session.

@@ -15,7 +15,14 @@ class gastoscontroller extends Controller
         ->join('users', 'gastos.id_usuario', '=', 'users.id') 
         ->select('gastos.*', 'users.name as nombre_usuario' ) // Seleccionar los campos de interés
         ->get();
-        return view('gastos',['gastos' => $gastos]);
+
+        $totalgastos = DB::table('gastos')
+        ->sum('monto');
+
+        return view('gastos',[
+            'gastos' => $gastos,
+            'totalgastos' => $totalgastos,
+    ]);
     }
 
 

@@ -9,24 +9,38 @@ use Illuminate\Support\Facades\DB;
 
 class listacontroller extends Controller
 {
-    public function mostrar()
+    public function mostrar(Request $request)
     {
-        $productos = DB::table('productos')
-        ->join('categorias', 'productos.id_categoria', '=', 'categorias.id_categoria') 
-        ->join('proveedores', 'productos.id_proveedor', '=', 'proveedores.id_proveedor') 
-        ->select('productos.*', 'categorias.categoria as categoria' , 'proveedores.nombre as nombre_proveedor' ) // Seleccionar los campos de interés
+    $search = $request->input('search');
+
+    $query = DB::table('productos')
+        ->join('categorias', 'productos.id_categoria', '=', 'categorias.id_categoria')
+        ->join('proveedores', 'productos.id_proveedor', '=', 'proveedores.id_proveedor')
+        ->select('productos.*', 'categorias.categoria as categoria', 'proveedores.nombre as nombre_proveedor');
+
+    if ($search) {
+        $query->where(function($q) use ($search) {
+            $q->where('productos.nombre', 'LIKE', "%{$search}%")
+              ->orWhere('productos.codigo', 'LIKE', "%{$search}%")
+              ->orWhere('productos.codigo_barra', 'LIKE', "%{$search}%");
+        });
+    }
+
+    $productos = $query->get();
+
+    $proveedores = DB::table('proveedores')
+        ->where('estado', 'activo')
         ->get();
 
-        $proveedores = DB::table('proveedores')->get();
-        
-        $categorias = DB::table('categorias')->get();
+    $categorias = DB::table('categorias')->get();
 
-        return view('lista', [
-            'productos' => $productos,
-            'proveedores' => $proveedores,
-            'categorias' => $categorias
-        ]);
-    }
+    return view('lista', [
+        'productos' => $productos,
+        'proveedores' => $proveedores,
+        'categorias' => $categorias,
+        'search' => $search,
+    ]);
+    }   
     public function agregar(Request $request)
     {
         // Validación de datos
@@ -72,6 +86,7 @@ class listacontroller extends Controller
             'id_proveedor' => 'required|int|min:1',
             'id_categoria' => 'required|int|min:1',
             'stock' => 'required|int',
+            'estado' => 'nullable|string|max:255',
         ]);
 
         DB::table('productos')
@@ -85,6 +100,7 @@ class listacontroller extends Controller
             'id_proveedor' => $request->input('id_proveedor'),
             'id_categoria' => $request->input('id_categoria'),
             'stock' => $request->input('stock'),
+            'estado' => $request->input('estado'),
         ]);
           return redirect()->route('views.lista')->with('success', 'Producto modificada correctamente.');
 
@@ -95,8 +111,8 @@ class listacontroller extends Controller
      
         DB::table('productos')
         ->where('id_producto', $id_producto)
-        ->delete();
-        return redirect()->route('views.lista')->with('success', 'Producto eliminado correctamente.');
+        ->update(['estado' => 'desactivado']);
+         return redirect()->route('views.lista')->with('success', 'Producto Eliminado correctamente.');
 
     }
 

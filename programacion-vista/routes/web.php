@@ -13,11 +13,12 @@ use App\Http\Controllers\ProductoController;
 use App\Http\Controllers\VentaController;
 use App\Http\Controllers\HistorialController;
 use App\Http\Controllers\VentasAnuController;
+use App\Http\Controllers\FallbackController;
+use App\Http\Middleware\AdminMiddleware;
 //rutas del login 
 
-Route::get('/dashboard', function () {
-    return view('welcome');
-})->middleware(['auth', 'verified'])->name('dashboard');
+Route::get('/dashboard', [VentaController::class, 'mostrar'])->middleware(['auth', 'verified'])->name('dashboard');
+
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -29,52 +30,23 @@ require __DIR__.'/auth.php';
 
 //rutas del sistema
 
-Route::get('/ventas', function () {
-    return view('welcome');
-}) ->name('views.ventas');
-Route::get('/historial', function () {
-    return view('historial');
-}) ->name('views.historial');
-Route::get('/gastos', function () {
-    return view('gastos');
-})->name('views.gastos');
-Route::get('/anuladas', function () {
-    return view('ventas_anu');
-}) ->name('views.anuladas');
-Route::get('/lista', function () {
-    return view('lista');
-}) ->name('views.lista');
-Route::get('/empleados', function () {
-    return view('empleados');
-}) ->name('views.empleados');
-Route::get('/compras', function () {
-    return view('compras');
-}) ->name('views.compras');
+Route::middleware(['admin'])->group(function () {
 
-
-
-//rutas para promociones
-Route::get('/promociones', [Promocioncontroller::class, 'mostrar'])->name('views.promo');
-Route::POST('/promociones', [Promocioncontroller::class, 'agregar'])->name('promociones.agregar');
-Route::get('/promociones/modificar', [PromocionController::class, 'modificar'])->name('promociones.modificar');
-Route::delete('/promociones/{id_promocion}', [PromocionController::class, 'borrar'])->name('promociones.borrar');
-
-
-//rutas para lista
-Route::get('/lista', [listacontroller::class, 'mostrar'])->name('views.lista');
-Route::POST('/lista', [listacontroller::class, 'agregar'])->name('lista.agregar');
-Route::POST('/lista/modificar', [listacontroller::class, 'modificar'])->name('lista.modificar');
-Route::delete('/lista/{id_producto}', [listacontroller::class, 'borrar'])->name('lista.borrar');
-Route::post('/lista/aumentar-precio-venta', [listacontroller::class, 'aumentarPrecioPorProveedor'])->name('productos.aumentarPrecio');
-Route::post('/lista/aumentar-precio-lista', [listacontroller::class, 'aumentarPreciolistaPorProveedor'])->name('productos.aumentarPreciolista');
-
-//rutas para proveedores
+    Route::get('/gastos', function () {
+        return view('gastos');
+    })->name('views.gastos');
+    Route::get('/empleados', function () {
+        return view('empleados');
+    }) ->name('views.empleados');
+    Route::get('/compras', function () {
+        return view('compras');
+    }) ->name('views.compras');
+    //rutas para proveedores
 
 Route::get('/proveedores', [proveedorescontroller::class, 'mostrar'])->name('views.proveedores');
 Route::POST('/proveedores', [proveedorescontroller::class, 'agregar'])->name('proveedores.agregar');
 Route::get('/proveedores/modificar', [proveedorescontroller::class, 'modificar'])->name('proveedores.modificar');
 Route::delete('/proveedores/{id_proveedor}', [proveedorescontroller::class, 'borrar'])->name('proveedores.borrar');
-
 
 //rutas gastos
 Route::get('/gastos', [gastoscontroller::class, 'mostrar'])->name('views.gastos');
@@ -103,6 +75,36 @@ Route::get('/productos-por-proveedor/{id}', [ComprasController::class, 'getProdu
 Route::delete('/compras/{id_compra}', [ComprasController::class, 'eliminar'])->name('compras.eliminar');
 
 
+
+});
+
+Route::get('/ventas', function () {
+    return view('welcome');
+}) ->name('views.ventas');
+Route::get('/historial', function () {
+    return view('historial');
+}) ->name('views.historial');
+Route::get('/lista', function () {
+    return view('lista');
+}) ->name('views.lista');
+Route::get('/anuladas', function () {
+    return view('ventas_anu');
+}) ->name('views.anuladas');
+
+
+
+
+//rutas para lista
+Route::get('/lista', [listacontroller::class, 'mostrar'])->name('views.lista');
+Route::POST('/lista', [listacontroller::class, 'agregar'])->name('lista.agregar');
+Route::POST('/lista/modificar', [listacontroller::class, 'modificar'])->name('lista.modificar');
+Route::delete('/lista/{id_producto}', [listacontroller::class, 'borrar'])->name('lista.borrar');
+Route::post('/lista/aumentar-precio-venta', [listacontroller::class, 'aumentarPrecioPorProveedor'])->name('productos.aumentarPrecio');
+Route::post('/lista/aumentar-precio-lista', [listacontroller::class, 'aumentarPreciolistaPorProveedor'])->name('productos.aumentarPreciolista');
+
+
+
+
 //rutas de ventas 
 
 Route::get('/buscar-productos', [ProductoController::class, 'buscar'])->name('productos.buscar');
@@ -124,3 +126,8 @@ Route::post('/ventas/anular', [HistorialController::class, 'anularVenta'])->name
 
 
 Route::get('/anuladas', [VentasAnuController::class, 'index'])->name('views.anuladas');
+
+Route::get('/ticket/{idVenta}', [HistorialController::class, 'generarTicket'])->name('ventas.ticket');
+
+Route::fallback([FallbackController::class, 'notFound']);
+

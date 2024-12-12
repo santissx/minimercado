@@ -10,7 +10,7 @@
         <div class="card mb-3 flex-grow-1 left-table position-relative">
             <div class="card-body d-flex flex-column">
                 <h5 class="card-title">Clientes</h5>
-                <div class="table-responsive flex-grow-1">
+                <div class="table-responsive flex-grow-1 table-scrollgr" >
                     <table class="table table-dark table-striped">
                         <thead>
                             <tr>
@@ -18,6 +18,7 @@
                                 <th>nombre y apellido</th>
                                 <th>dni</th>
                                 <th>telefono</th>
+                                <th>Estado</th>
                                 <th class="text-center">Acciones</th>
                             </tr>
                         </thead>
@@ -28,6 +29,7 @@
                                 <td>{{ $cliente->nombre_y_apellido }}</td>
                                 <td>{{ $cliente->DNI }}</td>
                                 <td>{{ $cliente->telefono }}</td>
+                                <td>{{ $cliente->estado }}</td>
                                 <td class="d-flex justify-content-center align-items-center gap-2">
                                     <button class="btn btn-primary" 
                                     data-bs-toggle="modal" 
@@ -35,7 +37,8 @@
                                     data-id="{{ $cliente->id_cliente }}"
                                     data-nombre_y_apellido="{{ $cliente->nombre_y_apellido }}"
                                     data-dni="{{ $cliente->DNI }}"
-                                    data-telefono="{{ $cliente->telefono }}">
+                                    data-telefono="{{ $cliente->telefono }}"
+                                    data-estado="{{ $cliente->estado }}">
                                     Modificar
                                     </button>
                                     <form class="m-0 d-flex" action="{{route('clientes.borrar' , ['id_cliente' => $cliente->id_cliente])}}" method="POST">
@@ -124,6 +127,13 @@
                         <input type="text" class="form-control" id="telefono" name="telefono" required>
                     </div>
                 </div>
+                <div class="mb-3">
+                    <label for="estado" class="form-label">Estado</label>
+                    <select name="estado" id='estado'>
+                        <option value="activo">Activo</option>
+                        <option value="desactivado" >Desactivado</option>
+                      </select>
+                </div>
                 <div class="modal-footer">
                     <button type="submit" class="btn btn-primary">Modificar cliente</button>
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
@@ -145,10 +155,12 @@
             const nombre_y_apellido = button.getAttribute('data-nombre_y_apellido');
             const dni = button.getAttribute('data-dni');
             const telefono = button.getAttribute('data-telefono');
+            const estado = button.getAttribute('data-estado');
             modificarclienteModal.querySelector('#modal_id_cliente').value = id;
             modificarclienteModal.querySelector('#nombre_y_apellido').value = nombre_y_apellido;
             modificarclienteModal.querySelector('#dni').value = dni;
             modificarclienteModal.querySelector('#telefono').value = telefono;
+            modificarclienteModal.querySelector('#estado').value = estado;
         });
     });
     </script>

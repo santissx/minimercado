@@ -103,3 +103,47 @@ td .btn {
     cursor: not-allowed; /* Indicar que no es editable */
     opacity: 0.7; /* Reducir opacidad */
 }
+
+.table-scroll {
+    max-height: 50vh; /* Ajusta la altura según necesites */
+    overflow-y: scroll;
+}
+
+.table-scrollhist {
+    max-height: 60vh; /* Ajusta la altura según necesites */
+    overflow-y: scroll;
+}
+
+.table-scrollgr {
+    max-height: 75vh; /* Ajusta la altura según necesites */
+    overflow-y: scroll;
+}
+.table-scrolllis {
+    max-height: 70vh; /* Ajusta la altura según necesites */
+    overflow-y: scroll;
+}
+.table-scrollcom {
+    max-height: 65vh; /* Ajusta la altura según necesites */
+    overflow-y: scroll;
+}
+
+@media print {
+    body * {
+        visibility: hidden; /* Oculta todo el contenido */
+    }
+
+    .printable-area, .printable-area * {
+        visibility: visible; /* Muestra solo el contenido de la sección */
+    }
+
+    .printable-area {
+        position: absolute; /* Asegura que esté en la parte superior */
+        top: 0;
+        left: 0;
+        width: 100%;
+    }
+
+    .d-print-none {
+        display: none !important; /* Oculta elementos no imprimibles */
+    }
+}

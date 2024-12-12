@@ -10,16 +10,17 @@
         <div class="card mb-3 flex-grow-1 left-table position-relative">
             <div class="card-body d-flex flex-column">
                 <h5 class="card-title">Historial de ventas</h5>
-                <div class="table-responsive flex-grow-1">
+                <div class="table-responsive flex-grow-1 table-scrollhist">
                     <table class="table table-dark table-striped">
                         <thead>
                             <tr>
                                 <th>id_venta</th>
                                 <th>vendedor</th>
-                                <th>fecha venta</th>
+                                <th>fecha venta (A-M-D)</th>
                                 <th>monto con descuento</th>
                                 <th>descuento</th>
                                 <th>metodo de pago</th>
+                                <th>Cliente</th>
                                 <th>Acciones</th>
                             </tr>
                         </thead>
@@ -32,6 +33,12 @@
                                 <td>{{ $venta->monto_total }}</td>
                                 <td>{{ $venta->descuento }}</td>
                                 <td>{{ $venta->metodo_pago }}</td>
+                                <td>  @if($venta->clientec)
+                                    {{ $venta->clientec }} - {{ $venta->nombre_clientec }}
+                                    @else
+                                    N/A
+                                    @endif
+                                </td>
                                 <td class="d-flex justify-content-center align-items-center gap-2">
                                     <button name="boton detalle"
                                     type="button" 
@@ -49,6 +56,9 @@
                                     data-bs-target="#modalAnularVenta">
                                     Anular
                                     </button>
+
+                                     <a href="{{ route('ventas.ticket', $venta->id_venta) }}" class="btn btn-sm btn-secondary">Ver Ticket</a>
+
                                 </td>
                             </tr>
                             @endforeach
@@ -74,6 +84,8 @@
                         </div>
                         <button type="submit" class="btn btn-primary mt-3">Aplicar filtros</button>
                     </form>
+                    <label for="total_ventas">Venta total: ${{ number_format($totalVentas, 2) }}</label>  
+
                         
                 </div>
                 
@@ -135,7 +147,7 @@
             <div class="modal-body">
                 <form id="formAnularVenta" action="{{ route('ventas.anular') }}" method="POST">
                     @csrf
-                    <input type="text" name="id_venta" id="id_venta" readonly>
+                    <input type="hidden" name="id_venta" id="id_venta" readonly>
                     <input type="hidden" name="id_usuario_anulador" value="{{ auth()->id() }}">
                     <div class="mb-3">
                         <label for="descripcion" class="form-label">Motivo de Anulación</label>
@@ -177,6 +189,7 @@
                                     <td>${producto.producto}</td>
                                     <td>${producto.cantidad}</td>
                                     <td>${producto.precio}</td>
+                                    
                                 </tr>
                             `;
                             tbody.innerHTML += row;
