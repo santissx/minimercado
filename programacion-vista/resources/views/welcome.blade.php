@@ -52,7 +52,7 @@
             
 
             <!-- Cuadro de Ventas Totales -->
-            <div class="card">
+            <div class="filtros mb-3 p-3 bg-dark rounded border border-secondary">
                 <div class="card-body">
                     <h5 class="card-title">Ventas Totales</h5>
                     <select class="form-select mb-3" name="metodo_pago" id="metodo_pago" required onchange="toggleClientesCorrientes()">
@@ -83,6 +83,11 @@
     <!-- Columna derecha superior -->
     <div class="col-lg-4 right-column">
         @include('parciales.columna_derecha')
+        <div class="mt-4">
+            <a href="{{ route('backup.db') }}" class="btn btn-outline-info w-100 shadow-sm d-flex justify-content-center align-items-center gap-2">
+                <i class="fas fa-database"></i> Descargar Backup Completo
+            </a>
+        </div>
     </div>
 </div>
 

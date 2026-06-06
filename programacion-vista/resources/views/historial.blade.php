@@ -65,28 +65,57 @@
                         </tbody>
                     </table>
                 </div>
-                <div class="filtros mb-3">
+                <div class="filtros mb-3 p-3 bg-dark rounded border border-secondary">
                     <form method="GET" action="{{ route('views.historial') }}">
-                        <label for="selectVendedor" class="form-label">Filtrar por vendedor</label>
-                        <select class="form-select" id="selectVendedor" name="vendedor">
-                            <option value="">Selecciona un vendedor</option>
-                            @foreach ($vendedores as $vendedor)
-                                <option value="{{ $vendedor->id }}">{{ $vendedor->name }}</option>
-                            @endforeach
-                        </select>
-
-                     
-                        <label for="rango" class="form-label">Filtrar por rango de fechas</label>
-                        <div class="input-group">
-                            <input type="date" class="form-control" name="fechainicio" placeholder="Fecha inicio">
-                            <span class="input-group-text">a</span>
-                            <input type="date" class="form-control" name="fechafin" placeholder="Fecha fin">
-                        </div>
-                        <button type="submit" class="btn btn-primary mt-3">Aplicar filtros</button>
-                    </form>
-                    <label for="total_ventas">Venta total: ${{ number_format($totalVentas, 2) }}</label>  
-
                         
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="selectVendedor" class="form-label text-white">Filtrar por vendedor</label>
+                                <select class="form-select" id="selectVendedor" name="vendedor">
+                                    <option value="">Selecciona un vendedor</option>
+                                    @foreach ($vendedores as $vendedor)
+                                        <option value="{{ $vendedor->id }}" {{ request('vendedor') == $vendedor->id ? 'selected' : '' }}>
+                                            {{ $vendedor->name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label for="id_cliente" class="form-label text-white">Filtrar por Cliente Corriente</label>
+                                <select class="form-select" name="id_cliente" id="id_cliente">
+                                    <option value="">Todos los movimientos (Sin filtro)</option>
+                                    @foreach($clientes as $cliente)
+                                        <option value="{{ $cliente->id_cliente }}" {{ request('id_cliente') == $cliente->id_cliente ? 'selected' : '' }}>
+                                            {{ $cliente->nombre_y_apellido }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+
+                        <label for="rango" class="form-label text-white">Filtrar por rango de fechas</label>
+                        <div class="input-group mb-3">
+                            <input type="date" class="form-control" name="fechainicio" value="{{ request('fechainicio') }}" placeholder="Fecha inicio">
+                            <span class="input-group-text">a</span>
+                            <input type="date" class="form-control" name="fechafin" value="{{ request('fechafin') }}" placeholder="Fecha fin">
+                        </div>
+                        
+                        <div class="d-flex justify-content-between align-items-center mt-3">
+                            <div class="d-flex gap-2">
+                                <button type="submit" class="btn btn-primary">Aplicar filtros</button>
+                                
+                                <button type="submit" formaction="{{ route('exportar.ventas') }}" class="btn btn-success">
+                                    <i class="fas fa-file-excel"></i> Exportar Resultados a Excel
+                                </button>
+                            </div>
+                            
+                            <h5 class="text-white m-0">
+                                <strong>Venta total: <span class="text-success">${{ number_format($totalVentas, 2) }}</span></strong>
+                            </h5>
+                        </div>
+
+                    </form>
                 </div>
                 
             </div>

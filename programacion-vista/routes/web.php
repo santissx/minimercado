@@ -15,6 +15,7 @@ use App\Http\Controllers\HistorialController;
 use App\Http\Controllers\VentasAnuController;
 use App\Http\Controllers\FallbackController;
 use App\Http\Middleware\AdminMiddleware;
+use App\Http\Controllers\ReporteController;
 //rutas del login 
 
 Route::get('/dashboard', [VentaController::class, 'mostrar'])->middleware(['auth', 'verified'])->name('dashboard');
@@ -130,4 +131,14 @@ Route::get('/anuladas', [VentasAnuController::class, 'index'])->name('views.anul
 Route::get('/ticket/{idVenta}', [HistorialController::class, 'generarTicket'])->name('ventas.ticket');
 
 Route::fallback([FallbackController::class, 'notFound']);
+
+// Rutas de Exportación a Excel
+Route::get('exportar/ventas', [\App\Http\Controllers\ReporteController::class, 'exportarVentas'])->name('exportar.ventas');
+Route::get('exportar/stock', [\App\Http\Controllers\ReporteController::class, 'exportarStock'])->name('exportar.stock');
+Route::get('exportar/compras', [\App\Http\Controllers\ReporteController::class, 'exportarCompras'])->name('exportar.compras');
+Route::get('exportar/gastos', [\App\Http\Controllers\ReporteController::class, 'exportarGastos'])->name('exportar.gastos');
+Route::get('exportar/ventas-anuladas', [\App\Http\Controllers\ReporteController::class, 'exportarVentasAnuladas'])->name('exportar.ventas_anuladas');
+
+// ruta para backup de base de datos
+Route::get('backup/database', [\App\Http\Controllers\ReporteController::class, 'backupDatabase'])->name('backup.db');
 

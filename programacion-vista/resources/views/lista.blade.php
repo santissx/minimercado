@@ -98,7 +98,9 @@
             @endif
             @endif
         </div>
-        
+        <a href="{{ route('exportar.stock') }}" class="btn btn-success">
+            <i class="fas fa-file-excel"></i> Exportar Inventario a Excel
+        </a>
     </div>
 
     <!-- Columna derecha superior -->

@@ -58,7 +58,6 @@
             <div class="action-buttons">
                 <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#agregarCompraModal">Agregar Compra</button>
             </div>
-
             <strong> <label for="totalcompras" >Gasto en compras total: ${{ number_format($totalcompras, 2) }}</label>  </strong>
         </div>
 
@@ -79,10 +78,15 @@
                     <span class="input-group-text">a</span>
                     <input type="date" class="form-control" name="fechafin" placeholder="Fecha fin">
                 </div>
-                <button type="submit" class="btn btn-primary mt-3">Aplicar filtros</button>
-            </form>
-
                 
+                <div class="d-flex gap-2 mt-3">
+                    <button type="submit" class="btn btn-primary">Aplicar filtros</button>
+                    
+                    <a href="{{ route('exportar.compras', request()->query()) }}" class="btn btn-success">
+                        <i class="fas fa-file-excel"></i> Exportar Resultados a Excel
+                    </a>
+                </div>
+                </form>
         </div>
 
     </div>

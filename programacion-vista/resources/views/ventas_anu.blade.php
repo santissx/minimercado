@@ -37,20 +37,28 @@
             </div>
         </div>
 
-        <div class="filtros mb-3">
+        <div class="filtros mb-3 p-3 bg-dark rounded border border-secondary">
             <form method="GET" action="{{ route('views.anuladas') }}">
 
                 <label for="rango" class="form-label">Filtrar por rango de fechas</label>
                 <div class="input-group">
-                    <input type="date" class="form-control" name="fechainicio" placeholder="Fecha inicio">
+                    <input type="date" class="form-control" name="fechainicio" value="{{ request('fechainicio') }}" placeholder="Fecha inicio">
                     <span class="input-group-text">a</span>
-                    <input type="date" class="form-control" name="fechafin" placeholder="Fecha fin">
+                    <input type="date" class="form-control" name="fechafin" value="{{ request('fechafin') }}" placeholder="Fecha fin">
                 </div>
-                <button type="submit" class="btn btn-primary mt-3">Aplicar filtros</button>
-            </form>
-
                 
+                <div class="d-flex gap-2 mt-3">
+                    <button type="submit" class="btn btn-primary">
+                        Aplicar filtros
+                    </button>
+                    
+                    <button type="submit" formaction="{{ route('exportar.ventas_anuladas') }}" class="btn btn-success">
+                        <i class="fas fa-file-excel"></i> Exportar Anulaciones a Excel
+                    </button>
+                </div>
+            </form>
         </div>
+        
     </div>
 
     <!-- Columna derecha superior -->

@@ -58,13 +58,35 @@
                     </table>
                 </div>
             </div>
-            <div class="action-buttons mt-3">   
-                <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#veragregargastos">Agregar Gastos</button>
+           <div class="action-buttons mt-3">   
+                <button class="btn class-btn btn-success" data-bs-toggle="modal" data-bs-target="#veragregargastos">Agregar Gastos</button>
             </div>
         </div>
-       
-        <strong> <label for="totalcompras" >Gastos totales: ${{ number_format($totalgastos, 2) }}</label>  </strong>
-    </div>
+
+        <div class="filtros mb-3 p-3 bg-dark rounded border border-secondary">
+            <form method="GET" action="{{ route('views.gastos') }}"> <label for="rango" class="form-label text-white">Filtrar por rango de fechas</label>
+                <div class="input-group">
+                    <input type="date" class="form-control" name="fechainicio" value="{{ request('fechainicio') }}">
+                    <span class="input-group-text">a</span>
+                    <input type="date" class="form-control" name="fechafin" value="{{ request('fechafin') }}">
+                </div>
+                
+                <div class="d-flex justify-content-between align-items-center mt-3">
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary">Aplicar filtros</button>
+                        
+                        <button type="submit" formaction="{{ route('exportar.gastos') }}" class="btn btn-success">
+                            <i class="fas fa-file-excel"></i> Exportar Gastos a Excel
+                        </button>
+                    </div>
+                    
+                    <h5 class="text-white m-0">
+                        <strong>Gastos totales: <span class="text-danger">${{ number_format($totalgastos, 2) }}</span></strong>
+                    </h5>
+                </div>
+            </form>
+        </div>
+        </div>
 
     <!-- Columna derecha superior -->
     <div class="col-lg-4 right-column">

@@ -70,7 +70,7 @@ class VentaController extends Controller
             $idVenta = DB::table('ventas')
             ->insertGetId([
                 'id_usuario' => Auth::id(),
-                'fecha_venta' => now(),
+                'fecha_venta' => now()->format('Y-m-d H:i:s'), // <-- Forzamos el formato con hora exacta
                 'monto_total' => $montoTotal,
                 'id_metodo_pago' => $request->metodo_pago,
                 'descuento' => $descuento,

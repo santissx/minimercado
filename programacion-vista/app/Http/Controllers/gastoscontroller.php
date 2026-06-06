@@ -9,20 +9,37 @@ use Illuminate\Support\Facades\DB;
 
 class gastoscontroller extends Controller
 {
-    public function mostrar()
+    public function mostrar(Request $request)
     {
-        $gastos = DB::table('gastos')
-        ->join('users', 'gastos.id_usuario', '=', 'users.id') 
-        ->select('gastos.*', 'users.name as nombre_usuario' ) // Seleccionar los campos de interés
-        ->get();
+        // 1. Iniciamos la consulta base con el JOIN
+        $query = DB::table('gastos')
+            ->join('users', 'gastos.id_usuario', '=', 'users.id') 
+            ->select('gastos.*', 'users.name as nombre_usuario');
 
-        $totalgastos = DB::table('gastos')
-        ->sum('monto');
+        // 2. Aplicamos los filtros de fecha (Si el usuario los mandó desde la vista)
+        if ($request->filled('fechainicio') && $request->filled('fechafin')) {
+            $query->whereBetween('gastos.fecha_gasto', [
+                $request->input('fechainicio') . ' 00:00:00', 
+                $request->input('fechafin') . ' 23:59:59'
+            ]);
+        } elseif ($request->filled('fechainicio')) {
+            $query->where('gastos.fecha_gasto', '>=', $request->input('fechainicio') . ' 00:00:00');
+        } elseif ($request->filled('fechafin')) {
+            $query->where('gastos.fecha_gasto', '<=', $request->input('fechafin') . ' 23:59:59');
+        }
 
-        return view('gastos',[
-            'gastos' => $gastos,
+        // 3. Ejecutamos la consulta ordenando por fecha (los más nuevos arriba)
+        $gastos = $query->orderBy('gastos.fecha_gasto', 'desc')->get();
+
+        // 4. Calculamos el total de los gastos FILTRADOS. 
+        // Usamos ->sum() directo sobre la colección para ahorrarle trabajo a la base de datos
+        $totalgastos = $gastos->sum('monto');
+
+        // 5. Mandamos los datos a la vista
+        return view('gastos', [
+            'gastos'      => $gastos,
             'totalgastos' => $totalgastos,
-    ]);
+        ]);
     }
 
 

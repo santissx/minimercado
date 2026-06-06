@@ -7,15 +7,8 @@ use Illuminate\Support\Facades\DB;
 
 class HistorialController extends Controller
 {
-    public function mostrar(Request $request)
+   public function mostrar(Request $request)
     {
-        // Obtener parámetros de filtro
-        $vendedorId = $request->input('vendedor');
-        $fechaInicio = $request->input('fechainicio');
-        $fechaFin = $request->input('fechafin');
-
-        
-    
         // Construir la consulta base
         $query = DB::table('ventas')
             ->leftJoin('ventas_anuladas', 'ventas.id_venta', '=', 'ventas_anuladas.id_venta') // Unión para identificar anuladas
@@ -32,35 +25,46 @@ class HistorialController extends Controller
                 'ventas.fecha_venta',
                 'clientes_corrientes.id_cliente as clientec',
                 'clientes_corrientes.nombre_y_apellido as nombre_clientec'
-
             )
             ->whereNull('ventas_anuladas.id_venta'); // Excluir ventas anuladas
     
-        // Aplicar filtros si existen
-        if ($vendedorId) {
-            $query->where('users.id', $vendedorId);
+        // 1. Filtro por Vendedor
+        if ($request->filled('vendedor')) {
+            $query->where('users.id', $request->input('vendedor'));
+        }
+
+        // 2. NUEVO: Filtro por Cliente
+        if ($request->filled('id_cliente')) {
+            $query->where('ventas.id_cliente', $request->input('id_cliente'));
         }
     
-        if ($fechaInicio || $fechaFin) {
-            if (!$fechaFin) {
-                $fechaFin = now(); // Asignar la fecha actual si fechaFin es null
-            }
-            $query->whereBetween('ventas.fecha_venta', [$fechaInicio, $fechaFin]);
+        // 3. Filtro de Fechas adaptado para DATETIME
+        if ($request->filled('fechainicio') && $request->filled('fechafin')) {
+            $query->whereBetween('ventas.fecha_venta', [
+                $request->input('fechainicio') . ' 00:00:00', 
+                $request->input('fechafin') . ' 23:59:59'
+            ]);
+        } elseif ($request->filled('fechainicio')) {
+            $query->where('ventas.fecha_venta', '>=', $request->input('fechainicio') . ' 00:00:00');
+        } elseif ($request->filled('fechafin')) {
+            $query->where('ventas.fecha_venta', '<=', $request->input('fechafin') . ' 23:59:59');
         }
     
-        // Obtener los resultados
+        // Obtener los resultados ordenados
         $ventas = $query->orderBy('ventas.fecha_venta', 'desc')->get();
     
-        // Obtener lista de vendedores para el filtro
-        $vendedores = DB::table('users')->select('id', 'name')->where('rol', 'empleado')->get();
+        // Obtener listas para los menús desplegables de la vista
+        $vendedores = DB::table('users')->select('id', 'name')->get();
+        $clientes = DB::table('clientes_corrientes')->where('estado', 'activo')->get(); // NUEVO: Traemos los clientes
     
-        // Calcular el total de ventas
+        // Calcular el total de ventas filtradas
         $totalVentas = $ventas->sum('monto_total');
 
         // Retornar la vista con los datos
         return view('historial', [
             'ventas' => $ventas,
             'vendedores' => $vendedores,
+            'clientes' => $clientes, // NUEVO: Pasamos la variable a la vista
             'totalVentas' => $totalVentas, 
         ]);
     }
