@@ -5,115 +5,126 @@
 @section('ladoizq')
 <div class="row h-100">
     <div class="col-lg-8 d-flex flex-column">
-        <form action="{{ route('views.lista') }}" method="GET" class="d-flex align-items-center mb-3">
-            <input type="search" name="search" class="form-control me-2" placeholder="Busque su producto" value="{{ $search }}">
-            <button type="submit" class="btn btn-primary">Buscar</button>
+        <form action="{{ route('views.lista') }}" method="GET" class="row g-2 mb-3">
+            <div class="col-9 col-md-10">
+                <input type="search" name="search" class="form-control" placeholder="Busque su producto" value="{{ $search }}">
+            </div>
+            <div class="col-3 col-md-2">
+                <button type="submit" class="btn btn-primary w-100">Buscar</button>
+            </div>
         </form>
+
         @if($productos->isEmpty())
             <div class="alert alert-info" role="alert">
                 No se encontraron productos que coincidan con su búsqueda.
             </div>
         @else
-        <div class="card mb-3 flex-grow-1 left-table position-relative">
-            <div class="card-body d-flex flex-column">
-                <h5 class="card-title">Lista de Productos</h5>
-                <div class="table-responsive flex-grow-1 table-scrolllis" >
-                    <table class="table table-dark table-striped">
-                        <thead>
-                            <tr>
-                                <th>id</th>
-                                <th>Nombre</th>
-                                <th>Codigo</th>
-                                <th>Codigo de barra</th>
-                                <th>Precio lista</th>
-                                <th>Precio venta</th>
-                                <th>Stock</th>
-                                <th>Proveedor</th>
-                                <th>Categoria</th>
-                                <th>Estado</th>
-                                @if(Auth::user()->rol === 'administrador')
-                                <th style="text-align: center">acciones</th>
-                                @endif
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach ($productos as $producto)
-                            <tr>
-                                <td>{{ $producto->id_producto }}</td>
-                                <td>{{ $producto->nombre }}</td>
-                                <td>{{ $producto->codigo }}</td>
-                                <td>{{ $producto->codigo_barra }}</td>
-                                <td>{{ $producto->precio_lista }}</td>
-                                <td>{{ $producto->precio_venta }}</td>
-                                <td>{{ $producto->stock }}</td>
-                                <td>{{ $producto->id_proveedor }} - {{ $producto->nombre_proveedor }}</td>
-                                <td>{{ $producto->id_categoria }} - {{ $producto->categoria }}</td>
-                                <td>{{ $producto->estado }}</td>
-                                
-                                @if(Auth::user()->rol === 'administrador')
-                                <td class="d-flex justify-content-center align-items-center gap-2 ">
+            <div class="card mb-3 left-table">
+                <div class="card-body d-flex flex-column">
+                    <h5 class="card-title">Lista de Productos</h5>
+                    
+                    <div class="table-responsive table-scrolllis flex-grow-1">
+                        <table class="table table-dark table-striped mb-0">
+                            <thead>
+                                <tr>
+                                    <th>id</th>
+                                    <th>Nombre</th>
+                                    <th>Codigo</th>
+                                    <th>Codigo de barra</th>
+                                    <th>Precio lista</th>
+                                    <th>Precio venta</th>
+                                    <th>
+                                        @php
+                                            $nextSort = $sort === 'stock_asc' ? 'stock_desc' : 'stock_asc';
+                                            $sortIcon = $sort === 'stock_asc' ? '▲' : ($sort === 'stock_desc' ? '▼' : '');
+                                        @endphp
+                                        <a href="{{ route('views.lista', ['search' => $search, 'sort' => $nextSort]) }}" style="color: inherit; text-decoration: none;">
+                                            Stock {{ $sortIcon }}
+                                        </a>
+                                    </th>
+                                    <th>Proveedor</th>
+                                    <th>Categoria</th>
+                                    <th>Estado</th>
+                                    @if(Auth::user()->rol === 'administrador')
+                                        <th style="text-align: center">acciones</th>
+                                    @endif
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach ($productos as $producto)
+                                <tr>
+                                    <td>{{ $producto->id_producto }}</td>
+                                    <td>{{ $producto->nombre }}</td>
+                                    <td>{{ $producto->codigo }}</td>
+                                    <td>{{ $producto->codigo_barra }}</td>
+                                    <td>{{ $producto->precio_lista }}</td>
+                                    <td>{{ $producto->precio_venta }}</td>
+                                    <td>{{ $producto->stock }}</td>
+                                    <td>{{ $producto->id_proveedor }} - {{ $producto->nombre_proveedor }}</td>
+                                    <td>{{ $producto->id_categoria }} - {{ $producto->categoria }}</td>
+                                    <td>{{ $producto->estado }}</td>
+                                    
+                                    @if(Auth::user()->rol === 'administrador')
+                                    <td class="text-center">
+                                <div class="d-flex justify-content-center align-items-center gap-2">
                                     <button class="btn btn-primary" 
-                                    data-bs-toggle="modal" 
-                                    data-bs-target="#vermodificarproducModal"
-                                    data-id="{{ $producto->id_producto }}"
-                                    data-nombre="{{ $producto->nombre }}"
-                                    data-codigo="{{ $producto->codigo }}"
-                                    data-codigo_barra="{{ $producto->codigo_barra }}"
-                                    data-precio_lista="{{ $producto->precio_lista }}"
-                                    data-precio_venta="{{ $producto->precio_venta }}"
-                                    data-stock="{{ $producto->stock }}"
-                                    data-id_proveedor="{{ $producto->id_proveedor }}"
-                                    data-id_categoria="{{ $producto->id_categoria }}"
-                                    data-estado="{{ $producto->estado }}">
-                                    Modificar
-                                   </button>
-                                    <form class="m-0 d-flex" action="{{route('lista.borrar' , ['id_producto' => $producto->id_producto])}}" method="POST">
+                                            data-bs-toggle="modal" 
+                                            data-bs-target="#vermodificarproducModal"
+                                            data-id="{{ $producto->id_producto }}"
+                                            data-nombre="{{ $producto->nombre }}"
+                                            data-codigo="{{ $producto->codigo }}"
+                                            data-codigo_barra="{{ $producto->codigo_barra }}"
+                                            data-precio_lista="{{ $producto->precio_lista }}"
+                                            data-precio_venta="{{ $producto->precio_venta }}"
+                                            data-stock="{{ $producto->stock }}"
+                                            data-id_proveedor="{{ $producto->id_proveedor }}"
+                                            data-id_categoria="{{ $producto->id_categoria }}"
+                                            data-estado="{{ $producto->estado }}">
+                                        Modificar
+                                    </button>
+                                    <form class="m-0 d-flex" action="{{ route('lista.borrar', ['id_producto' => $producto->id_producto]) }}" method="POST">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit" class="btn btn-danger ">Eliminar</button>
+                                        <button type="submit" class="btn btn-danger">Eliminar</button>
                                     </form>
-                                </td>
-                                @endif
-                            </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
+                                </div>
+                            </td>
+                            @endif
+                                </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    @if(Auth::check() && Auth::user()->rol === 'administrador')
+                        <div class="action-buttons d-flex flex-column flex-sm-row gap-2 mt-3">
+                            <button type="button" class="btn btn-primary w-100 w-sm-auto" data-bs-toggle="modal" data-bs-target="#aumentarPreciosventaModal">
+                                Aumentar precios de venta por proveedor
+                            </button>
+                            <button type="button" class="btn btn-primary w-100 w-sm-auto" data-bs-toggle="modal" data-bs-target="#aumentarPrecioslistaModal">
+                                Aumentar precios de lista por proveedor
+                            </button>
+                            <button class="btn btn-success w-100 w-sm-auto ms-sm-auto" data-bs-toggle="modal" data-bs-target="#agregarModal">
+                                Agregar Producto
+                            </button>
+                        </div>
+                    @endif
                 </div>
-                
-            </div>
-            
-            @if(Auth::check())
-                    @if(Auth::user()->rol === 'administrador')
-                   
-                <div class="action-buttons">
-                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#aumentarPreciosventaModal">
-                        Aumentar precios de venta por proveedor
-                    </button>
-                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#aumentarPrecioslistaModal">
-                        Aumentar precios de lista por proveedor
-                    </button>
-                    <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#agregarModal">Agregar Producto</button>
-                </div>
-                @endif
-            @endif
-            @endif
+            </div> @endif
+
+        <div class="d-grid d-sm-block mt-1 mb-3">
+            <a href="{{ route('exportar.stock') }}" class="btn btn-success w-100 w-sm-auto">
+                <i class="fas fa-file-excel me-2"></i> Exportar Inventario a Excel
+            </a>
         </div>
-        <a href="{{ route('exportar.stock') }}" class="btn btn-success">
-            <i class="fas fa-file-excel"></i> Exportar Inventario a Excel
-        </a>
     </div>
 
-    <!-- Columna derecha superior -->
     <div class="col-lg-4 right-column">
         @include('parciales.columna_derecha')
     </div>
-
-    
 </div>
 @endsection
 
-
-<!-- Modal agregar -->
 <div class="modal fade" id="agregarModal" tabindex="-1" aria-labelledby="veragregarLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content bg-dark">
@@ -123,7 +134,6 @@
                     <h5 class="modal-title" id="verlistaLabel">Agregar Producto</h5>
                 </div>
                 <div class="modal-body">
-                    <!-- Campos para agregar productos -->
                     <div class="mb-3">
                         <label for="nombre" class="form-label">Nombre</label>
                         <input type="text" class="form-control" id="nombre" name="nombre" required>
@@ -137,8 +147,23 @@
                         <input type="text" class="form-control" id="codigo_barra" name="codigo_barra" required>
                     </div>
                     <div class="mb-3">
-                        <label for="precio_lista" class="form-label">Precio lista</label>
-                        <input type="number" class="form-control" id="precio_lista" name="precio_lista" step="0.01" min="0" required>
+                        <label for="precio_lista" class="form-label">Precio lista (costo)</label>
+                        <input type="number" class="form-control" id="precio_lista" name="precio_lista" step="0.01" min="0" required oninput="calcularPrecioSugerido()">
+                    </div>
+                    <div class="mb-3">
+                        <label for="ganancia_pct" class="form-label">% de ganancia</label>
+                        <div class="input-group">
+                            <input type="number" class="form-control" id="ganancia_pct" step="1" min="0" placeholder="Ej: 40" oninput="calcularPrecioSugerido()">
+                            <span class="input-group-text">%</span>
+                        </div>
+                    </div>
+                    <div class="mb-3" id="sugerido_container" style="display: none;">
+                        <div class="alert alert-info d-flex justify-content-between align-items-center py-2 mb-0">
+                            <span>Precio sugerido: <strong id="precio_sugerido_valor">$0</strong></span>
+                            <button type="button" class="btn btn-sm btn-info" onclick="usarPrecioSugerido()">
+                                Usar este precio
+                            </button>
+                        </div>
                     </div>
                     <div class="mb-3">
                         <label for="precio_venta" class="form-label">Precio venta</label>
@@ -170,7 +195,6 @@
                         <label for="stock" class="form-label">Stock</label>
                         <input type="number" class="form-control" id="stock" name="stock" min="0" required>
                     </div>
-                    
                 </div>
                 <div class="modal-footer">
                     <button type="submit" class="btn btn-success">Guardar Producto</button>
@@ -181,7 +205,6 @@
     </div>
 </div>
 
-<!-- Modal modificar -->
 <div class="modal fade" id="vermodificarproducModal" tabindex="-1" aria-labelledby="vermodificarproducLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content bg-dark">
@@ -192,7 +215,6 @@
                     <h5 class="modal-title" id="verlistaLabel">Modificar Producto</h5>
                 </div>
                 <div class="modal-body">
-                    <!-- Campos para modificar productos -->
                     <div class="mb-3">
                         <label for="nombre" class="form-label">Nombre</label>
                         <input type="text" class="form-control" id="nombre" name="nombre" required>
@@ -241,10 +263,10 @@
                     </div>
                     <div class="mb-3">
                         <label for="estado" class="form-label">Estado</label>
-                        <select name="estado" id='estado'>
+                        <select class="form-select text-white bg-secondary" name="estado" id='estado'>
                             <option value="activo">Activo</option>
-                            <option value="desactivado" >Desactivado</option>
-                          </select>
+                            <option value="desactivado">Desactivado</option>
+                        </select>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -256,8 +278,6 @@
     </div>
 </div>
 
-<!-- Modal  
-// modal aumentar precio x venta-->
 <div class="modal fade" id="aumentarPreciosventaModal" tabindex="-1" aria-labelledby="aumentarPreciosventaModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content bg-dark">
@@ -290,8 +310,6 @@
     </div>
 </div>
 
-<!-- Modal 
-// modal aumentar precio x lista -->
 <div class="modal fade" id="aumentarPrecioslistaModal" tabindex="-1" aria-labelledby="aumentarPrecioslistaModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content bg-dark ">
@@ -324,8 +342,6 @@
     </div>
 </div>
 
-
-
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         const vermodificarproducModal = document.getElementById('vermodificarproducModal');
@@ -355,4 +371,28 @@
             vermodificarproducModal.querySelector('#estado').value = estado;
         });
     });
+
+    function calcularPrecioSugerido() {
+        const costo = parseFloat(document.getElementById('precio_lista').value);
+        const pct = parseFloat(document.getElementById('ganancia_pct').value);
+        const container = document.getElementById('sugerido_container');
+
+        if (!isNaN(costo) && !isNaN(pct) && costo > 0 && pct >= 0) {
+            const sugerido = costo * (1 + pct / 100);
+            document.getElementById('precio_sugerido_valor').textContent = '$' + sugerido.toFixed(2);
+            container.style.display = 'block';
+        } else {
+            container.style.display = 'none';
+        }
+    }
+
+    function usarPrecioSugerido() {
+        const costo = parseFloat(document.getElementById('precio_lista').value);
+        const pct = parseFloat(document.getElementById('ganancia_pct').value);
+
+        if (!isNaN(costo) && !isNaN(pct)) {
+            const sugerido = costo * (1 + pct / 100);
+            document.getElementById('precio_venta').value = sugerido.toFixed(2);
+        }
+    }
 </script>

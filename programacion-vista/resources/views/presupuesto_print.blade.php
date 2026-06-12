@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Ticket #{{ $venta->id_venta }}</title>
+    <title>Presupuesto</title>
     <style>
         * {
             margin: 0;
@@ -19,7 +19,6 @@
             padding: 30px;
         }
 
-        /* Botones — ocultos al imprimir */
         .no-print {
             margin-bottom: 20px;
             display: flex;
@@ -44,7 +43,6 @@
             color: #fff;
         }
 
-        /* Ticket */
         .ticket {
             max-width: 800px;
             margin: 0 auto;
@@ -52,7 +50,6 @@
             padding: 30px;
         }
 
-        /* Header */
         .header {
             display: flex;
             justify-content: space-between;
@@ -66,7 +63,12 @@
             margin-bottom: 10px;
         }
 
-        /* Espacio del logo */
+        .logo {
+            width: 100px;
+            height: auto;
+            margin-bottom: 8px;
+        }
+
         .logo-placeholder {
             width: 100px;
             height: 80px;
@@ -77,12 +79,6 @@
             color: #aaa;
             font-size: 11px;
             margin-bottom: 8px;
-        }
-
-        /* Cuando pongas el logo, reemplazá .logo-placeholder por: */
-        .logo {
-            width: 100px;
-            height: auto;
         }
 
         .datos-local {
@@ -97,19 +93,12 @@
             line-height: 1.8;
         }
 
-        .header-der .comprobante-num {
-            font-weight: bold;
-            font-size: 14px;
-        }
-
-        /* Separador */
         hr {
             border: none;
             border-top: 1px solid #ccc;
             margin: 16px 0;
         }
 
-        /* Datos del cliente */
         .datos-cliente {
             display: flex;
             justify-content: flex-end;
@@ -126,7 +115,6 @@
             text-align: right;
         }
 
-        /* Tabla de productos */
         .tabla-productos {
             width: 100%;
             border-collapse: collapse;
@@ -159,7 +147,6 @@
             background: #f9f9f9;
         }
 
-        /* Totales */
         .totales {
             display: flex;
             justify-content: flex-end;
@@ -195,15 +182,40 @@
             color: #c0392b;
         }
 
-        /* Footer */
+        .avisos {
+            margin-top: 24px;
+            font-size: 12px;
+            color: #555;
+            border-top: 1px solid #ddd;
+            padding-top: 12px;
+        }
+
+        .avisos p {
+            margin-bottom: 4px;
+        }
+
         .footer {
             text-align: center;
-            margin-top: 30px;
+            margin-top: 24px;
             font-size: 11px;
             color: #888;
         }
 
-        /* Print */
+        @media print {
+            body {
+                padding: 0;
+            }
+
+            .no-print {
+                display: none !important;
+            }
+
+            .ticket {
+                border: none;
+                padding: 10px;
+            }
+        }
+
         @media print {
             body {
                 padding: 0;
@@ -226,11 +238,13 @@
             /* El header, datos del cliente y totales nunca se cortan */
             .header,
             .datos-cliente,
-            .totales {
+            .totales,
+            .avisos {
                 page-break-inside: avoid;
             }
 
-            /* Los totales pasan completos a la siguiente página si no entran */
+            /* Si hay muchos productos, los totales arrancan en nueva página
+       solo si no entran en la página actual */
             .totales {
                 page-break-before: auto;
             }
@@ -240,10 +254,9 @@
 
 <body>
 
-    {{-- Botones fuera del ticket --}}
     <div class="no-print">
         <button class="btn btn-volver" onclick="history.back()">← Volver</button>
-        <button class="btn btn-imprimir" onclick="window.print()">Imprimir ticket</button>
+        <button class="btn btn-imprimir" onclick="window.print()">Imprimir presupuesto</button>
     </div>
 
     <div class="ticket">
@@ -253,9 +266,9 @@
             <div class="header-izq">
                 <h1>{{ $local['nombre'] }}</h1>
 
-                {{-- Logo: cuando tengas el archivo, reemplazá el div de abajo por:        --}}
-                <img src="{{ asset('images/logo.jpeg') }}" class="logo" alt="Logo">
-
+                {{-- Logo: reemplazá el div por el img cuando tengas el archivo --}}
+                {{-- <img src="{{ asset('images/logo.png') }}" class="logo" alt="Logo"> --}}
+                <div class="logo-placeholder">Logo aquí</div>
 
                 <div class="datos-local">
                     <div>Facebook: {{ $local['facebook'] }}</div>
@@ -265,10 +278,9 @@
                     <div>{{ $local['direccion'] }}</div>
                 </div>
             </div>
-
             <div class="header-der">
-                <div>Fecha: {{ \Carbon\Carbon::parse($venta->fecha_venta)->format('d/m/Y H:i') }}</div>
-                <div class="comprobante-num">Comprobante N° {{ str_pad($venta->id_venta, 8, '0', STR_PAD_LEFT) }}</div>
+                <div>Fecha: {{ $fecha }}</div>
+                <div style="font-weight:bold; font-size:14px;">PRESUPUESTO</div>
             </div>
         </div>
 
@@ -279,22 +291,14 @@
             <table>
                 <tr>
                     <td>CLIENTE</td>
-                    <td>
-                        @if ($venta->clientec)
-                            {{ $venta->nombre_clientec }}
-                        @else
-                            Consumidor final
-                        @endif
-                    </td>
+                    <td>{{ $nombre_cliente ?: 'Consumidor final' }}</td>
                 </tr>
-                <tr>
-                    <td>VENDEDOR</td>
-                    <td>{{ $venta->vendedor_name }}</td>
-                </tr>
-                <tr>
-                    <td>MÉTODO DE PAGO</td>
-                    <td>{{ $venta->metodo_pago }}</td>
-                </tr>
+                @if ($telefono_cliente)
+                    <tr>
+                        <td>TELÉFONO</td>
+                        <td>{{ $telefono_cliente }}</td>
+                    </tr>
+                @endif
             </table>
         </div>
 
@@ -314,11 +318,11 @@
             <tbody>
                 @foreach ($productos as $producto)
                     <tr>
-                        <td>{{ $producto->codigo ?: $producto->codigo_barra }}</td>
-                        <td>{{ $producto->producto }}</td>
-                        <td>{{ $producto->cantidad }}</td>
-                        <td>${{ number_format($producto->precio, 2) }}</td>
-                        <td>${{ number_format($producto->precio * $producto->cantidad, 2) }}</td>
+                        <td>{{ $producto['codigo'] }}</td>
+                        <td>{{ $producto['nombre'] }}</td>
+                        <td>{{ $producto['cantidad'] }}</td>
+                        <td>${{ number_format($producto['precio'], 2) }}</td>
+                        <td>${{ number_format($producto['total_linea'], 2) }}</td>
                     </tr>
                 @endforeach
             </tbody>
@@ -329,24 +333,29 @@
             <table>
                 <tr>
                     <td>SUBTOTAL $</td>
-                    <td>{{ number_format($venta->monto_total + $venta->descuento, 2) }}</td>
+                    <td>{{ number_format($subtotal, 2) }}</td>
                 </tr>
-                @if ($venta->descuento > 0)
+                @if ($descuento > 0)
                     <tr>
                         <td>DESCUENTO $</td>
-                        <td>{{ number_format($venta->descuento, 2) }}</td>
+                        <td>{{ number_format($descuento, 2) }}</td>
                     </tr>
                 @endif
                 <tr class="fila-total">
                     <td>Total $</td>
-                    <td>{{ number_format($venta->monto_total, 2) }}</td>
+                    <td>{{ number_format($total, 2) }}</td>
                 </tr>
             </table>
         </div>
 
-        {{-- Footer --}}
+        {{-- Avisos --}}
+        <div class="avisos">
+            <p>* Precios sujetos a cambios sin previo aviso.</p>
+            <p>* Consultar stock al momento de realizar el pedido.</p>
+        </div>
+
         <div class="footer">
-            <p>Gracias por su compra — {{ $local['nombre'] }}</p>
+            <p>{{ $local['nombre'] }} — {{ $local['telefono'] }}</p>
         </div>
 
     </div>

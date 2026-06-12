@@ -53,10 +53,11 @@ body {
     min-height: 60vh;
 }
 
+/* Altura total menos navbar y margen superior */
 .right-column {
     display: flex;
     flex-direction: column;
-    height: calc(100vh - 56px - 1rem); /* Altura total menos navbar y margen superior */
+    height: calc(100vh - 56px - 1rem); 
 }
 
 .right-top {
@@ -75,75 +76,217 @@ body {
     flex-grow: 1;
 }
 
-.action-buttons {
-    position: absolute;
-    bottom: 1rem;
-    right: 1rem;
-}
-
-td .btn {
-    padding: 0.8rem 0.5rem; /* Reduce el padding */
-    font-size: 1rem;       /* Ajusta el tamaño de la fuente */
-    height: auto;            /* Deja que la altura dependa del contenido */
-    line-height: 1;          /* Ajusta la altura de la línea */
-}
-
+/* Ancho completo de la celda */
+/* Espaciado interno */
+/* Borde */
+/* Bordes redondeados */
+/* Fondo gris claro */
+/* Color del texto */
+/* Tamaño de fuente */
+/* Sombra interna */
 .styled-select {
-    width: 100%; /* Ancho completo de la celda */
-    padding: 5px; /* Espaciado interno */
-    border: 1px solid #ddd; /* Borde */
-    border-radius: 5px; /* Bordes redondeados */
-    background-color: #f8f9fa; /* Fondo gris claro */
-    color: #333; /* Color del texto */
-    font-size: 14px; /* Tamaño de fuente */
-    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1); /* Sombra interna */
+    width: 100%; 
+    padding: 5px; 
+    border: 1px solid #ddd; 
+    border-radius: 5px; 
+    background-color: #f8f9fa; 
+    color: #333; 
+    font-size: 14px; 
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1); 
 }
 
+/* Indicar que no es editable */
+/* Reducir opacidad */
 .styled-select:disabled {
-    cursor: not-allowed; /* Indicar que no es editable */
-    opacity: 0.7; /* Reducir opacidad */
+    cursor: not-allowed; 
+    opacity: 0.7; 
 }
 
+/* Ajusta la altura según necesites */
 .table-scroll {
-    max-height: 50vh; /* Ajusta la altura según necesites */
+    max-height: 50vh; 
     overflow-y: scroll;
 }
 
+/* Ajusta la altura según necesites */
 .table-scrollhist {
-    max-height: 60vh; /* Ajusta la altura según necesites */
+    max-height: 60vh; 
     overflow-y: scroll;
 }
 
+/* Ajusta la altura según necesites */
 .table-scrollgr {
-    max-height: 75vh; /* Ajusta la altura según necesites */
-    overflow-y: scroll;
-}
-.table-scrolllis {
-    max-height: 70vh; /* Ajusta la altura según necesites */
-    overflow-y: scroll;
-}
-.table-scrollcom {
-    max-height: 65vh; /* Ajusta la altura según necesites */
+    max-height: 75vh; 
     overflow-y: scroll;
 }
 
+/* Ajusta la altura según necesites */
+.table-scrolllis {
+    max-height: 55vh; 
+    overflow-y: auto !important;
+}
+
+/* Ajusta la altura según necesites */
+.table-scrollcom {
+    max-height: 65vh; 
+    overflow-y: scroll;
+}
+
+/* Oculta todo el contenido */
+/* Muestra solo el contenido de la sección */
+/* Asegura que esté en la parte superior */
+/* Oculta elementos no imprimibles */
 @media print {
     body * {
-        visibility: hidden; /* Oculta todo el contenido */
+        visibility: hidden; 
     }
 
     .printable-area, .printable-area * {
-        visibility: visible; /* Muestra solo el contenido de la sección */
+        visibility: visible; 
     }
 
     .printable-area {
-        position: absolute; /* Asegura que esté en la parte superior */
+        position: absolute; 
         top: 0;
         left: 0;
         width: 100%;
     }
 
     .d-print-none {
-        display: none !important; /* Oculta elementos no imprimibles */
+        display: none !important; 
     }
+}
+
+/* Compatibilidad para navegadores Firefox */
+.table-responsive, .table-scroll, .table-scrollhist, .table-scrollgr, .table-scrolllis, .table-scrollcom {
+    scrollbar-width: thin;
+    scrollbar-color: #000000 #1a1a1a;
+}
+
+/* Motores Webkit (Chrome, Edge, Brave, Safari) */
+.table-responsive::-webkit-scrollbar,
+.table-scroll::-webkit-scrollbar,
+.table-scrollhist::-webkit-scrollbar,
+.table-scrollgr::-webkit-scrollbar,
+.table-scrolllis::-webkit-scrollbar,
+.table-scrollcom::-webkit-scrollbar {
+    width: 10px !important;  
+    height: 10px !important; 
+}
+
+/* El fondo por donde corre la barrita */
+.table-responsive::-webkit-scrollbar-track,
+.table-scroll::-webkit-scrollbar-track,
+.table-scrollhist::-webkit-scrollbar-track,
+.table-scrollgr::-webkit-scrollbar-track,
+.table-scrolllis::-webkit-scrollbar-track,
+.table-scrollcom::-webkit-scrollbar-track {
+    background: #1a1a1a !important; 
+    border-radius: 4px;
+}
+
+/* El "Slice" (la barra negra que se arrastra) */
+.table-responsive::-webkit-scrollbar-thumb,
+.table-scroll::-webkit-scrollbar-thumb,
+.table-scrollhist::-webkit-scrollbar-thumb,
+.table-scrollgr::-webkit-scrollbar-thumb,
+.table-scrolllis::-webkit-scrollbar-thumb,
+.table-scrollcom::-webkit-scrollbar-thumb {
+    background: #000000 !important; 
+    border: 2px solid #3a3a3a !important; 
+    border-radius: 4px;
+}
+
+/* Efecto hover al pasar el mouse */
+.table-responsive::-webkit-scrollbar-thumb:hover,
+.table-scroll::-webkit-scrollbar-thumb:hover,
+.table-scrollhist::-webkit-scrollbar-thumb:hover,
+.table-scrollgr::-webkit-scrollbar-thumb:hover,
+.table-scrolllis::-webkit-scrollbar-thumb:hover,
+.table-scrollcom::-webkit-scrollbar-thumb:hover {
+    background: #3a3a3a !important; 
+}
+
+/* ==========================================
+   TABLA RESPONSIVE
+========================================== */
+
+.table-scrolllis table {
+    min-width: 1200px;
+}
+
+/* ==========================================
+   BOTONES DE ACCIONES
+========================================== */
+
+.action-buttons {
+    display: flex !important;
+    flex-direction: row !important; 
+    flex-wrap: nowrap !important;   
+    gap: 10px;
+    width: 100%;
+}
+
+.action-buttons .btn {
+    flex: 1 1 auto !important; 
+    min-height: 45px;
+    font-size: 0.9rem;
+    white-space: nowrap; 
+}
+
+/* Restaura el absolute para las vistas que no son la lista de stock */
+.main-content:not(:has(.table-scrolllis)) .action-buttons {
+    position: absolute !important;
+    bottom: 1rem !important;
+    right: 1rem !important;
+    width: auto !important;
+}
+
+/* ==========================================
+   BOTONES DE MODIFICAR / ELIMINAR
+========================================== */
+
+.table td, .table th {
+    vertical-align: middle !important; /* Mantiene el texto perfectamente centrado */
+}
+
+/* Aplica un padding seguro a los botones adentro de cualquier tabla */
+[class^="table-scroll"] td .btn, 
+.table-responsive td .btn {
+    padding: 0.4rem 0.7rem !important;
+    font-size: 0.85rem !important;
+    display: inline-block !important;
+    white-space: nowrap !important;
+    height: auto !important;
+    line-height: 1.2 !important;
+}
+
+/* ==========================================================================
+   SOLUCIÓN GLOBAL: Corrección de celdas con d-flex infiltrado
+   ========================================================================== */
+
+/* 1. Forzamos a la celda a recuperar su comportamiento nativo y evitamos saltos de línea */
+table td.d-flex, 
+table th.d-flex {
+    display: table-cell !important;
+    text-align: center !important;     /* Centrado horizontal nativo */
+    vertical-align: middle !important;  /* Centrado vertical nativo */
+    white-space: nowrap !important;    /* ¡EVITA QUE EL TERCER BOTÓN SE CAIGA! */
+}
+
+/* 2. Evitamos que los <form> internos (como el de eliminar) rompan la línea */
+table td.d-flex form {
+    display: inline-flex !important;
+    vertical-align: middle !important;
+    margin: 0 !important;
+}
+
+/* 3. Alineamos correctamente los botones sueltos que queden en la celda */
+table td.d-flex > .btn {
+    vertical-align: middle !important;
+}
+
+/* 4. Reemplazamos el 'gap-2' (ya que deja de funcionar al quitar display: flex) */
+table td.d-flex > *:not(:last-child) {
+    margin-right: 0.5rem !important;  /* Genera la separación simétrica entre botones */
 }

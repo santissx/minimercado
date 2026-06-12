@@ -16,6 +16,7 @@ use App\Http\Controllers\VentasAnuController;
 use App\Http\Controllers\FallbackController;
 use App\Http\Middleware\AdminMiddleware;
 use App\Http\Controllers\ReporteController;
+use App\Http\Controllers\PresupuestoController;
 //rutas del login 
 
 Route::get('/dashboard', [VentaController::class, 'mostrar'])->middleware(['auth', 'verified'])->name('dashboard');
@@ -74,10 +75,12 @@ Route::post('/compras', [ComprasController::class, 'agregar'])->name('compras.ag
 // Ruta para obtener productos según el proveedor en select dependiente (ajax)
 Route::get('/productos-por-proveedor/{id}', [ComprasController::class, 'getProductosPorProveedor'])->name('productos-por-proveedor');
 Route::delete('/compras/{id_compra}', [ComprasController::class, 'eliminar'])->name('compras.eliminar');
-
-
-
 });
+
+
+//rutas presupuesto
+Route::get('/presupuesto', [PresupuestoController::class, 'mostrar'])->name('views.presupuesto');
+Route::post('/presupuesto/generar', [PresupuestoController::class, 'generar'])->name('presupuesto.generar');
 
 Route::get('/ventas', function () {
     return view('welcome');
@@ -119,12 +122,12 @@ Route::get('/obtener-clientes-corrientes', [VentaController::class, 'obtenerClie
 
 //rutas para historial
 Route::get('/historial', [HistorialController::class, 'mostrar'])->name('views.historial');
-Route::delete('/ventas/{id}/anular', [HistorialController::class, 'anularVenta'])->name('ventas.anular');
-
 Route::get('/detalle-venta/{id}', [HistorialController::class, 'obtenerDetalleVenta'])->name('detalle.venta');
+Route::get('/ticket/{idVenta}', [HistorialController::class, 'generarTicket'])->name('ventas.ticket');
 
+
+// Mantenemos únicamente la ruta POST que es la que lee los datos validados desde el Form/Modal
 Route::post('/ventas/anular', [HistorialController::class, 'anularVenta'])->name('ventas.anular');
-
 
 Route::get('/anuladas', [VentasAnuController::class, 'index'])->name('views.anuladas');
 

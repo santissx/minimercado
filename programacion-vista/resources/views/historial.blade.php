@@ -1,4 +1,3 @@
-
 @extends('layouts.nav')
 
 @section('title', 'Historial')
@@ -6,10 +5,10 @@
 @section('ladoizq')
 <div class="row h-100">
     <div class="col-lg-8 d-flex flex-column">
-        <!-- Cuadro de historial -->
         <div class="card mb-3 flex-grow-1 left-table position-relative">
             <div class="card-body d-flex flex-column">
                 <h5 class="card-title">Historial de ventas</h5>
+                
                 <div class="table-responsive flex-grow-1 table-scrollhist">
                     <table class="table table-dark table-striped">
                         <thead>
@@ -21,7 +20,7 @@
                                 <th>descuento</th>
                                 <th>metodo de pago</th>
                                 <th>Cliente</th>
-                                <th>Acciones</th>
+                                <th class="text-center">Acciones</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -33,38 +32,40 @@
                                 <td>{{ $venta->monto_total }}</td>
                                 <td>{{ $venta->descuento }}</td>
                                 <td>{{ $venta->metodo_pago }}</td>
-                                <td>  @if($venta->clientec)
-                                    {{ $venta->clientec }} - {{ $venta->nombre_clientec }}
+                                <td>
+                                    @if($venta->clientec)
+                                        {{ $venta->clientec }} - {{ $venta->nombre_clientec }}
                                     @else
-                                    N/A
+                                        N/A
                                     @endif
                                 </td>
-                                <td class="d-flex justify-content-center align-items-center gap-2">
-                                    <button name="boton detalle"
-                                    type="button" 
-                                    class="btn btn-primary ver-detalle-venta" 
-                                    data-id="{{ $venta->id_venta }}" 
-                                    data-bs-toggle="modal" 
-                                    data-bs-target="#verdetalleventa">
-                                    Ver Detalle
-                                    </button>
-                                    <button name="boton anular" 
-                                    type="button" 
-                                    class="btn btn-danger btn-anular-venta" 
-                                    data-id="{{ $venta->id_venta }}" 
-                                    data-bs-toggle="modal" 
-                                    data-bs-target="#modalAnularVenta">
-                                    Anular
-                                    </button>
-
-                                     <a href="{{ route('ventas.ticket', $venta->id_venta) }}" class="btn btn-sm btn-secondary">Ver Ticket</a>
-
+                                <td class="text-center">
+                                    <div class="d-flex justify-content-center align-items-center gap-2">
+                                        <button name="boton detalle"
+                                                type="button" 
+                                                class="btn btn-primary ver-detalle-venta" 
+                                                data-id="{{ $venta->id_venta }}" 
+                                                data-bs-toggle="modal" 
+                                                data-bs-target="#verdetalleventa">
+                                            Ver Detalle
+                                        </button>
+                                        <button name="boton anular" 
+                                                type="button" 
+                                                class="btn btn-danger btn-anular-venta" 
+                                                data-id="{{ $venta->id_venta }}" 
+                                                data-bs-toggle="modal" 
+                                                data-bs-target="#modalAnularVenta">
+                                            Anular
+                                        </button>
+                                        <a href="{{ route('ventas.ticket', $venta->id_venta) }}" class="btn btn-sm btn-secondary">Ver Ticket</a>
+                                    </div>
                                 </td>
                             </tr>
                             @endforeach
                         </tbody>
                     </table>
                 </div>
+
                 <div class="filtros mb-3 p-3 bg-dark rounded border border-secondary">
                     <form method="GET" action="{{ route('views.historial') }}">
                         
@@ -106,7 +107,7 @@
                                 <button type="submit" class="btn btn-primary">Aplicar filtros</button>
                                 
                                 <button type="submit" formaction="{{ route('exportar.ventas') }}" class="btn btn-success">
-                                    <i class="fas fa-file-excel"></i> Exportar Resultados a Excel
+                                    <i class="fas fa-file-excel text-white me-1"></i> Exportar Resultados a Excel
                                 </button>
                             </div>
                             
@@ -122,14 +123,13 @@
         </div>
     </div>
 
-    <!-- Columna derecha superior -->
     <div class="col-lg-4 right-column">
         @include('parciales.columna_derecha')
     </div>
 </div>
 @endsection 
-<!-- Modal ver detalle -->
-<div class="modal fade " id="verdetalleventa" tabindex="-1" aria-labelledby="verdetalleventaLabel" aria-hidden="true">
+
+<div class="modal fade" id="verdetalleventa" tabindex="-1" aria-labelledby="verdetalleventaLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content bg-dark">
             <div class="modal-header">
@@ -151,8 +151,7 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <!-- Aquí irán las filas de productos dinámicamente -->
-                                </tbody>
+                                    </tbody>
                             </table>
                         </div>
                     </div>
@@ -165,7 +164,6 @@
     </div>
 </div>
 
-<!-- modal anular venta -->
 <div class="modal fade" id="modalAnularVenta" tabindex="-1" aria-labelledby="modalAnularVentaLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content bg-dark text-light">
@@ -180,7 +178,7 @@
                     <input type="hidden" name="id_usuario_anulador" value="{{ auth()->id() }}">
                     <div class="mb-3">
                         <label for="descripcion" class="form-label">Motivo de Anulación</label>
-                        <input type="text" name="descripcion" id="descripcion " class="form-control" required>
+                        <input type="text" name="descripcion" id="descripcion" class="form-control" required>
                     </div>
                 </form>
             </div>
@@ -192,25 +190,19 @@
     </div>
 </div>
 
-
-
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-        // Escuchar el clic en el botón "Ver Detalle"
+        // Carga asíncrona de los productos del Detalle de Venta
         document.querySelectorAll('.ver-detalle-venta').forEach(button => {
             button.addEventListener('click', function () {
-                const idVenta = this.getAttribute('data-id'); // Obtener el id_venta
+                const idVenta = this.getAttribute('data-id');
                 
-                // Realizar solicitud AJAX para obtener el detalle de la venta
                 fetch(`/detalle-venta/${idVenta}`)
                     .then(response => response.json())
                     .then(data => {
                         const tbody = document.querySelector('#verdetalleventa table tbody');
-                        
-                        // Limpiar las filas existentes
                         tbody.innerHTML = '';
 
-                        // Agregar las filas de los productos
                         data.forEach(producto => {
                             const row = `
                                 <tr>
@@ -218,7 +210,6 @@
                                     <td>${producto.producto}</td>
                                     <td>${producto.cantidad}</td>
                                     <td>${producto.precio}</td>
-                                    
                                 </tr>
                             `;
                             tbody.innerHTML += row;
@@ -227,19 +218,15 @@
                     .catch(error => console.error('Error al cargar los detalles de la venta:', error));
             });
         });
-    });
-</script>
-<!-- script para pasar id_venta  a el modal -->
-    <script>
-    document.addEventListener('DOMContentLoaded', function () {
+
+        // Inyección dinámica de la ID de venta al Modal de Anulación
         const modalAnularVenta = document.getElementById('modalAnularVenta');
         const inputIdVenta = modalAnularVenta.querySelector('#id_venta');
 
-        // Escuchar el evento de clic en los botones "Anular"
         document.querySelectorAll('.btn-anular-venta').forEach(button => {
             button.addEventListener('click', function () {
                 const idVenta = this.getAttribute('data-id');
-                inputIdVenta.value = idVenta; // Asignar el ID de la venta al campo oculto
+                inputIdVenta.value = idVenta;
             });
         });
     });

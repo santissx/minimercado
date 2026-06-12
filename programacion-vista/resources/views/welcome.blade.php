@@ -1,4 +1,3 @@
-
 @extends('layouts.nav')
 
 @section('title', 'Venta')
@@ -12,11 +11,10 @@
     </div>
 @endif
 
-<form method="POST" action="{{ route('ventas.guardar') }}">
+<form id="formVentaPrincipal" method="POST" action="{{ route('ventas.guardar') }}">
     @csrf
     <div class="row h-100">
         <div class="col-lg-8 d-flex flex-column">
-            <!-- Cuadro de Venta -->
             <div class="card mb-3 flex-grow-1 left-table position-relative">
                 
                 <div class="card-body d-flex flex-column ">
@@ -24,7 +22,7 @@
                         <h5 class="card-title">Venta</h5>
                     </div>
 
-                    <div class="table-responsive flex-grow-1  table-scroll">
+                    <div class="table-responsive flex-grow-1 table-scroll">
                         <table class="table table-dark table-striped ">
                             <thead>
                                 <tr>
@@ -33,11 +31,10 @@
                                     <th>Cantidad</th>
                                     <th>Precio Unitario</th>
                                     <th>Precio Total</th>
-                                </tr>
+                                    <th class="text-center">Quitar</th> </tr>
                             </thead>
                             <tbody id="tablaVentas">
-                                <!-- Aquí se agregarán los productos dinámicamente -->
-                            </tbody>
+                                </tbody>
                         </table>
                     </div>
 
@@ -50,23 +47,21 @@
                 </div>
             </div>
             
-
-            <!-- Cuadro de Ventas Totales -->
             <div class="filtros mb-3 p-3 bg-dark rounded border border-secondary">
                 <div class="card-body">
                     <h5 class="card-title">Ventas Totales</h5>
                     <select class="form-select mb-3" name="metodo_pago" id="metodo_pago" required onchange="toggleClientesCorrientes()">
-                    <option selected disabled>Método de pago</option>
-                    @foreach($metodosDePago as $metodo)
-                        <option value="{{ $metodo->id_metodo_pago }}">{{ $metodo->nombre }}</option>
-                    @endforeach
-                </select>
-
-                <div id="clientes_corrientes_container" style="display: none;">
-                    <select class="form-select mb-3" name="id_cliente" id="id_cliente" required>
-                        <option selected disabled>Seleccione un cliente</option>
+                        <option selected disabled value="">Método de pago</option>
+                        @foreach($metodosDePago as $metodo)
+                            <option value="{{ $metodo->id_metodo_pago }}">{{ $metodo->nombre }}</option>
+                        @endforeach
                     </select>
-                </div>
+
+                    <div id="clientes_corrientes_container" style="display: none;">
+                        <select class="form-select mb-3" name="id_cliente" id="id_cliente">
+                            <option selected disabled value="">Seleccione un cliente</option>
+                        </select>
+                    </div>
                     <div class="d-flex justify-content-between mb-2">
                         <label for="descuento" class="me-2">Descuento:</label>
                         <input type="number" id="descuento" name="descuento" class="form-control w-25" placeholder="$0.00" step="0.01" min="0" onchange="aplicarDescuento()">
@@ -78,9 +73,8 @@
                 </div>
             </div>
         </div>
-    </form>
+</form>
 
-    <!-- Columna derecha superior -->
     <div class="col-lg-4 right-column">
         @include('parciales.columna_derecha')
         <div class="mt-4">
@@ -91,7 +85,6 @@
     </div>
 </div>
 
-<!-- Modal para buscar productos -->
 <div class="modal fade" id="buscarProductoModal" tabindex="-1" aria-labelledby="buscarProductoModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content bg-dark">
@@ -112,13 +105,42 @@
                         </tr>
                     </thead>
                     <tbody id="resultadosProductos">
-                        <!-- Aquí se mostrarán los resultados -->
-                    </tbody>
+                        </tbody>
                 </table>
             </div>
         </div>
     </div>
 </div>
+
+@if (session('nueva_venta_id'))
+    <div class="modal fade" id="ticketModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content bg-dark text-white border border-secondary">
+                <div class="modal-header border-secondary">
+                    <h5 class="modal-title">¡Venta Procesada con éxito!</h5>
+                </div>
+                <div class="modal-body text-center">
+                    <p class="mb-0">¿Deseás imprimir o visualizar el ticket de esta venta?</p>
+                </div>
+                <div class="modal-footer justify-content-center border-0">
+                    <a href="{{ route('ventas.ticket', ['idVenta' => session('nueva_venta_id')]) }}" class="btn btn-success">
+                        <i class="fas fa-print me-1"></i> Sí, ver ticket
+                    </a>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        No, continuar vendiendo
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const ticketModal = new bootstrap.Modal(document.getElementById('ticketModal'));
+            ticketModal.show();
+        });
+    </script>
+@endif
 
 <script>
     document.getElementById('buscarProductoInput').addEventListener('input', function () {
@@ -129,7 +151,7 @@
                 .then(response => response.json())
                 .then(data => {
                     const resultados = document.getElementById('resultadosProductos');
-                    resultados.innerHTML = ''; // Limpia los resultados previos
+                    resultados.innerHTML = '';
 
                     data.forEach(producto => {
                         const fila = document.createElement('tr');
@@ -151,97 +173,130 @@
         }
     });
 
-    //capturar evento agregar y agregar el producto:
-document.addEventListener('click', function (e) {
-    if (e.target.classList.contains('agregar-producto')) {
-        const fila = e.target.closest('tr'); // Encuentra la fila del producto
-        const id_producto = e.target.dataset.id;
-        if (!id_producto) {
-            console.error('ID del producto es inválido.');
-            return;
+    document.addEventListener('click', function (e) {
+        if (e.target.classList.contains('agregar-producto')) {
+            const fila = e.target.closest('tr');
+            const id_producto = e.target.dataset.id;
+            if (!id_producto) return;
+            
+            const codigo_barra = fila.cells[0].textContent.trim();
+            const nombre = fila.cells[1].textContent.trim();
+            const precio = parseFloat(fila.cells[2].textContent.trim());
+            const stock = parseInt(fila.cells[3].textContent.trim());
+
+            // CORRECCIÓN: Selección estricta y blindada mediante ID único
+            const tablaVentas = document.getElementById('tablaVentas');
+            const nuevaFila = document.createElement('tr');
+
+            // Agregamos de forma segura el botón rojo con la cruz nativa al final del string HTML
+            nuevaFila.innerHTML = `
+                <td>${codigo_barra}</td>
+                <td>${nombre}</td>
+                <td>
+                    <input type="number" name="productos[${id_producto}][cantidad]" value="1" min="1" max="${stock}" class="form-control cantidad" data-precio="${precio}" data-stock="${stock}" oninput="actualizarTotal(this)">
+                    <input type="hidden" name="productos[${id_producto}][id_producto]" value="${id_producto}">
+                    <input type="hidden" name="productos[${id_producto}][precio]" value="${precio}">
+                </td>
+                <td>$${precio.toFixed(2)}</td>
+                <td class="precio-total">$${precio.toFixed(2)}</td>
+                <td class="text-center">
+                    <button type="button" class="btn btn-danger btn-sm px-2 py-1" onclick="quitarProductoDelCarrito(this)">
+                        ×
+                    </button>
+                </td>`;
+            tablaVentas.appendChild(nuevaFila);
+
+            const modal = bootstrap.Modal.getInstance(document.getElementById('buscarProductoModal'));
+            modal.hide();
+
+            calcularTotalVenta();
         }
-        const codigo_barra = fila.cells[0].textContent.trim();
-        const nombre = fila.cells[1].textContent.trim();
-        const precio = parseFloat(fila.cells[2].textContent.trim()); // Convertir a número
-        const stock = parseInt(fila.cells[3].textContent.trim()); // Obtener el stock
+    });
 
-        // Añadir producto a la tabla de ventas
-        const tablaVentas = document.querySelector('.table tbody');
-        const nuevaFila = document.createElement('tr');
-
-        nuevaFila.innerHTML = `
-            <td>${codigo_barra}</td>
-            <td>${nombre}</td>
-            <td>
-                <input type="number" name="productos[${id_producto}][cantidad]" value="1" min="1" max="${stock}" class="form-control cantidad" data-precio="${precio}" data-stock="${stock}" onchange="actualizarTotal(this)">
-                <input type="hidden" name="productos[${id_producto}][id_producto]" value="${id_producto}">
-                <input type="hidden" name="productos[${id_producto}][precio]" value="${precio}">
-            </td>
-            <td>$${precio.toFixed(2)}</td>
-            <td class="precio-total">$${precio.toFixed(2)}</td>`;
-        tablaVentas.appendChild(nuevaFila);
-
-        // Cierra el modal
-        const modal = bootstrap.Modal.getInstance(document.getElementById('buscarProductoModal'));
-        modal.hide();
-
-        // Recalcular el total
-        calcularTotalVenta();
+    // Función encargada de borrar el elemento del DOM y recalcular montos al instante
+    function quitarProductoDelCarrito(boton) {
+        const fila = boton.closest('tr');
+        if (fila) {
+            fila.remove();
+            calcularTotalVenta();
+        }
     }
-});
 
     function actualizarTotal(input) {
         const cantidad = parseInt(input.value, 10) || 0;
         const precioUnitario = parseFloat(input.getAttribute('data-precio')) || 0;
         const precioTotal = cantidad * precioUnitario;
 
-        // Actualizar el precio total de la fila
         const fila = input.closest('tr');
         fila.querySelector('.precio-total').textContent = `$${precioTotal.toFixed(2)}`;
 
-        // Recalcular el total de la venta
-        const descuento = parseFloat(document.getElementById('descuento').value) || 0;
-        calcularTotalVenta(descuento);
+        calcularTotalVenta();
     }
 
-    // Función para aplicar el descuento
     function aplicarDescuento() {
-        const descuento = parseFloat(document.getElementById('descuento').value) || 0;
-        calcularTotalVenta(descuento);
+        calcularTotalVenta();
     }
 
-    // Función para recalcular el total de la venta
-    function calcularTotalVenta(descuento = 0) {
+    function calcularTotalVenta() {
         let total = 0;
+        const descuento = parseFloat(document.getElementById('descuento').value) || 0;
 
-        // Iterar sobre las celdas con la clase 'precio-total' y sumar los precios de los productos
         document.querySelectorAll('.precio-total').forEach(celda => {
             const precio = parseFloat(celda.textContent.replace('$', '').trim()) || 0;
             total += precio;
         });
-
-        // Aplicar descuento
         total -= descuento;
 
-        // Mostrar el total final
         const totalVentaElement = document.querySelector('#totalVenta');
         if (totalVentaElement) {
             totalVentaElement.textContent = `$${total.toFixed(2)}`;
         }
     }
+
+    // CONTROL JS ANTI-RELOAD: Evalúa los campos obligatorios antes de disparar el envío al servidor
+    document.getElementById('formVentaPrincipal').addEventListener('submit', function (e) {
+        const tablaVentas = document.getElementById('tablaVentas');
+        const metodoPago = document.getElementById('metodo_pago').value;
+        const idCliente = document.getElementById('id_cliente').value;
+
+        // Validar carrito vacío
+        if (tablaVentas.children.length === 0) {
+            e.preventDefault();
+            alert('¡Atención! No podés guardar una venta vacía. Agregá al menos un producto al listado.');
+            return;
+        }
+
+        // Validar método de pago seleccionado
+        if (!metodoPago) {
+            e.preventDefault();
+            alert('¡Atención! Es obligatorio que selecciones un Método de pago válido para guardar el registro.');
+            document.getElementById('metodo_pago').focus();
+            return;
+        }
+
+        // Validar asociación de cliente corriente obligatorio
+        if (metodoPago === '3' && !idCliente) {
+            e.preventDefault();
+            alert('¡Atención! Seleccionaste la opción "Cliente Corriente". Por lo tanto, debes indicar el cliente titular de la cuenta obligatoriamente.');
+            document.getElementById('id_cliente').focus();
+            return;
+        }
+    });
 </script>
 
-<!-- script para clientes corrientes -->
 <script>
 function toggleClientesCorrientes() {
     const metodoPago = document.getElementById('metodo_pago');
     const clientesCorrientesContainer = document.getElementById('clientes_corrientes_container');
+    const selectClientes = document.getElementById('id_cliente');
     
     if (metodoPago.value === '3') { 
         clientesCorrientesContainer.style.display = 'block';
+        selectClientes.setAttribute('required', 'required');
         cargarClientesCorrientes();
     } else {
         clientesCorrientesContainer.style.display = 'none';
+        selectClientes.removeAttribute('required');
     }
 }
 
@@ -250,7 +305,7 @@ function cargarClientesCorrientes() {
         .then(response => response.json())
         .then(data => {
             const selectClientes = document.getElementById('id_cliente');
-            selectClientes.innerHTML = '<option selected disabled>Seleccione un cliente</option>';
+            selectClientes.innerHTML = '<option selected disabled value="">Seleccione un cliente</option>';
             
             data.forEach(cliente => {
                 const option = document.createElement('option');
@@ -264,4 +319,3 @@ function cargarClientesCorrientes() {
 document.addEventListener('DOMContentLoaded', toggleClientesCorrientes);
 </script>
 @endsection
-
