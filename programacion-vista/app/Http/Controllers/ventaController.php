@@ -42,6 +42,7 @@ class VentaController extends Controller
         try {
             $montoTotal = 0;
 
+            // Calcular el subtotal bruto acumulado y verificar existencias
             foreach ($request->productos as $producto) {
                 $productoInfo = DB::table('productos')
                     ->where('id_producto', $producto['id_producto'])
@@ -56,6 +57,14 @@ class VentaController extends Controller
             }
 
             $descuento = $request->descuento ?? 0;
+
+            // CONTROL DE SEGURIDAD BACKEND: El descuento no puede superar la suma de la mercadería
+            if ($descuento > $montoTotal) {
+                DB::rollBack();
+                return redirect()->back()->with('error', 'Error comercial: El descuento ingresado no puede superar el monto total de los productos.');
+            }
+
+            // Aplicar descuento de forma segura
             $montoTotal -= $descuento;
 
             $idVenta = DB::table('ventas')
@@ -83,7 +92,6 @@ class VentaController extends Controller
 
             DB::commit();
 
-            // Corregido: Redirección apuntando a tu alias correcto 'views.ventas'
             return redirect()->route('views.ventas')
                 ->with('success', 'Venta guardada con éxito')
                 ->with('nueva_venta_id', $idVenta);

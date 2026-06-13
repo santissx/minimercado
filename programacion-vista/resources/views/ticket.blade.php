@@ -50,6 +50,7 @@
             margin: 0 auto;
             border: 1px solid #ccc;
             padding: 30px;
+            position: relative;
         }
 
         /* Header */
@@ -203,10 +204,22 @@
             color: #888;
         }
 
+        /* Leyenda de ticket no válido */
+        .leyenda-no-valido {
+            text-align: center;
+            font-size: 12px;
+            font-weight: bold;
+            color: #555;
+            letter-spacing: 1px;
+            margin-top: 20px;
+        }
+
         /* Print */
         @media print {
             body {
                 padding: 0;
+                /* Dejar margen inferior para que el contenido flotante no pise el texto final */
+                margin-bottom: 40px; 
             }
 
             .no-print {
@@ -233,6 +246,20 @@
             /* Los totales pasan completos a la siguiente página si no entran */
             .totales {
                 page-break-before: auto;
+            }
+
+            /* Fuerza a la leyenda a repetirse al fondo de CADA hoja física */
+            .leyenda-no-valido {
+                position: fixed;
+                bottom: 10px;
+                left: 0;
+                width: 100%;
+                margin: 0;
+                text-align: center;
+                font-size: 11px;
+                border-top: 1px dashed #bbb;
+                padding-top: 5px;
+                background: #fff;
             }
         }
     </style>
@@ -347,6 +374,11 @@
         {{-- Footer --}}
         <div class="footer">
             <p>Gracias por su compra — {{ $local['nombre'] }}</p>
+        </div>
+
+        {{-- Leyenda Obligatoria --}}
+        <div class="leyenda-no-valido">
+            *** TICKET NO VÁLIDO COMO FACTURA ***
         </div>
 
     </div>

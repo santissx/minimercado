@@ -31,7 +31,8 @@
                                     <th>Cantidad</th>
                                     <th>Precio Unitario</th>
                                     <th>Precio Total</th>
-                                    <th class="text-center">Quitar</th> </tr>
+                                    <th class="text-center">Quitar</th> 
+                                </tr>
                             </thead>
                             <tbody id="tablaVentas">
                                 </tbody>
@@ -105,7 +106,7 @@
                         </tr>
                     </thead>
                     <tbody id="resultadosProductos">
-                        </tbody>
+                    </tbody>
                 </table>
             </div>
         </div>
@@ -184,11 +185,9 @@
             const precio = parseFloat(fila.cells[2].textContent.trim());
             const stock = parseInt(fila.cells[3].textContent.trim());
 
-            // CORRECCIÓN: Selección estricta y blindada mediante ID único
             const tablaVentas = document.getElementById('tablaVentas');
             const nuevaFila = document.createElement('tr');
 
-            // Agregamos de forma segura el botón rojo con la cruz nativa al final del string HTML
             nuevaFila.innerHTML = `
                 <td>${codigo_barra}</td>
                 <td>${nombre}</td>
@@ -213,7 +212,6 @@
         }
     });
 
-    // Función encargada de borrar el elemento del DOM y recalcular montos al instante
     function quitarProductoDelCarrito(boton) {
         const fila = boton.closest('tr');
         if (fila) {
@@ -245,28 +243,49 @@
             const precio = parseFloat(celda.textContent.replace('$', '').trim()) || 0;
             total += precio;
         });
-        total -= descuento;
+
+        // CORRECCIÓN VISUAL: Si el descuento es más grande que los productos, mostramos $0.00 en lugar de un número negativo
+        let totalConDescuento = total - descuento;
+        if (totalConDescuento < 0) {
+            totalConDescuento = 0;
+        }
 
         const totalVentaElement = document.querySelector('#totalVenta');
         if (totalVentaElement) {
-            totalVentaElement.textContent = `$${total.toFixed(2)}`;
+            totalVentaElement.textContent = `$${totalConDescuento.toFixed(2)}`;
         }
     }
 
-    // CONTROL JS ANTI-RELOAD: Evalúa los campos obligatorios antes de disparar el envío al servidor
+    // CONTROL JS ANTI-RELOAD (ACTUALIZADO CON VALIDACIÓN DE DESCUENTO)
     document.getElementById('formVentaPrincipal').addEventListener('submit', function (e) {
         const tablaVentas = document.getElementById('tablaVentas');
         const metodoPago = document.getElementById('metodo_pago').value;
         const idCliente = document.getElementById('id_cliente').value;
+        const descuentoInput = parseFloat(document.getElementById('descuento').value) || 0;
 
-        // Validar carrito vacío
+        // 1. Validar carrito vacío
         if (tablaVentas.children.length === 0) {
             e.preventDefault();
             alert('¡Atención! No podés guardar una venta vacía. Agregá al menos un producto al listado.');
             return;
         }
 
-        // Validar método de pago seleccionado
+        // 2. Calcular subtotal bruto actual en el carrito para auditar el descuento
+        let subtotalProductos = 0;
+        document.querySelectorAll('.precio-total').forEach(celda => {
+            const precio = parseFloat(celda.textContent.replace('$', '').trim()) || 0;
+            subtotalProductos += precio;
+        });
+
+        // 3. NUEVA VALIDACIÓN: Detener el envío si el descuento supera la mercadería
+        if (descuentoInput > subtotalProductos) {
+            e.preventDefault(); // Evitamos que la página se recargue y se borre el carrito
+            alert('¡Atención! El descuento ingresado ($' + descuentoInput.toFixed(2) + ') no puede ser mayor al total acumulado de los productos ($' + subtotalProductos.toFixed(2) + '). Por favor, corregilo.');
+            document.getElementById('descuento').focus();
+            return;
+        }
+
+        // 4. Validar método de pago seleccionado
         if (!metodoPago) {
             e.preventDefault();
             alert('¡Atención! Es obligatorio que selecciones un Método de pago válido para guardar el registro.');
@@ -274,7 +293,7 @@
             return;
         }
 
-        // Validar asociación de cliente corriente obligatorio
+        // 5. Validar asociación de cliente corriente obligatorio
         if (metodoPago === '3' && !idCliente) {
             e.preventDefault();
             alert('¡Atención! Seleccionaste la opción "Cliente Corriente". Por lo tanto, debes indicar el cliente titular de la cuenta obligatoriamente.');

@@ -17,6 +17,7 @@ use App\Http\Controllers\FallbackController;
 use App\Http\Middleware\AdminMiddleware;
 use App\Http\Controllers\ReporteController;
 use App\Http\Controllers\PresupuestoController;
+use App\Http\Controllers\BalanceController;
 //rutas del login 
 
 Route::get('/dashboard', [VentaController::class, 'mostrar'])->middleware(['auth', 'verified'])->name('dashboard');
@@ -145,3 +146,5 @@ Route::get('exportar/ventas-anuladas', [\App\Http\Controllers\ReporteController:
 // ruta para backup de base de datos
 Route::get('backup/database', [\App\Http\Controllers\ReporteController::class, 'backupDatabase'])->name('backup.db');
 
+
+Route::get('/balances', [\App\Http\Controllers\BalanceController::class, 'mostrar'])->name('views.balances');
