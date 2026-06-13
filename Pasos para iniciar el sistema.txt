@@ -1,0 +1,11 @@
+Pasos para iniciar el sistema:
+
+Instalar XAMPP: Asegúrate de que MySQL y Apache estén instalados.
+
+Instalar PHP: Instala PHP en la PC y asegúrate de que esté configurado en el sistema (puedes verificarlo escribiendo php -v en la consola).
+
+Configurar Base de Datos: Abre XAMPP, inicia MySQL y Apache. Importa el archivo minimercado.sql desde phpMyAdmin.
+
+Configurar Proyecto: Abre la carpeta del sistema, si es la primera vez, el archivo sistema_ventas.bat creará automáticamente el archivo .env.
+5. Credenciales: Si el sistema da error, abre el archivo .env y asegúrate de que DB_DATABASE, DB_USERNAME y DB_PASSWORD sean los correctos para tu base de datos.
+6. Ejecutar: Simplemente haz doble clic en sistema_ventas.bat y el sistema abrirá solo en tu navegador.
