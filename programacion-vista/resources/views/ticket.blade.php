@@ -281,7 +281,7 @@
                 <h1>{{ $local['nombre'] }}</h1>
 
                 {{-- Logo: cuando tengas el archivo, reemplazá el div de abajo por:        --}}
-                <img src="{{ asset('images/logo.jpeg') }}" class="logo" alt="Logo">
+                <img src="{{ asset('storage/logo_se.jpeg') }}" alt="Logo Empresa" class="logo">
 
 
                 <div class="datos-local">

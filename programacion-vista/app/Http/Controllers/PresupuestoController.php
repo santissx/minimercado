@@ -17,12 +17,12 @@ class PresupuestoController extends Controller
             ->get();
 
         $local = [
-            'nombre'    => 'Nombre del Minimercado',
+            'nombre'    => 'Soluciones Eléctricas',
             'cuit'      => '00-00000000-0',
-            'telefono'  => '000 000-0000',
-            'direccion' => 'Dirección del local',
-            'facebook'  => 'Facebook del local',
-            'instagram' => '@instagram',
+            'telefono'  => '3705033180',
+            'direccion' => 'AV. Cabral 586 - Formosa Capital',
+            'facebook'  => 'Soluciones Eléctricas Fsa',
+            'instagram' => '@solucioneselectricasfsa',
         ];
 
         return view('presupuesto', compact('productos', 'local'));
@@ -64,12 +64,12 @@ class PresupuestoController extends Controller
         $total = $subtotal - $descuento;
 
         $local = [
-            'nombre'    => 'Nombre del Minimercado',
+            'nombre'    => 'Soluciones Eléctricas',
             'cuit'      => '00-00000000-0',
-            'telefono'  => '000 000-0000',
-            'direccion' => 'Dirección del local',
-            'facebook'  => 'Facebook del local',
-            'instagram' => '@instagram',
+            'telefono'  => '3705033180',
+            'direccion' => 'AV. Cabral 586 - Formosa Capital',
+            'facebook'  => 'Soluciones Eléctricas Fsa',
+            'instagram' => '@solucioneselectricasfsa',
         ];
 
         $datos = [

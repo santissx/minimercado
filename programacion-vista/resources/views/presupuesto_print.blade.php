@@ -268,7 +268,9 @@
 
                 {{-- Logo: reemplazá el div por el img cuando tengas el archivo --}}
                 {{-- <img src="{{ asset('images/logo.png') }}" class="logo" alt="Logo"> --}}
-                <div class="logo-placeholder">Logo aquí</div>
+                <div class="logo-placeholder">
+                    <img src="{{ asset('storage/logo_se.jpeg') }}" alt="Logo Empresa" class="logo">
+                </div>
 
                 <div class="datos-local">
                     <div>Facebook: {{ $local['facebook'] }}</div>
