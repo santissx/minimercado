@@ -1,296 +1,88 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
     <meta charset="UTF-8">
     <title>Ticket #{{ $venta->id_venta }}</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; font-size: 13px; color: #222; background: #fff; padding: 30px; }
+        
+        /* Contenedor de la X enmarcada */
+        .contenedor-x {
+            width: 70px; height: 70px; border: 2px solid #000;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            background: #fff; margin: 0 20px;
         }
+        .x-grande { font-size: 40px; font-weight: bold; line-height: 1; }
+        .leyenda-x { font-size: 7px; font-weight: bold; text-transform: uppercase; text-align: center; line-height: 1; margin-top: 2px; }
 
-        body {
-            font-family: Arial, sans-serif;
-            font-size: 13px;
-            color: #222;
-            background: #fff;
-            padding: 30px;
-        }
+        .ticket { position: relative; max-width: 800px; margin: 0 auto; border: 1px solid #ccc; padding: 30px; background: #fff; }
+        .no-print { margin-bottom: 20px; display: flex; gap: 10px; }
+        .btn { padding: 8px 18px; border: none; border-radius: 4px; cursor: pointer; font-size: 13px; }
+        .btn-volver { background: #6c757d; color: #fff; }
+        .btn-imprimir { background: #0d6efd; color: #fff; }
+        
+        /* Header estructurado para que la X quede en el medio */
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .header-izq { flex: 1; }
+        .header-der { flex: 1; text-align: right; }
+        .header-centro { display: flex; justify-content: center; }
 
-        /* Botones — ocultos al imprimir */
-        .no-print {
-            margin-bottom: 20px;
-            display: flex;
-            gap: 10px;
-        }
+        .header-izq h1 { font-size: 22px; font-weight: bold; margin-bottom: 5px; }
+        .logo { width: 100px; height: auto; }
+        .datos-local { font-size: 12px; line-height: 1.5; color: #444; margin-top: 5px; }
+        .header-der { font-size: 13px; line-height: 1.8; }
+        .comprobante-num { font-weight: bold; font-size: 14px; }
+        
+        hr { border: none; border-top: 1px solid #ccc; margin: 16px 0; }
+        .datos-cliente { display: flex; justify-content: flex-end; margin-bottom: 16px; }
+        .datos-cliente table td { padding: 2px 8px; font-size: 13px; }
+        .datos-cliente table td:first-child { font-weight: bold; text-align: right; }
+        
+        .tabla-productos { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+        .tabla-productos thead tr { background: #333; color: #fff; }
+        .tabla-productos th, .tabla-productos td { padding: 7px 10px; text-align: left; border-bottom: 1px solid #ddd; }
+        .tabla-productos th:last-child, .tabla-productos td:last-child { text-align: right; }
+        .tabla-productos tbody tr:nth-child(even) { background: #f9f9f9; }
+        
+        .totales { display: flex; justify-content: flex-end; }
+        .totales table { min-width: 260px; }
+        .totales table td { padding: 5px 10px; font-size: 13px; }
+        .totales table td:first-child { font-weight: bold; text-align: right; color: #444; }
+        .fila-total td { font-size: 18px; font-weight: bold; border-top: 2px solid #333; padding-top: 10px; }
+        .fila-total td:last-child { color: #c0392b; }
+        
+        .footer { text-align: center; margin-top: 30px; font-size: 11px; color: #888; }
+        .leyenda-no-valido { text-align: center; font-size: 12px; font-weight: bold; color: #555; letter-spacing: 1px; margin-top: 20px; }
 
-        .btn {
-            padding: 8px 18px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 13px;
-        }
-
-        .btn-volver {
-            background: #6c757d;
-            color: #fff;
-        }
-
-        .btn-imprimir {
-            background: #0d6efd;
-            color: #fff;
-        }
-
-        /* Ticket */
-        .ticket {
-            max-width: 800px;
-            margin: 0 auto;
-            border: 1px solid #ccc;
-            padding: 30px;
-            position: relative;
-        }
-
-        /* Header */
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 20px;
-        }
-
-        .header-izq h1 {
-            font-size: 22px;
-            font-weight: bold;
-            margin-bottom: 10px;
-        }
-
-        /* Espacio del logo */
-        .logo-placeholder {
-            width: 100px;
-            height: 80px;
-            border: 1px dashed #aaa;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #aaa;
-            font-size: 11px;
-            margin-bottom: 8px;
-        }
-
-        /* Cuando pongas el logo, reemplazá .logo-placeholder por: */
-        .logo {
-            width: 100px;
-            height: auto;
-        }
-
-        .datos-local {
-            font-size: 12px;
-            line-height: 1.7;
-            color: #444;
-        }
-
-        .header-der {
-            text-align: right;
-            font-size: 13px;
-            line-height: 1.8;
-        }
-
-        .header-der .comprobante-num {
-            font-weight: bold;
-            font-size: 14px;
-        }
-
-        /* Separador */
-        hr {
-            border: none;
-            border-top: 1px solid #ccc;
-            margin: 16px 0;
-        }
-
-        /* Datos del cliente */
-        .datos-cliente {
-            display: flex;
-            justify-content: flex-end;
-            margin-bottom: 16px;
-        }
-
-        .datos-cliente table td {
-            padding: 2px 8px;
-            font-size: 13px;
-        }
-
-        .datos-cliente table td:first-child {
-            font-weight: bold;
-            text-align: right;
-        }
-
-        /* Tabla de productos */
-        .tabla-productos {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 20px;
-        }
-
-        .tabla-productos thead tr {
-            background: #333;
-            color: #fff;
-        }
-
-        .tabla-productos th,
-        .tabla-productos td {
-            padding: 7px 10px;
-            text-align: left;
-            border-bottom: 1px solid #ddd;
-        }
-
-        .tabla-productos th:last-child,
-        .tabla-productos td:last-child {
-            text-align: right;
-        }
-
-        .tabla-productos th:nth-child(4),
-        .tabla-productos td:nth-child(4) {
-            text-align: right;
-        }
-
-        .tabla-productos tbody tr:nth-child(even) {
-            background: #f9f9f9;
-        }
-
-        /* Totales */
-        .totales {
-            display: flex;
-            justify-content: flex-end;
-        }
-
-        .totales table {
-            min-width: 260px;
-        }
-
-        .totales table td {
-            padding: 5px 10px;
-            font-size: 13px;
-        }
-
-        .totales table td:first-child {
-            font-weight: bold;
-            text-align: right;
-            color: #444;
-        }
-
-        .totales table td:last-child {
-            text-align: right;
-        }
-
-        .totales .fila-total td {
-            font-size: 18px;
-            font-weight: bold;
-            border-top: 2px solid #333;
-            padding-top: 10px;
-        }
-
-        .totales .fila-total td:last-child {
-            color: #c0392b;
-        }
-
-        /* Footer */
-        .footer {
-            text-align: center;
-            margin-top: 30px;
-            font-size: 11px;
-            color: #888;
-        }
-
-        /* Leyenda de ticket no válido */
-        .leyenda-no-valido {
-            text-align: center;
-            font-size: 12px;
-            font-weight: bold;
-            color: #555;
-            letter-spacing: 1px;
-            margin-top: 20px;
-        }
-
-        /* Print */
         @media print {
-            body {
-                padding: 0;
-                /* Dejar margen inferior para que el contenido flotante no pise el texto final */
-                margin-bottom: 40px; 
-            }
-
-            .no-print {
-                display: none !important;
-            }
-
-            .ticket {
-                border: none;
-                padding: 10px;
-            }
-
-            /* Evita que una fila de la tabla se corte entre dos páginas */
-            .tabla-productos tbody tr {
-                page-break-inside: avoid;
-            }
-
-            /* El header, datos del cliente y totales nunca se cortan */
-            .header,
-            .datos-cliente,
-            .totales {
-                page-break-inside: avoid;
-            }
-
-            /* Los totales pasan completos a la siguiente página si no entran */
-            .totales {
-                page-break-before: auto;
-            }
-
-            /* Fuerza a la leyenda a repetirse al fondo de CADA hoja física */
-            .leyenda-no-valido {
-                position: fixed;
-                bottom: 10px;
-                left: 0;
-                width: 100%;
-                margin: 0;
-                text-align: center;
-                font-size: 11px;
-                border-top: 1px dashed #bbb;
-                padding-top: 5px;
-                background: #fff;
-            }
+            .no-print { display: none !important; }
+            .ticket { border: none; padding: 10px; }
         }
     </style>
 </head>
-
 <body>
-
-    {{-- Botones fuera del ticket --}}
     <div class="no-print">
         <button class="btn btn-volver" onclick="history.back()">← Volver</button>
         <button class="btn btn-imprimir" onclick="window.print()">Imprimir ticket</button>
     </div>
 
     <div class="ticket">
-
-        {{-- Header --}}
         <div class="header">
             <div class="header-izq">
                 <h1>{{ $local['nombre'] }}</h1>
-
-                {{-- Logo: cuando tengas el archivo, reemplazá el div de abajo por:        --}}
                 <img src="{{ asset('storage/logo_se.jpeg') }}" alt="Logo Empresa" class="logo">
-
-
                 <div class="datos-local">
                     <div>Facebook: {{ $local['facebook'] }}</div>
                     <div>Instagram: {{ $local['instagram'] }}</div>
-                    <div>CUIT: {{ $local['cuit'] }}</div>
                     <div>Teléfono: {{ $local['telefono'] }}</div>
                     <div>{{ $local['direccion'] }}</div>
                 </div>
+            </div>
+
+            <div class="contenedor-x">
+                <div class="x-grande">X</div>
+                <div class="leyenda-x">TICKET NO VÁLIDO<br>COMO FACTURA</div>
             </div>
 
             <div class="header-der">
@@ -298,46 +90,18 @@
                 <div class="comprobante-num">Comprobante N° {{ str_pad($venta->id_venta, 8, '0', STR_PAD_LEFT) }}</div>
             </div>
         </div>
-
+        
         <hr>
-
-        {{-- Datos del cliente --}}
         <div class="datos-cliente">
             <table>
-                <tr>
-                    <td>CLIENTE</td>
-                    <td>
-                        @if ($venta->clientec)
-                            {{ $venta->nombre_clientec }}
-                        @else
-                            Consumidor final
-                        @endif
-                    </td>
-                </tr>
-                <tr>
-                    <td>VENDEDOR</td>
-                    <td>{{ $venta->vendedor_name }}</td>
-                </tr>
-                <tr>
-                    <td>MÉTODO DE PAGO</td>
-                    <td>{{ $venta->metodo_pago }}</td>
-                </tr>
+                <tr><td>CLIENTE</td><td>{{ $venta->clientec ? $venta->nombre_clientec : 'Consumidor final' }}</td></tr>
+                <tr><td>VENDEDOR</td><td>{{ $venta->vendedor_name }}</td></tr>
+                <tr><td>MÉTODO DE PAGO</td><td>{{ $venta->metodo_pago }}</td></tr>
             </table>
         </div>
-
         <hr>
-
-        {{-- Tabla de productos --}}
         <table class="tabla-productos">
-            <thead>
-                <tr>
-                    <th>Código</th>
-                    <th>Descripción</th>
-                    <th>Cant.</th>
-                    <th>Precio unit.</th>
-                    <th>Total</th>
-                </tr>
-            </thead>
+            <thead><tr><th>Código</th><th>Descripción</th><th>Cant.</th><th>Precio unit.</th><th>Total</th></tr></thead>
             <tbody>
                 @foreach ($productos as $producto)
                     <tr>
@@ -350,39 +114,17 @@
                 @endforeach
             </tbody>
         </table>
-
-        {{-- Totales --}}
         <div class="totales">
             <table>
-                <tr>
-                    <td>SUBTOTAL $</td>
-                    <td>{{ number_format($venta->monto_total + $venta->descuento, 2) }}</td>
-                </tr>
+                <tr><td>SUBTOTAL $</td><td>{{ number_format($venta->monto_total + $venta->descuento, 2) }}</td></tr>
                 @if ($venta->descuento > 0)
-                    <tr>
-                        <td>DESCUENTO $</td>
-                        <td>{{ number_format($venta->descuento, 2) }}</td>
-                    </tr>
+                    <tr><td>DESCUENTO $</td><td>{{ number_format($venta->descuento, 2) }}</td></tr>
                 @endif
-                <tr class="fila-total">
-                    <td>Total $</td>
-                    <td>{{ number_format($venta->monto_total, 2) }}</td>
-                </tr>
+                <tr class="fila-total"><td>Total $</td><td>{{ number_format($venta->monto_total, 2) }}</td></tr>
             </table>
         </div>
-
-        {{-- Footer --}}
-        <div class="footer">
-            <p>Gracias por su compra — {{ $local['nombre'] }}</p>
-        </div>
-
-        {{-- Leyenda Obligatoria --}}
-        <div class="leyenda-no-valido">
-            *** TICKET NO VÁLIDO COMO FACTURA ***
-        </div>
-
+        <div class="footer"><p>Gracias por su compra — {{ $local['nombre'] }}</p></div>
+        <div class="leyenda-no-valido">*** TICKET NO VÁLIDO COMO FACTURA ***</div>
     </div>
-
 </body>
-
 </html>

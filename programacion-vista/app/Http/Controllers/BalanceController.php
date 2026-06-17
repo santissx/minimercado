@@ -90,11 +90,23 @@ class BalanceController extends Controller
             ->whereBetween('gastos.fecha_gasto', [substr($inicio, 0, 10), substr($fin, 0, 10)])
             ->sum('monto');
 
+        // NUEVO CÁLCULO: Balance de Ganancias Limpio (Ganancia Neta histórica de productos)
+       $totalCostos = DB::table('ventas_productos')
+            ->join('ventas', 'ventas_productos.id_venta', '=', 'ventas.id_venta')
+            ->leftJoin('ventas_anuladas', 'ventas.id_venta', '=', 'ventas_anuladas.id_venta')
+            ->whereNull('ventas_anuladas.id_venta_anulada')
+            ->whereBetween('ventas.fecha_venta', [$inicio, $fin])
+            ->sum(DB::raw('COALESCE(ventas_productos.precio_lista, 0) * ventas_productos.cantidad'));
+
+        // 2. La ganancia real es la plata neta que ingresó menos lo que costó la mercadería
+        $gananciaLimpia = $totalVentas - $totalCostos;
+
         $dataBalance = [
-            'totalVentas'  => $totalVentas,
-            'totalCompras' => $totalCompras,
-            'totalGastos'  => $totalGastos,
-            'balanceNeto'  => ($totalVentas - $totalCompras - $totalGastos)
+            'totalVentas'    => $totalVentas,
+            'totalCompras'   => $totalCompras,
+            'totalGastos'    => $totalGastos,
+            'balanceNeto'    => ($totalVentas - $totalCompras - $totalGastos),
+            'gananciaLimpia' => $gananciaLimpia 
         ];
 
         return view('balances', compact(

@@ -78,11 +78,16 @@ class VentaController extends Controller
                 ]);
 
             foreach ($request->productos as $producto) {
+
+                $precioListaDB = DB::table('productos')
+                    ->where('id_producto', $producto['id_producto'])
+                    ->value('precio_lista');
                 DB::table('ventas_productos')->insert([
                     'id_venta' => $idVenta,
                     'id_producto' => $producto['id_producto'],
                     'cantidad' => $producto['cantidad'],
-                    'precio' => $producto['precio']
+                    'precio' => $producto['precio'],
+                    'precio_lista' => $precioListaDB ?? 0.00, 
                 ]);
 
                 DB::table('productos')

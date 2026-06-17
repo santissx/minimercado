@@ -18,7 +18,6 @@ class PresupuestoController extends Controller
 
         $local = [
             'nombre'    => 'Soluciones Eléctricas',
-            'cuit'      => '00-00000000-0',
             'telefono'  => '3705033180',
             'direccion' => 'AV. Cabral 586 - Formosa Capital',
             'facebook'  => 'Soluciones Eléctricas Fsa',
@@ -65,7 +64,6 @@ class PresupuestoController extends Controller
 
         $local = [
             'nombre'    => 'Soluciones Eléctricas',
-            'cuit'      => '00-00000000-0',
             'telefono'  => '3705033180',
             'direccion' => 'AV. Cabral 586 - Formosa Capital',
             'facebook'  => 'Soluciones Eléctricas Fsa',

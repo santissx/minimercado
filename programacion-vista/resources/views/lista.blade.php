@@ -5,13 +5,21 @@
 @section('ladoizq')
 <div class="row h-100">
     <div class="col-lg-8 d-flex flex-column">
+        {{-- FORMULARIO DE BÚSQUEDA CON BOTÓN DE AGREGAR AL LADO --}}
         <form action="{{ route('views.lista') }}" method="GET" class="row g-2 mb-3">
-            <div class="col-9 col-md-10">
+            <div class="col-12 col-md-6">
                 <input type="search" name="search" class="form-control" placeholder="Busque su producto" value="{{ $search }}">
             </div>
-            <div class="col-3 col-md-2">
+            <div class="col-6 col-md-3">
                 <button type="submit" class="btn btn-primary w-100">Buscar</button>
             </div>
+            @if(Auth::check() && Auth::user()->rol === 'administrador')
+                <div class="col-6 col-md-3">
+                    <button type="button" class="btn btn-success w-100" data-bs-toggle="modal" data-bs-target="#agregarModal">
+                        <i class="fas fa-plus me-1"></i> Agregar
+                    </button>
+                </div>
+            @endif
         </form>
 
         @if($productos->isEmpty())
@@ -66,30 +74,30 @@
                                     
                                     @if(Auth::user()->rol === 'administrador')
                                     <td class="text-center">
-                                <div class="d-flex justify-content-center align-items-center gap-2">
-                                    <button class="btn btn-primary" 
-                                            data-bs-toggle="modal" 
-                                            data-bs-target="#vermodificarproducModal"
-                                            data-id="{{ $producto->id_producto }}"
-                                            data-nombre="{{ $producto->nombre }}"
-                                            data-codigo="{{ $producto->codigo }}"
-                                            data-codigo_barra="{{ $producto->codigo_barra }}"
-                                            data-precio_lista="{{ $producto->precio_lista }}"
-                                            data-precio_venta="{{ $producto->precio_venta }}"
-                                            data-stock="{{ $producto->stock }}"
-                                            data-id_proveedor="{{ $producto->id_proveedor }}"
-                                            data-id_categoria="{{ $producto->id_categoria }}"
-                                            data-estado="{{ $producto->estado }}">
-                                        Modificar
-                                    </button>
-                                    <form class="m-0 d-flex" action="{{ route('lista.borrar', ['id_producto' => $producto->id_producto]) }}" method="POST">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="btn btn-danger">Eliminar</button>
-                                    </form>
-                                </div>
-                            </td>
-                            @endif
+                                        <div class="d-flex justify-content-center align-items-center gap-2">
+                                            <button class="btn btn-primary" 
+                                                    data-bs-toggle="modal" 
+                                                    data-bs-target="#vermodificarproducModal"
+                                                    data-id="{{ $producto->id_producto }}"
+                                                    data-nombre="{{ $producto->nombre }}"
+                                                    data-codigo="{{ $producto->codigo }}"
+                                                    data-codigo_barra="{{ $producto->codigo_barra }}"
+                                                    data-precio_lista="{{ $producto->precio_lista }}"
+                                                    data-precio_venta="{{ $producto->precio_venta }}"
+                                                    data-stock="{{ $producto->stock }}"
+                                                    data-id_proveedor="{{ $producto->id_proveedor }}"
+                                                    data-id_categoria="{{ $producto->id_categoria }}"
+                                                    data-estado="{{ $producto->estado }}">
+                                                Modificar
+                                            </button>
+                                            <form class="m-0 d-flex" action="{{ route('lista.borrar', ['id_producto' => $producto->id_producto]) }}" method="POST">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="btn btn-danger">Eliminar</button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                    @endif
                                 </tr>
                                 @endforeach
                             </tbody>
@@ -104,13 +112,11 @@
                             <button type="button" class="btn btn-primary w-100 w-sm-auto" data-bs-toggle="modal" data-bs-target="#aumentarPrecioslistaModal">
                                 Aumentar precios de lista por proveedor
                             </button>
-                            <button class="btn btn-success w-100 w-sm-auto ms-sm-auto" data-bs-toggle="modal" data-bs-target="#agregarModal">
-                                Agregar Producto
-                            </button>
                         </div>
                     @endif
                 </div>
-            </div> @endif
+            </div> 
+        @endif
 
         <div class="d-grid d-sm-block mt-1 mb-3">
             <a href="{{ route('exportar.stock') }}" class="btn btn-success w-100 w-sm-auto">
@@ -127,7 +133,7 @@
 
 <div class="modal fade" id="agregarModal" tabindex="-1" aria-labelledby="veragregarLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
-        <div class="modal-content bg-dark">
+        <div class="modal-content bg-dark text-white">
             <form action="{{route ('lista.agregar')}}" method="POST">
                 @csrf 
                 <div class="modal-header">
@@ -207,7 +213,7 @@
 
 <div class="modal fade" id="vermodificarproducModal" tabindex="-1" aria-labelledby="vermodificarproducLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
-        <div class="modal-content bg-dark">
+        <div class="modal-content bg-dark text-white">
             <form action="{{ route('lista.modificar') }}" method="POST">
                 @csrf 
                 <input type="hidden" name="id_producto" id="id_producto">
@@ -227,14 +233,36 @@
                         <label for="codigo_barra" class="form-label">Código de Barra</label>
                         <input type="text" class="form-control" id="codigo_barra" name="codigo_barra" required>
                     </div>
+                    
+                    {{-- MODIFICADO: PRECIO LISTA CON ID ÚNICO --}}
                     <div class="mb-3">
-                        <label for="precio_lista" class="form-label">Precio lista</label>
-                        <input type="number" class="form-control" id="precio_lista" name="precio_lista" step="0.01" min="0" required>
+                        <label for="mod_precio_lista" class="form-label">Precio lista (costo)</label>
+                        <input type="number" class="form-control" id="mod_precio_lista" name="precio_lista" step="0.01" min="0" required oninput="calcularPrecioSugeridoMod()">
                     </div>
+                    
+                    {{-- NUEVO: PORCENTAJE DE GANANCIA PARA MODIFICAR --}}
                     <div class="mb-3">
-                        <label for="precio_venta" class="form-label">Precio venta</label>
-                        <input type="number" class="form-control" id="precio_venta" name="precio_venta" step="0.01" min="0" required>
+                        <label for="mod_ganancia_pct" class="form-label">% de ganancia (sugerencia)</label>
+                        <div class="input-group">
+                            <input type="number" class="form-control" id="mod_ganancia_pct" step="1" min="0" placeholder="Ej: 40" oninput="calcularPrecioSugeridoMod()">
+                            <span class="input-group-text">%</span>
+                        </div>
                     </div>
+                    <div class="mb-3" id="mod_sugerido_container" style="display: none;">
+                        <div class="alert alert-info d-flex justify-content-between align-items-center py-2 mb-0">
+                            <span>Precio sugerido: <strong id="mod_precio_sugerido_valor">$0</strong></span>
+                            <button type="button" class="btn btn-sm btn-info" onclick="usarPrecioSugeridoMod()">
+                                Usar este precio
+                            </button>
+                        </div>
+                    </div>
+
+                    {{-- MODIFICADO: PRECIO VENTA CON ID ÚNICO --}}
+                    <div class="mb-3">
+                        <label for="mod_precio_venta" class="form-label">Precio venta</label>
+                        <input type="number" class="form-control" id="mod_precio_venta" name="precio_venta" step="0.01" min="0" required>
+                    </div>
+                    
                     <div class="mb-3">
                         <label for="id_proveedor" class="form-label">Proveedor</label>
                         <select class="form-control" id="id_proveedor" name="id_proveedor" required>
@@ -280,7 +308,7 @@
 
 <div class="modal fade" id="aumentarPreciosventaModal" tabindex="-1" aria-labelledby="aumentarPreciosventaModalLabel" aria-hidden="true">
     <div class="modal-dialog">
-        <div class="modal-content bg-dark">
+        <div class="modal-content bg-dark text-white">
             <div class="modal-header">
                 <h5 class="modal-title" id="aumentarPreciosventaModalLabel">Aumentar precios de venta por proveedor</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
@@ -312,7 +340,7 @@
 
 <div class="modal fade" id="aumentarPrecioslistaModal" tabindex="-1" aria-labelledby="aumentarPrecioslistaModalLabel" aria-hidden="true">
     <div class="modal-dialog">
-        <div class="modal-content bg-dark ">
+        <div class="modal-content bg-dark text-white">
             <div class="modal-header">
                 <h5 class="modal-title" id="aumentarPrecioslistaModalLabel">Aumentar precios de lista por proveedor</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
@@ -363,15 +391,23 @@
             vermodificarproducModal.querySelector('#nombre').value = nombre;
             vermodificarproducModal.querySelector('#codigo').value = codigo;
             vermodificarproducModal.querySelector('#codigo_barra').value = codigo_barra;
-            vermodificarproducModal.querySelector('#precio_lista').value = precio_lista;
-            vermodificarproducModal.querySelector('#precio_venta').value = precio_venta;
+            
+            // CORRECCIÓN: Actualizado a los nuevos IDs (mod_...)
+            vermodificarproducModal.querySelector('#mod_precio_lista').value = precio_lista;
+            vermodificarproducModal.querySelector('#mod_precio_venta').value = precio_venta;
+            
             vermodificarproducModal.querySelector('#stock').value = stock;
             vermodificarproducModal.querySelector('#id_proveedor').value = id_proveedor;
             vermodificarproducModal.querySelector('#id_categoria').value = id_categoria;
             vermodificarproducModal.querySelector('#estado').value = estado;
+
+            // Limpiamos los campos de sugerencia cada vez que se abre el modal para que arranque limpio
+            document.getElementById('mod_ganancia_pct').value = '';
+            document.getElementById('mod_sugerido_container').style.display = 'none';
         });
     });
 
+    // --- FUNCIONES PARA EL MODAL "AGREGAR" ---
     function calcularPrecioSugerido() {
         const costo = parseFloat(document.getElementById('precio_lista').value);
         const pct = parseFloat(document.getElementById('ganancia_pct').value);
@@ -393,6 +429,31 @@
         if (!isNaN(costo) && !isNaN(pct)) {
             const sugerido = costo * (1 + pct / 100);
             document.getElementById('precio_venta').value = sugerido.toFixed(2);
+        }
+    }
+
+    // --- FUNCIONES PARA EL MODAL "MODIFICAR" ---
+    function calcularPrecioSugeridoMod() {
+        const costo = parseFloat(document.getElementById('mod_precio_lista').value);
+        const pct = parseFloat(document.getElementById('mod_ganancia_pct').value);
+        const container = document.getElementById('mod_sugerido_container');
+
+        if (!isNaN(costo) && !isNaN(pct) && costo > 0 && pct >= 0) {
+            const sugerido = costo * (1 + pct / 100);
+            document.getElementById('mod_precio_sugerido_valor').textContent = '$' + sugerido.toFixed(2);
+            container.style.display = 'block';
+        } else {
+            container.style.display = 'none';
+        }
+    }
+
+    function usarPrecioSugeridoMod() {
+        const costo = parseFloat(document.getElementById('mod_precio_lista').value);
+        const pct = parseFloat(document.getElementById('mod_ganancia_pct').value);
+
+        if (!isNaN(costo) && !isNaN(pct)) {
+            const sugerido = costo * (1 + pct / 100);
+            document.getElementById('mod_precio_venta').value = sugerido.toFixed(2);
         }
     }
 </script>

@@ -8,9 +8,12 @@
         <div class="alert alert-danger">{{ session('error') }}</div>
     @endif
 
+    {{-- Formulario principal: Enmarca toda la estructura row/col --}}
     <form method="POST" action="{{ route('presupuesto.generar') }}">
         @csrf
         <div class="row h-100">
+            
+            {{-- Columna Izquierda: Tablas y Datos del Cliente --}}
             <div class="col-lg-8 d-flex flex-column">
 
                 {{-- Tabla de productos seleccionados --}}
@@ -32,12 +35,12 @@
                                     </tr>
                                 </thead>
                                 <tbody id="tablaPresupuesto">
-                                    {{-- productos se agregan dinámicamente --}}
+                                    {{-- Los productos se agregan dinámicamente aquí --}}
                                 </tbody>
                             </table>
                         </div>
                     </div>
-                    <div class="action-buttons">
+                    <div class="action-buttons p-3 border-top border-secondary">
                         <button type="button" class="btn btn-primary" data-bs-toggle="modal"
                             data-bs-target="#buscarProductoPresupuestoModal">
                             Agregar Producto
@@ -56,160 +59,154 @@
                             <input type="text" name="telefono_cliente" class="form-control"
                                 placeholder="Teléfono (opcional)">
                         </div>
-                        <div class="d-flex justify-content-between mb-2">
-                            <label class="me-2">Descuento:</label>
+                        <div class="d-flex justify-content-between mb-2 align-items-center">
+                            <label class="me-2 fw-bold">Descuento ($):</label>
                             <input type="number" id="descuento" name="descuento" class="form-control w-25"
-                                placeholder="$0.00" step="0.01" min="0" onchange="calcularTotalPresupuesto()">
+                                placeholder="0.00" step="0.01" min="0" oninput="calcularTotalPresupuesto()">
                         </div>
-                        <div class="d-flex justify-content-between">
+                        <div class="d-flex justify-content-between fs-5 fw-bold">
                             <span>Total:</span>
-                            <span id="totalPresupuesto">$0.00</span>
+                            <span id="totalPresupuesto" class="text-success">$0.00</span>
                         </div>
                     </div>
                 </div>
 
+            </div> {{-- Fin col-lg-8 --}}
+
+            {{-- Columna derecha --}}
+            <div class="col-lg-4 right-column">
+                @include('parciales.columna_derecha')
             </div>
+
+        </div> {{-- Fin row --}}
     </form>
 
-    {{-- Columna derecha --}}
-    <div class="col-lg-4 right-column">
-        @include('parciales.columna_derecha')
-    </div>
-    </div>
-
-    {{-- Modal buscar producto --}}
-    <div class="modal fade" id="buscarProductoPresupuestoModal" tabindex="-1" aria-hidden="true">
+    {{-- MODAL: Buscar Producto para Presupuesto --}}
+    <div class="modal fade" id="buscarProductoPresupuestoModal" tabindex="-1" aria-labelledby="buscarProductoPresupuestoModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg">
-            <div class="modal-content bg-dark">
+            <div class="modal-content bg-dark text-white">
                 <div class="modal-header">
-                    <h5 class="modal-title">Buscar Producto</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    <h5 class="modal-title" id="buscarProductoPresupuestoModalLabel">Buscar Producto</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <input type="text" id="buscarInputPresupuesto" class="form-control mb-3"
-                        placeholder="Buscar por nombre o código...">
-                    <table class="table table-dark table-striped">
-                        <thead>
-                            <tr>
-                                <th>Código</th>
-                                <th>Nombre</th>
-                                <th>Precio</th>
-                                <th>Acción</th>
-                            </tr>
-                        </thead>
-                        <tbody id="resultadosPresupuesto"></tbody>
-                    </table>
+                    <input type="text" id="buscadorPresupuesto" class="form-control mb-3" placeholder="Buscar por nombre o código...">
+                    
+                    <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
+                        <table class="table table-dark table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Código</th>
+                                    <th>Nombre</th>
+                                    <th>Stock</th>
+                                    <th>Precio</th>
+                                    <th>Acción</th>
+                                </tr>
+                            </thead>
+                            <tbody id="listaProductosPresupuesto">
+                                @foreach ($productos as $p)
+                                    @php
+                                        // Escapamos tanto comillas simples como dobles para evitar fallos de sintaxis en el HTML inline de JS
+                                        $nombreEscapado = str_replace(['"', "'"], ['\\"', "\\'"], $p->nombre);
+                                    @endphp
+                                    <tr class="item-producto-presupuesto">
+                                        <td>{{ $p->codigo ?: $p->codigo_barra }}</td>
+                                        <td class="nombre-prod">{{ $p->nombre }}</td>
+                                        <td>{{ $p->stock }}</td>
+                                        <td>${{ number_format($p->precio_venta, 2) }}</td>
+                                        <td>
+                                            <button type="button" class="btn btn-sm btn-success" 
+                                                onclick="agregarProductoPresupuesto('{{ $p->id_producto }}', '{{ $nombreEscapado }}', '{{ $p->codigo ?: $p->codigo_barra }}', '{{ $p->precio_venta }}')">
+                                                Seleccionar
+                                            </button>
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
+    {{-- SCRIPTS DE JAVASCRIPT --}}
     <script>
-        // Búsqueda de productos en el modal
-        document.getElementById('buscarInputPresupuesto').addEventListener('input', function() {
-            const termino = this.value.toLowerCase();
-            const filas = document.querySelectorAll('#resultadosPresupuesto tr');
-
-            if (termino.length < 1) {
-                cargarTodosLosProductos();
-                return;
-            }
+        // Buscador interno del modal
+        document.getElementById('buscadorPresupuesto').addEventListener('keyup', function() {
+            const filtro = this.value.toLowerCase();
+            const filas = document.querySelectorAll('.item-producto-presupuesto');
 
             filas.forEach(fila => {
                 const texto = fila.textContent.toLowerCase();
-                fila.style.display = texto.includes(termino) ? '' : 'none';
+                fila.style.display = texto.includes(filtro) ? '' : 'none';
             });
         });
 
-        // Cargar todos los productos al abrir el modal
-        function cargarTodosLosProductos() {
-            const productos = @json($productos);
-            const tbody = document.getElementById('resultadosPresupuesto');
-            tbody.innerHTML = '';
+        // Agregar un producto a la tabla de presupuestos
+        function agregarProductoPresupuesto(id, nombre, codigo, precio) {
+            const tbody = document.getElementById('tablaPresupuesto');
 
-            productos.forEach(p => {
-                const codigo = p.codigo || p.codigo_barra;
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                <td>${codigo}</td>
-                <td>${p.nombre}</td>
-                <td>$${parseFloat(p.precio_venta).toFixed(2)}</td>
-                <td>
-                    <button type="button" class="btn btn-success btn-sm"
-                        onclick="agregarProductoPresupuesto('${p.id_producto}', '${codigo}', '${p.nombre.replace(/'/g, "\\'")}', ${p.precio_venta})">
-                        Agregar
-                    </button>
-                </td>
-            `;
-                tbody.appendChild(tr);
-            });
-        }
-
-        document.getElementById('buscarProductoPresupuestoModal')
-            .addEventListener('show.bs.modal', cargarTodosLosProductos);
-
-        // Agregar producto a la tabla
-        function agregarProductoPresupuesto(id, codigo, nombre, precio) {
-            // Si ya existe, solo suma cantidad
-            const filaExistente = document.querySelector(`#tablaPresupuesto tr[data-id="${id}"]`);
-            if (filaExistente) {
-                const input = filaExistente.querySelector('.cantidad-input');
-                input.value = parseInt(input.value) + 1;
-                actualizarFilaPresupuesto(input);
-
-                const modal = bootstrap.Modal.getInstance(document.getElementById('buscarProductoPresupuestoModal'));
-                modal.hide();
+            // Validar si el producto ya fue agregado antes
+            if (document.getElementById(`cant_${id}`)) {
+                alert('Este producto ya está en el presupuesto. Modifique su cantidad directamente.');
                 return;
             }
 
-            const tbody = document.getElementById('tablaPresupuesto');
             const tr = document.createElement('tr');
-            tr.setAttribute('data-id', id);
             tr.innerHTML = `
-            <td>${codigo}</td>
-            <td>${nombre}
-                <input type="hidden" name="productos[${id}][id_producto]" value="${id}">
-            </td>
-            <td>
-                <input type="number" name="productos[${id}][cantidad]" value="1" min="1"
-                    class="form-control cantidad-input" style="width:80px"
-                    data-precio="${precio}"
-                    oninput="actualizarFilaPresupuesto(this)">
-            </td>
-            <td>$${parseFloat(precio).toFixed(2)}</td>
-            <td class="total-linea">$${parseFloat(precio).toFixed(2)}</td>
-            <td>
-                <button type="button" class="btn btn-danger btn-sm" onclick="eliminarFilaPresupuesto(this)">✕</button>
-            </td>
-        `;
+                <td>${codigo}</td>
+                <td>
+                    ${nombre}
+                    <input type="hidden" name="productos[${id}][id_producto]" value="${id}">
+                </td>
+                <td>
+                    <input type="number" id="cant_${id}" name="productos[${id}][cantidad]" class="form-control form-control-sm w-75" 
+                        value="1" min="1" data-precio="${precio}" oninput="actualizarFilaPresupuesto(this)">
+                </td>
+                <td>$${parseFloat(precio).toFixed(2)}</td>
+                <td class="total-linea">$${parseFloat(precio).toFixed(2)}</td>
+                <td>
+                    <button type="button" class="btn btn-danger btn-sm" onclick="eliminarFilaPresupuesto(this)">✕</button>
+                </td>
+            `;
             tbody.appendChild(tr);
 
-            const modal = bootstrap.Modal.getInstance(document.getElementById('buscarProductoPresupuestoModal'));
+            // Cerrar el modal correctamente usando la API de Bootstrap
+            const modalElement = document.getElementById('buscarProductoPresupuestoModal');
+            const modal = bootstrap.Modal.getInstance(modalElement) || new bootstrap.Modal(modalElement);
             modal.hide();
 
             calcularTotalPresupuesto();
         }
 
+        // Modificar la cantidad en una fila
         function actualizarFilaPresupuesto(input) {
-            const cantidad = parseInt(input.value) || 1;
-            const precio = parseFloat(input.getAttribute('data-precio'));
+            const cantidad = parseInt(input.value) || 0;
+            const precio = parseFloat(input.getAttribute('data-precio')) || 0;
             const fila = input.closest('tr');
+            
             fila.querySelector('.total-linea').textContent = '$' + (cantidad * precio).toFixed(2);
             calcularTotalPresupuesto();
         }
 
+        // Eliminar fila de la tabla
         function eliminarFilaPresupuesto(btn) {
             btn.closest('tr').remove();
             calcularTotalPresupuesto();
         }
 
+        // Recalcular el total general
         function calcularTotalPresupuesto() {
             let subtotal = 0;
             document.querySelectorAll('#tablaPresupuesto .total-linea').forEach(celda => {
                 subtotal += parseFloat(celda.textContent.replace('$', '')) || 0;
             });
+            
             const descuento = parseFloat(document.getElementById('descuento').value) || 0;
-            document.getElementById('totalPresupuesto').textContent = '$' + (subtotal - descuento).toFixed(2);
+            const totalFinal = Math.max(0, subtotal - descuento); // Evita que dé números negativos si el descuento supera el subtotal
+
+            document.getElementById('totalPresupuesto').textContent = '$' + totalFinal.toFixed(2);
         }
     </script>
 

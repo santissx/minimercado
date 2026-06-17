@@ -135,7 +135,6 @@ class HistorialController extends Controller
             ->where('ventas.id_venta', $idVenta)
             ->first();
 
-        // Combinado: Ahora incluye código y código de barra como quería Enzo
         $productos = DB::table('ventas_productos')
             ->join('productos', 'ventas_productos.id_producto', '=', 'productos.id_producto')
             ->select(
@@ -148,12 +147,10 @@ class HistorialController extends Controller
             ->where('ventas_productos.id_venta', $idVenta)
             ->get();
 
-        // Combinado: Datos comerciales agregados por Enzo
         $local = [
             'nombre'    => 'SOLUCIONES ELÉCTRICAS',
-            'cuit'      => '00-00000000-0',
-            'telefono'  => '370 503-3180',
-            'direccion' => 'Dirección del local',
+            'telefono'  => '3705033180',
+            'direccion' => 'AV. Cabral 586 - Formosa Capital',
             'facebook'  => 'Soluciones Eléctricas Fsa',
             'instagram' => '@solucioneselectricasfsa',
         ];

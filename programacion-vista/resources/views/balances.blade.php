@@ -87,6 +87,13 @@
                                             </span>
                                         </td>
                                     </tr>
+                                    
+                                    {{-- FILA ADAPTADA EXACTAMENTE A TU FORMATO --}}
+                                    <tr class="table-active border-top border-secondary fw-bold fs-6">
+                                        <td><i class="fas fa-percentage text-info me-2"></i> Ganancia Real Limpia (Margen de Productos)</td>
+                                        <td class="text-end text-info font-monospace">${{ number_format($dataBalance['gananciaLimpia'], 2) }}</td>
+                                        <td class="text-center"><span class="badge bg-info text-dark">Ganancia Limpia</span></td>
+                                    </tr>
                                 </tbody>
                             </table>
                         </div>
