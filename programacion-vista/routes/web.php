@@ -18,6 +18,7 @@ use App\Http\Middleware\AdminMiddleware;
 use App\Http\Controllers\ReporteController;
 use App\Http\Controllers\PresupuestoController;
 use App\Http\Controllers\BalanceController;
+use App\Http\Controllers\HistorialPresupuestoController;
 //rutas del login 
 
 Route::get('/dashboard', [VentaController::class, 'mostrar'])->middleware(['auth', 'verified'])->name('dashboard');
@@ -148,3 +149,19 @@ Route::get('backup/database', [\App\Http\Controllers\ReporteController::class, '
 
 
 Route::get('/balances', [\App\Http\Controllers\BalanceController::class, 'mostrar'])->name('views.balances');
+
+// ruta para imprimir y guardar presupuesto
+Route::get('/presupuestos/imprimir/{id}', [PresupuestoController::class, 'imprimir'])->name('presupuesto.imprimir');
+
+//rutas para historial de presupuestos
+Route::get('/historial-presupuestos', [HistorialPresupuestoController::class, 'mostrar'])->name('views.historial_presupuestos');
+Route::get('/historial-presupuestos/detalle/{id}', [HistorialPresupuestoController::class, 'obtenerDetalle']);
+Route::delete('/historial-presupuestos/eliminar', [HistorialPresupuestoController::class, 'eliminar'])->name('historial.presupuestos.eliminar');
+Route::get('/historial-presupuestos/convertir/{id}', [HistorialPresupuestoController::class, 'convertir'])->name('historial.presupuestos.convertir');
+
+// Actualizar precios de un presupuesto
+Route::put('/historial-presupuestos/actualizar-precios/{id}', [HistorialPresupuestoController::class, 'actualizarPrecios'])->name('historial.presupuestos.actualizar_precios');
+
+// Editar un presupuesto por completo
+Route::get('/presupuestos/editar/{id}', [PresupuestoController::class, 'editar'])->name('presupuesto.editar');
+Route::put('/presupuestos/actualizar/{id}', [PresupuestoController::class, 'actualizar'])->name('presupuesto.actualizar');

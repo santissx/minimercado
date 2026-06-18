@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 18-06-2026 a las 00:56:57
+-- Tiempo de generación: 19-06-2026 a las 00:16:48
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -237,6 +237,61 @@ CREATE TABLE `password_reset_tokens` (
 -- --------------------------------------------------------
 
 --
+-- Estructura de tabla para la tabla `presupuestos`
+--
+
+CREATE TABLE `presupuestos` (
+  `id_presupuesto` int(11) NOT NULL,
+  `id_usuario` bigint(20) UNSIGNED DEFAULT NULL,
+  `fecha` datetime NOT NULL,
+  `monto_total` decimal(10,2) NOT NULL DEFAULT 0.00,
+  `descuento` decimal(10,2) NOT NULL DEFAULT 0.00,
+  `nombre_cliente` varchar(150) DEFAULT NULL,
+  `telefono_cliente` varchar(50) DEFAULT NULL,
+  `estado` varchar(30) DEFAULT 'pendiente'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Volcado de datos para la tabla `presupuestos`
+--
+
+INSERT INTO `presupuestos` (`id_presupuesto`, `id_usuario`, `fecha`, `monto_total`, `descuento`, `nombre_cliente`, `telefono_cliente`, `estado`) VALUES
+(1, 11, '2026-06-18 19:01:10', 7144.00, 500.00, 'carlos', '3704321123', 'pendiente'),
+(5, 11, '2026-06-18 19:01:05', 31200.00, 0.00, NULL, NULL, 'pendiente'),
+(6, 21, '2026-06-18 19:06:59', 1092.00, 0.00, NULL, NULL, 'pendiente'),
+(7, 21, '2026-06-18 19:09:24', 4056.00, 0.00, NULL, NULL, 'convertido'),
+(8, 21, '2026-06-18 19:07:22', 1092.00, 0.00, NULL, NULL, 'convertido'),
+(9, 11, '2026-06-18 19:11:11', 4500.00, 500.00, NULL, NULL, 'convertido');
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `presupuestos_productos`
+--
+
+CREATE TABLE `presupuestos_productos` (
+  `id_presupuesto_producto` int(11) NOT NULL,
+  `id_presupuesto` int(11) NOT NULL,
+  `id_producto` int(11) NOT NULL,
+  `cantidad` int(11) NOT NULL,
+  `precio` decimal(10,2) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Volcado de datos para la tabla `presupuestos_productos`
+--
+
+INSERT INTO `presupuestos_productos` (`id_presupuesto_producto`, `id_presupuesto`, `id_producto`, `cantidad`, `precio`) VALUES
+(12, 1, 183, 7, 1092.00),
+(13, 5, 172, 5, 6240.00),
+(14, 6, 183, 1, 1092.00),
+(16, 8, 183, 1, 1092.00),
+(17, 7, 169, 2, 2028.00),
+(19, 9, 169, 1, 5000.00);
+
+-- --------------------------------------------------------
+
+--
 -- Estructura de tabla para la tabla `productos`
 --
 
@@ -258,39 +313,39 @@ CREATE TABLE `productos` (
 --
 
 INSERT INTO `productos` (`id_producto`, `nombre`, `codigo`, `codigo_barra`, `id_proveedor`, `stock`, `precio_lista`, `id_categoria`, `precio_venta`, `estado`) VALUES
-(39, 'coca', '123456', '123456', 5, 0, 50.00, 12, 800.00, 'activo'),
-(164, 'Llave térmica 2x16A Sica', '7654342', '7654321000132', 5, 44, 4500.00, 1, 6500.00, 'activo'),
-(165, 'Disyuntor diferencial 2x40A', '7654343', '7654321000133', 5, 19, 25000.00, 1, 35000.00, 'activo'),
-(166, 'Llave térmica 2x25A', '7654344', '7654321000134', 5, 42, 4500.00, 1, 6500.00, 'activo'),
-(167, 'Cable unipolar 2.5mm celeste x100m', '7654345', '7654321000135', 5, 14, 18000.00, 2, 26000.00, 'activo'),
-(168, 'Cable unipolar 1.5mm rojo x100m', '7654346', '7654321000136', 5, 17, 12000.00, 2, 17500.00, 'activo'),
-(169, 'Cable tipo taller 3x1.5mm x metro', '7654347', '7654321000137', 5, 499, 800.00, 2, 1300.00, 'activo'),
-(170, 'Caja rectangular chapa semipesada', '7654348', '7654321000138', 5, 149, 400.00, 3, 750.00, 'activo'),
-(171, 'Caja octogonal PVC', '7654349', '7654321000139', 5, 199, 300.00, 3, 550.00, 'activo'),
-(172, 'Caja estanca 100x100 IP65', '7654350', '7654321000140', 5, 39, 2500.00, 3, 4000.00, 'activo'),
-(173, 'Pinza universal aislada 1000V', '7654351', '7654321000141', 5, 11, 12000.00, 4, 18500.00, 'activo'),
-(174, 'Multímetro digital', '7654352', '7654321000142', 5, 7, 28000.00, 4, 42000.00, 'activo'),
-(175, 'Cinta pasacables plástico 15m', '7654353', '7654321000143', 5, 24, 6500.00, 4, 9800.00, 'activo'),
-(176, 'Lámpara LED 9W E27 luz fría', '7654354', '7654321000144', 5, 300, 1100.00, 5, 1800.00, 'activo'),
-(177, 'Panel LED 60x60 40W', '7654355', '7654321000145', 5, 34, 15000.00, 5, 23000.00, 'activo'),
-(178, 'Reflector LED 50W exterior', '7654356', '7654321000146', 5, 24, 9500.00, 5, 14500.00, 'activo'),
-(179, 'Caño corrugado 3/4 blanco x25m', '7654357', '7654321000147', 5, 59, 4500.00, 6, 7200.00, 'activo'),
-(180, 'Cablecanal 20x10mm c/adhesivo x2m', '7654358', '7654321000148', 5, 119, 1800.00, 6, 2900.00, 'activo'),
-(181, 'Tomacorriente doble c/tierra 10A', '7654359', '7654321000149', 5, 79, 2200.00, 7, 3500.00, 'activo'),
-(182, 'Módulo interruptor simple', '7654360', '7654321000150', 5, 150, 1200.00, 7, 1900.00, 'activo'),
-(183, 'Bastidor 10x5 PVC', '7654361', '7654321000151', 5, 199, 400.00, 7, 700.00, 'activo'),
-(184, 'Jabalina acero cobre 5/8 x 1.5m', '7654362', '7654321000152', 5, 14, 18000.00, 8, 27000.00, 'activo'),
-(185, 'Tomacable bronce para jabalina', '7654363', '7654321000153', 5, 29, 2500.00, 8, 3800.00, 'activo'),
-(186, 'Tablero embutir 12 a 16 bocas', '7654364', '7654321000154', 5, 9, 14000.00, 9, 21000.00, 'activo'),
-(187, 'Tablero exterior 8 bocas DIN', '7654365', '7654321000155', 5, 15, 9000.00, 9, 13500.00, 'desactivado'),
-(188, 'Ventilador de techo c/luz paletas metal', '7654366', '7654321000156', 5, 5, 85000.00, 10, 125000.00, 'activo'),
-(189, 'Extractor de aire para baño 4 pulg', '7654367', '7654321000157', 5, 12, 22000.00, 10, 33000.00, 'activo'),
-(190, 'Cinta aisladora negra 10m PVC', '7654368', '7654321000158', 5, 399, 800.00, 11, 1300.00, 'activo'),
-(191, 'Precintos plásticos 200x4.8mm x100', '7654369', '7654321000159', 5, 149, 3000.00, 11, 4800.00, 'activo'),
-(192, 'Tarugos con tope Nro 6 x100', '7654370', '7654321000160', 5, 80, 1500.00, 12, 2500.00, 'activo'),
-(193, 'Visita técnica revisión eléctrica', '7654371', '7654321000161', 5, 999, 15000.00, 13, 15000.00, 'activo'),
-(194, 'Instalación ventilador de techo', '7654372', '7654321000162', 5, 998, 35000.00, 14, 35000.00, 'activo'),
-(195, 'dsfasd', '345325', '5475647456', 5, 2, 56000.00, 5, 112000.00, 'activo');
+(39, 'coca', '123456', '123456', 5, 0, 50.00, 12, 1248.00, 'activo'),
+(164, 'Llave térmica 2x16A Sica', '7654342', '7654321000132', 5, 44, 4500.00, 1, 10140.00, 'activo'),
+(165, 'Disyuntor diferencial 2x40A', '7654343', '7654321000133', 5, 19, 25000.00, 1, 54600.00, 'activo'),
+(166, 'Llave térmica 2x25A', '7654344', '7654321000134', 5, 41, 4500.00, 1, 10140.00, 'activo'),
+(167, 'Cable unipolar 2.5mm celeste x100m', '7654345', '7654321000135', 5, 14, 18000.00, 2, 40560.00, 'activo'),
+(168, 'Cable unipolar 1.5mm rojo x100m', '7654346', '7654321000136', 5, 17, 12000.00, 2, 27300.00, 'activo'),
+(169, 'Cable tipo taller 3x1.5mm x metro', '7654347', '7654321000137', 5, 496, 3000.00, 2, 5000.00, 'activo'),
+(170, 'Caja rectangular chapa semipesada', '7654348', '7654321000138', 5, 149, 400.00, 3, 1170.00, 'activo'),
+(171, 'Caja octogonal PVC', '7654349', '7654321000139', 5, 199, 300.00, 3, 858.00, 'activo'),
+(172, 'Caja estanca 100x100 IP65', '7654350', '7654321000140', 5, 39, 2500.00, 3, 6240.00, 'activo'),
+(173, 'Pinza universal aislada 1000V', '7654351', '7654321000141', 5, 11, 12000.00, 4, 28860.00, 'activo'),
+(174, 'Multímetro digital', '7654352', '7654321000142', 5, 7, 28000.00, 4, 65520.00, 'activo'),
+(175, 'Cinta pasacables plástico 15m', '7654353', '7654321000143', 5, 24, 6500.00, 4, 15288.00, 'activo'),
+(176, 'Lámpara LED 9W E27 luz fría', '7654354', '7654321000144', 5, 300, 1100.00, 5, 2808.00, 'activo'),
+(177, 'Panel LED 60x60 40W', '7654355', '7654321000145', 5, 34, 15000.00, 5, 35880.00, 'activo'),
+(178, 'Reflector LED 50W exterior', '7654356', '7654321000146', 5, 24, 9500.00, 5, 22620.00, 'activo'),
+(179, 'Caño corrugado 3/4 blanco x25m', '7654357', '7654321000147', 5, 59, 4500.00, 6, 11232.00, 'activo'),
+(180, 'Cablecanal 20x10mm c/adhesivo x2m', '7654358', '7654321000148', 5, 119, 1800.00, 6, 4524.00, 'activo'),
+(181, 'Tomacorriente doble c/tierra 10A', '7654359', '7654321000149', 5, 79, 2200.00, 7, 5460.00, 'activo'),
+(182, 'Módulo interruptor simple', '7654360', '7654321000150', 5, 150, 1200.00, 7, 2964.00, 'activo'),
+(183, 'Bastidor 10x5 PVC', '7654361', '7654321000151', 5, 198, 400.00, 7, 1092.00, 'activo'),
+(184, 'Jabalina acero cobre 5/8 x 1.5m', '7654362', '7654321000152', 5, 14, 18000.00, 8, 42120.00, 'activo'),
+(185, 'Tomacable bronce para jabalina', '7654363', '7654321000153', 5, 29, 2500.00, 8, 5928.00, 'activo'),
+(186, 'Tablero embutir 12 a 16 bocas', '7654364', '7654321000154', 5, 9, 14000.00, 9, 32760.00, 'activo'),
+(187, 'Tablero exterior 8 bocas DIN', '7654365', '7654321000155', 5, 15, 9000.00, 9, 21060.00, 'desactivado'),
+(188, 'Ventilador de techo c/luz paletas metal', '7654366', '7654321000156', 5, 5, 85000.00, 10, 195000.00, 'activo'),
+(189, 'Extractor de aire para baño 4 pulg', '7654367', '7654321000157', 5, 12, 22000.00, 10, 51480.00, 'activo'),
+(190, 'Cinta aisladora negra 10m PVC', '7654368', '7654321000158', 5, 399, 800.00, 11, 2028.00, 'activo'),
+(191, 'Precintos plásticos 200x4.8mm x100', '7654369', '7654321000159', 5, 149, 3000.00, 11, 7488.00, 'activo'),
+(192, 'Tarugos con tope Nro 6 x100', '7654370', '7654321000160', 5, 80, 1500.00, 12, 3900.00, 'activo'),
+(193, 'Visita técnica revisión eléctrica', '7654371', '7654321000161', 5, 999, 15000.00, 13, 23400.00, 'activo'),
+(194, 'Instalación ventilador de techo', '7654372', '7654321000162', 5, 998, 35000.00, 14, 54600.00, 'activo'),
+(195, 'dsfasd', '345325', '5475647456', 5, 2, 56000.00, 5, 174720.00, 'activo');
 
 -- --------------------------------------------------------
 
@@ -349,8 +404,8 @@ CREATE TABLE `sessions` (
 --
 
 INSERT INTO `sessions` (`id`, `user_id`, `ip_address`, `user_agent`, `payload`, `last_activity`) VALUES
-('O1PTImRy0Ek7xdep0YIx98lmVCokaOiutvrqKvST', 11, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36 Edg/149.0.0.0', 'YTo0OntzOjY6Il90b2tlbiI7czo0MDoiMXBIWDhTZFRsWXNTMFpuQlFSQUlWUUNSS3BsazJEUHJIMmVlZU1zUCI7czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6OTI6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9iYWxhbmNlcz9hbmlvPSZmZWNoYWZpbj0mZmVjaGFpbmljaW89MjAyNi0wNi0xNyZ2aXN0YT1iYWxhbmNlX3Bvc2l0aXZvIjt9czo2OiJfZmxhc2giO2E6Mjp7czozOiJvbGQiO2E6MDp7fXM6MzoibmV3IjthOjA6e319czo1MDoibG9naW5fd2ViXzU5YmEzNmFkZGMyYjJmOTQwMTU4MGYwMTRjN2Y1OGVhNGUzMDk4OWQiO2k6MTE7fQ==', 1781734611),
-('RA5QVQNvOmAFU4LnshmLWqKO2KjzxQbt8AZ8Q3g9', NULL, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36', 'YTozOntzOjY6Il90b2tlbiI7czo0MDoiMlIybFhjRk01SW5COTlqRVk2UjhFR3lta290bVNsOGVHRzlsUEtreSI7czo2OiJfZmxhc2giO2E6Mjp7czozOiJvbGQiO2E6MDp7fXM6MzoibmV3IjthOjA6e319czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6Mjc6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9sb2dpbiI7fX0=', 1781734059);
+('798m8o1TCF3Lz7ijF1rHITPevE6Twf64ZZbxBy9f', NULL, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36 Edg/149.0.0.0', 'YTozOntzOjY6Il90b2tlbiI7czo0MDoiTXY3SUxzU3YyY1JCUjdrWXlNV2lqaU9ldTlBVzd3RXBVNUtQMW5OVCI7czo2OiJfZmxhc2giO2E6Mjp7czozOiJvbGQiO2E6MDp7fXM6MzoibmV3IjthOjA6e319czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6Mjc6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9sb2dpbiI7fX0=', 1781820475),
+('HxYq6jrPFUOVoXkRg06a4JmdW9ikGRXPWdjX0VOY', 11, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36', 'YTo0OntzOjY6Il90b2tlbiI7czo0MDoiMUU3Ynlja2p1RFlZWkNqR1ZpeVBwOWVPSTBUMEMxSHhENVFCMVRLeiI7czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6OTI6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9iYWxhbmNlcz9hbmlvPSZmZWNoYWZpbj0mZmVjaGFpbmljaW89MjAyNi0wNi0xOCZ2aXN0YT1iYWxhbmNlX3Bvc2l0aXZvIjt9czo2OiJfZmxhc2giO2E6Mjp7czozOiJvbGQiO2E6MDp7fXM6MzoibmV3IjthOjA6e319czo1MDoibG9naW5fd2ViXzU5YmEzNmFkZGMyYjJmOTQwMTU4MGYwMTRjN2Y1OGVhNGUzMDk4OWQiO2k6MTE7fQ==', 1781820714);
 
 -- --------------------------------------------------------
 
@@ -376,7 +431,8 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`id`, `name`, `email`, `email_verified_at`, `password`, `remember_token`, `created_at`, `updated_at`, `rol`, `estado`) VALUES
-(11, 'Admin', 'solucioneselectricasfsa@gmail.com', NULL, '$2y$12$hpNDjfYkMgeTmfpK8bhfCesIBK19cXtlAuUT0/1v8NQXFwE574Hhe', NULL, '2024-11-25 22:48:17', '2024-11-25 22:48:17', 'administrador', 'activo');
+(11, 'Admin', 'solucioneselectricasfsa@gmail.com', NULL, '$2y$12$hpNDjfYkMgeTmfpK8bhfCesIBK19cXtlAuUT0/1v8NQXFwE574Hhe', NULL, '2024-11-25 22:48:17', '2024-11-25 22:48:17', 'administrador', 'activo'),
+(21, 'caja1', 'caja1@gmail.com', NULL, '$2y$12$5QKsgf9HvB3mc8G5i40ALevtTlIEVEg.cpKdvfEmBWmSAEQN/nAgu', NULL, '2026-06-18 22:06:46', '2026-06-18 22:06:46', 'empleado', 'activo');
 
 -- --------------------------------------------------------
 
@@ -411,7 +467,11 @@ INSERT INTO `ventas` (`id_venta`, `id_usuario`, `fecha_venta`, `monto_total`, `i
 (58, 11, '2026-06-17 18:57:20', 6500.00, 2, 0.00, NULL),
 (59, 11, '2026-06-17 18:58:10', 5500.00, 1, 1000.00, NULL),
 (60, 11, '2026-06-17 19:08:25', 6500.00, 2, 0.00, NULL),
-(61, 11, '2026-06-17 19:16:06', 23000.00, 2, 0.00, NULL);
+(61, 11, '2026-06-17 19:16:06', 23000.00, 2, 0.00, NULL),
+(62, 11, '2026-06-18 18:36:59', 6500.00, 2, 0.00, NULL),
+(63, 21, '2026-06-18 19:07:31', 1092.00, 2, 0.00, NULL),
+(64, 11, '2026-06-18 19:09:34', 4056.00, 1, 0.00, NULL),
+(65, 11, '2026-06-18 19:11:44', 4500.00, 1, 500.00, NULL);
 
 -- --------------------------------------------------------
 
@@ -493,7 +553,11 @@ INSERT INTO `ventas_productos` (`id_venta_producto`, `id_venta`, `id_producto`, 
 (34, 58, 164, 1, 6500.00, 4500.00),
 (35, 59, 164, 1, 6500.00, 4500.00),
 (36, 60, 166, 1, 6500.00, 4500.00),
-(37, 61, 177, 1, 23000.00, 15000.00);
+(37, 61, 177, 1, 23000.00, 15000.00),
+(38, 62, 166, 1, 6500.00, 4500.00),
+(39, 63, 183, 1, 1092.00, 400.00),
+(40, 64, 169, 2, 2028.00, 800.00),
+(41, 65, 169, 1, 5000.00, 3000.00);
 
 --
 -- Índices para tablas volcadas
@@ -575,6 +639,19 @@ ALTER TABLE `migrations`
 --
 ALTER TABLE `password_reset_tokens`
   ADD PRIMARY KEY (`email`);
+
+--
+-- Indices de la tabla `presupuestos`
+--
+ALTER TABLE `presupuestos`
+  ADD PRIMARY KEY (`id_presupuesto`);
+
+--
+-- Indices de la tabla `presupuestos_productos`
+--
+ALTER TABLE `presupuestos_productos`
+  ADD PRIMARY KEY (`id_presupuesto_producto`),
+  ADD KEY `id_presupuesto` (`id_presupuesto`);
 
 --
 -- Indices de la tabla `productos`
@@ -693,6 +770,18 @@ ALTER TABLE `migrations`
   MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
+-- AUTO_INCREMENT de la tabla `presupuestos`
+--
+ALTER TABLE `presupuestos`
+  MODIFY `id_presupuesto` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+
+--
+-- AUTO_INCREMENT de la tabla `presupuestos_productos`
+--
+ALTER TABLE `presupuestos_productos`
+  MODIFY `id_presupuesto_producto` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
+
+--
 -- AUTO_INCREMENT de la tabla `productos`
 --
 ALTER TABLE `productos`
@@ -714,13 +803,13 @@ ALTER TABLE `proveedores`
 -- AUTO_INCREMENT de la tabla `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=22;
 
 --
 -- AUTO_INCREMENT de la tabla `ventas`
 --
 ALTER TABLE `ventas`
-  MODIFY `id_venta` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=62;
+  MODIFY `id_venta` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=66;
 
 --
 -- AUTO_INCREMENT de la tabla `ventas_anuladas`
@@ -732,7 +821,7 @@ ALTER TABLE `ventas_anuladas`
 -- AUTO_INCREMENT de la tabla `ventas_productos`
 --
 ALTER TABLE `ventas_productos`
-  MODIFY `id_venta_producto` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=38;
+  MODIFY `id_venta_producto` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=42;
 
 --
 -- Restricciones para tablas volcadas
@@ -749,6 +838,12 @@ ALTER TABLE `compras`
 --
 ALTER TABLE `gastos`
   ADD CONSTRAINT `gastos_usu` FOREIGN KEY (`id_usuario`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Filtros para la tabla `presupuestos_productos`
+--
+ALTER TABLE `presupuestos_productos`
+  ADD CONSTRAINT `presupuestos_productos_ibfk_1` FOREIGN KEY (`id_presupuesto`) REFERENCES `presupuestos` (`id_presupuesto`) ON DELETE CASCADE;
 
 --
 -- Filtros para la tabla `productos`

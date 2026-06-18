@@ -209,5 +209,35 @@
             document.getElementById('totalPresupuesto').textContent = '$' + totalFinal.toFixed(2);
         }
     </script>
+@if (session('nuevo_presupuesto_id'))
+        <div class="modal fade" id="presupuestoGuardadoModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content bg-dark text-white border border-secondary">
+                    <div class="modal-header border-secondary">
+                        <h5 class="modal-title">¡Presupuesto Generado con Éxito!</h5>
+                    </div>
+                    <div class="modal-body text-center">
+                        <p class="mb-0">El presupuesto se ha guardado en el historial.</p>
+                        <p class="mt-2">¿Deseás imprimir el comprobante ahora?</p>
+                    </div>
+                    <div class="modal-footer justify-content-center border-0">
+                        <a href="{{ route('presupuesto.imprimir', ['id' => session('nuevo_presupuesto_id')]) }}" class="btn btn-success">
+                            <i class="fas fa-print me-1"></i> Sí, imprimir
+                        </a>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                            No, seguir trabajando
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const modal = new bootstrap.Modal(document.getElementById('presupuestoGuardadoModal'));
+                modal.show();
+            });
+        </script>
+    @endif
 
 @endsection

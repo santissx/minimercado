@@ -337,4 +337,56 @@ function cargarClientesCorrientes() {
 }
 document.addEventListener('DOMContentLoaded', toggleClientesCorrientes);
 </script>
+
+
+// carga de presupuestos
+
+@if(session('cargar_presupuesto'))
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const productosPresupuesto = @json(session('cargar_presupuesto'));
+        const descuentoPresupuesto = {{ session('descuento_presupuesto') ?? 0 }};
+        
+        // Cargar el descuento
+        const inputDescuento = document.getElementById('descuento');
+        if (inputDescuento) {
+            inputDescuento.value = descuentoPresupuesto;
+        }
+
+        const tablaVentas = document.getElementById('tablaVentas');
+
+        // Renderizar todos los productos traidos del presupuesto a la tabla HTML
+        productosPresupuesto.forEach(prod => {
+            const codigo = prod.codigo_barra || prod.codigo || '-';
+            const precio = parseFloat(prod.precio) || 0;
+            const cantidad = parseInt(prod.cantidad) || 1;
+            const stock = parseInt(prod.stock) || 0;
+            const precioTotal = precio * cantidad;
+
+            const nuevaFila = document.createElement('tr');
+            nuevaFila.innerHTML = `
+                <td>${codigo}</td>
+                <td>${prod.nombre}</td>
+                <td>
+                    <input type="number" name="productos[${prod.id_producto}][cantidad]" value="${cantidad}" min="1" max="${stock}" class="form-control cantidad" data-precio="${precio}" data-stock="${stock}" oninput="actualizarTotal(this)">
+                    <input type="hidden" name="productos[${prod.id_producto}][id_producto]" value="${prod.id_producto}">
+                    <input type="hidden" name="productos[${prod.id_producto}][precio]" value="${precio}">
+                </td>
+                <td>$${precio.toFixed(2)}</td>
+                <td class="precio-total">$${precioTotal.toFixed(2)}</td>
+                <td class="text-center">
+                    <button type="button" class="btn btn-danger btn-sm px-2 py-1" onclick="quitarProductoDelCarrito(this)">×</button>
+                </td>`;
+            
+            tablaVentas.appendChild(nuevaFila);
+        });
+
+        // Simular que agregamos algo para que se actualice el DOM de los totales
+        if (typeof calcularTotalVenta === 'function') {
+            calcularTotalVenta();
+        }
+    });
+</script>
+@endif
+
 @endsection
