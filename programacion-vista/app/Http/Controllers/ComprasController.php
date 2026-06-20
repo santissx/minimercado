@@ -111,14 +111,35 @@ public function agregar(Request $request)
 }
 
 public function eliminar($id_compra)
-{
-    // Eliminar los registros relacionados en productosxcompras
-    DB::table('productosxcompras')->where('id_compra', $id_compra)->delete();
+    {
+        DB::beginTransaction();
 
-    // Eliminar la compra
-    DB::table('compras')->where('id_compra', $id_compra)->delete();
+        try {
+            // 1. Obtener los productos de esta compra ANTES de borrarlos
+            $productosCompra = DB::table('productosxcompras')
+                ->where('id_compra', $id_compra)
+                ->get();
 
-    // Redirigir con un mensaje de éxito
-    return redirect()->route('views.compras')->with('success', 'Compra eliminada correctamente.');
-}
+            // 2. Restar la cantidad agregada del stock actual de cada producto
+            foreach ($productosCompra as $item) {
+                DB::table('productos')
+                    ->where('id_producto', $item->id_producto)
+                    ->decrement('stock', $item->cantidad_agregada);
+            }
+
+            // 3. Eliminar los registros relacionados en la tabla intermedia
+            DB::table('productosxcompras')->where('id_compra', $id_compra)->delete();
+
+            // 4. Eliminar la compra de la tabla principal
+            DB::table('compras')->where('id_compra', $id_compra)->delete();
+
+            DB::commit();
+
+            return redirect()->route('views.compras')->with('success', 'Compra eliminada y stock revertido correctamente.');
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return redirect()->route('views.compras')->with('error', 'Hubo un error al eliminar la compra: ' . $e->getMessage());
+        }
+    }
 }
