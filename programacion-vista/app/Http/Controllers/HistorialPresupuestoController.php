@@ -63,6 +63,10 @@ class HistorialPresupuestoController extends Controller
     {
         $presupuesto = DB::table('presupuestos')->where('id_presupuesto', $id)->first();
         
+        if (!$presupuesto) {
+            return redirect()->back()->with('error', 'Presupuesto no encontrado.');
+        }
+
         $productos = DB::table('presupuestos_productos')
             ->join('productos', 'presupuestos_productos.id_producto', '=', 'productos.id_producto')
             ->select(
@@ -79,12 +83,14 @@ class HistorialPresupuestoController extends Controller
 
         DB::table('presupuestos')->where('id_presupuesto', $id)->update(['estado' => 'convertido']);
 
-       
         return redirect()->route('views.ventas')
             ->with('cargar_presupuesto', $productos)
             ->with('descuento_presupuesto', $presupuesto->descuento)
+            ->with('nombre_cliente', $presupuesto->nombre_cliente) // Cambiado para tu JS
+            ->with('telefono_cliente', $presupuesto->telefono_cliente) // Cambiado para tu JS
             ->with('success', '¡Presupuesto cargado! Listo para facturar.');
     }
+
     public function actualizarPrecios($id)
         {
             DB::beginTransaction();

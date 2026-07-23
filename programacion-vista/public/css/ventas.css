@@ -290,3 +290,15 @@ table td.d-flex > .btn {
 table td.d-flex > *:not(:last-child) {
     margin-right: 0.5rem !important;  /* Genera la separación simétrica entre botones */
 }
+
+.bg-dark::placeholder,
+.bg-dark::-webkit-input-placeholder {
+    color: #a0a0a0 !important;
+    opacity: 1 !important;
+}
+
+/* Específicamente para las textareas también */
+textarea.bg-dark::placeholder {
+    color: #a0a0a0 !important;
+    opacity: 1 !important;
+}

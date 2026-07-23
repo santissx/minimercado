@@ -3,12 +3,40 @@
 @section('title', 'Lista')
 
 @section('ladoizq')
+
+
+{{-- BLOQUE NUEVO: MUESTRA LOS ERRORES DE VALIDACIÓN (COMO EL CÓDIGO DUPLICADO) --}}
+    @if ($errors->any())
+        <div class="alert alert-danger alert-dismissible fade show shadow-sm" role="alert">
+            <div class="d-flex align-items-center gap-2">
+                <i class="fas fa-exclamation-triangle"></i>
+                <div class="w-100">
+                    @foreach ($errors->all() as $error)
+                        <p class="mb-0 fw-bold">{{ $error }}</p>
+                    @endforeach
+                </div>
+            </div>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    @endif
+
+    {{-- BLOQUE NUEVO: MUESTRA LOS MENSAJES EXITOSOS --}}
+    @if (session('success'))
+        <div class="alert alert-success alert-dismissible fade show shadow-sm" role="alert">
+            <div class="d-flex align-items-center gap-2">
+                <i class="fas fa-check-circle"></i>
+                <div class="fw-bold">{{ session('success') }}</div>
+            </div>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    @endif
+
 <div class="row h-100">
     <div class="col-lg-8 d-flex flex-column">
         {{-- FORMULARIO DE BÚSQUEDA CON BOTÓN DE AGREGAR AL LADO --}}
-        <form action="{{ route('views.lista') }}" method="GET" class="row g-2 mb-3">
+        <form id="formBusquedaProductos" action="{{ route('views.lista') }}" method="GET" class="row g-2 mb-3">
             <div class="col-12 col-md-6">
-                <input type="search" name="search" class="form-control" placeholder="Busque su producto" value="{{ $search }}">
+                <input type="search" id="inputSearchProductos" name="search" class="form-control" placeholder="Busque su producto" value="{{ $search }}">
             </div>
             <div class="col-6 col-md-3">
                 <button type="submit" class="btn btn-primary w-100">Buscar</button>
@@ -75,7 +103,7 @@
                                     @if(Auth::user()->rol === 'administrador')
                                     <td class="text-center">
                                         <div class="d-flex justify-content-center align-items-center gap-2">
-                                            <button class="btn btn-primary" 
+                                            <button type="button" class="btn btn-primary" 
                                                     data-bs-toggle="modal" 
                                                     data-bs-target="#vermodificarproducModal"
                                                     data-id="{{ $producto->id_producto }}"
@@ -90,7 +118,7 @@
                                                     data-estado="{{ $producto->estado }}">
                                                 Modificar
                                             </button>
-                                            <form class="m-0 d-flex" action="{{ route('lista.borrar', ['id_producto' => $producto->id_producto]) }}" method="POST">
+                                            <form class="m-0 d-flex" action="{{ route('lista.borrar', ['id_producto' => $producto->id_producto, 'search' => $search, 'sort' => $sort]) }}" method="POST">
                                                 @csrf
                                                 @method('DELETE')
                                                 <button type="submit" class="btn btn-danger">Eliminar</button>
@@ -214,7 +242,7 @@
 <div class="modal fade" id="vermodificarproducModal" tabindex="-1" aria-labelledby="vermodificarproducLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content bg-dark text-white">
-            <form action="{{ route('lista.modificar') }}" method="POST">
+            <form action="{{ route('lista.modificar', ['search' => $search, 'sort' => $sort]) }}" method="POST">
                 @csrf 
                 <input type="hidden" name="id_producto" id="id_producto">
                 <div class="modal-header">
@@ -234,13 +262,11 @@
                         <input type="text" class="form-control" id="codigo_barra" name="codigo_barra" required>
                     </div>
                     
-                    {{-- MODIFICADO: PRECIO LISTA CON ID ÚNICO --}}
                     <div class="mb-3">
                         <label for="mod_precio_lista" class="form-label">Precio lista (costo)</label>
                         <input type="number" class="form-control" id="mod_precio_lista" name="precio_lista" step="0.01" min="0" required oninput="calcularPrecioSugeridoMod()">
                     </div>
                     
-                    {{-- NUEVO: PORCENTAJE DE GANANCIA PARA MODIFICAR --}}
                     <div class="mb-3">
                         <label for="mod_ganancia_pct" class="form-label">% de ganancia (sugerencia)</label>
                         <div class="input-group">
@@ -257,7 +283,6 @@
                         </div>
                     </div>
 
-                    {{-- MODIFICADO: PRECIO VENTA CON ID ÚNICO --}}
                     <div class="mb-3">
                         <label for="mod_precio_venta" class="form-label">Precio venta</label>
                         <input type="number" class="form-control" id="mod_precio_venta" name="precio_venta" step="0.01" min="0" required>
@@ -392,7 +417,6 @@
             vermodificarproducModal.querySelector('#codigo').value = codigo;
             vermodificarproducModal.querySelector('#codigo_barra').value = codigo_barra;
             
-            // CORRECCIÓN: Actualizado a los nuevos IDs (mod_...)
             vermodificarproducModal.querySelector('#mod_precio_lista').value = precio_lista;
             vermodificarproducModal.querySelector('#mod_precio_venta').value = precio_venta;
             
@@ -401,9 +425,16 @@
             vermodificarproducModal.querySelector('#id_categoria').value = id_categoria;
             vermodificarproducModal.querySelector('#estado').value = estado;
 
-            // Limpiamos los campos de sugerencia cada vez que se abre el modal para que arranque limpio
             document.getElementById('mod_ganancia_pct').value = '';
             document.getElementById('mod_sugerido_container').style.display = 'none';
+        });
+
+        // Limpieza de espacios extras antes de enviar el formulario de búsqueda nativo
+        document.getElementById('formBusquedaProductos').addEventListener('submit', function(e) {
+            const input = document.getElementById('inputSearchProductos');
+            if(input) {
+                input.value = input.value.trim().replace(/\s+/g, ' ');
+            }
         });
     });
 

@@ -28,7 +28,7 @@ class PresupuestoController extends Controller
         return view('presupuesto', compact('productos', 'local'));
     }
 
-    public function generar(Request $request)
+   public function generar(Request $request)
     {
         $request->validate([
             'nombre_cliente' => 'nullable|string|max:255',
@@ -40,7 +40,8 @@ class PresupuestoController extends Controller
 
         try {
             $subtotal = 0;
-            $descuento = $request->descuento ?? 0;
+            // Capturamos el descuento final en pesos enviado desde el input hidden
+            $descuento = $request->input('descuento') ?? 0;
 
             // 1. Calculamos el subtotal leyendo precios reales por seguridad
             foreach ($request->productos as $id => $datos) {
@@ -50,7 +51,11 @@ class PresupuestoController extends Controller
                 }
             }
 
-            $total = $subtotal - $descuento;
+            // Evitar que dé números negativos si el descuento supera el subtotal en el backend
+            $total = max(0, $subtotal - $descuento);
+            if ($descuento > $subtotal) {
+                $descuento = $subtotal;
+            }
 
             // 2. Guardamos el registro principal en la tabla presupuestos
             $idPresupuesto = DB::table('presupuestos')->insertGetId([
@@ -63,7 +68,6 @@ class PresupuestoController extends Controller
                 'estado' => 'pendiente',
             ]);
 
-            // 3. Guardamos el detalle de los productos
             foreach ($request->productos as $id => $datos) {
                 if (isset($datos['cantidad']) && $datos['cantidad'] > 0) {
                     $precio = DB::table('productos')->where('id_producto', $id)->value('precio_venta');
@@ -90,7 +94,6 @@ class PresupuestoController extends Controller
         }
     }
 
-    // Nueva función exclusiva para imprimir presupuestos guardados
     public function imprimir($id)
     {
         $presupuesto = DB::table('presupuestos')->where('id_presupuesto', $id)->first();
@@ -101,19 +104,25 @@ class PresupuestoController extends Controller
 
         $productosDB = DB::table('presupuestos_productos')
             ->join('productos', 'presupuestos_productos.id_producto', '=', 'productos.id_producto')
-            ->select('productos.nombre', 'productos.codigo', 'productos.codigo_barra', 'presupuestos_productos.cantidad', 'presupuestos_productos.precio')
+            ->select(
+                'productos.nombre', 
+                'productos.codigo', 
+                'productos.codigo_barra', 
+                'presupuestos_productos.cantidad', 
+                'presupuestos_productos.precio'
+            )
             ->where('id_presupuesto', $id)
             ->get();
 
-        // Formateamos los productos como los espera tu vista presupuesto_print.blade.php
         $productosFormateados = [];
         foreach ($productosDB as $p) {
             $productosFormateados[] = [
                 'codigo'      => $p->codigo ?: $p->codigo_barra,
                 'nombre'      => $p->nombre,
-                'cantidad'    => $p->cantidad,
+                'text'        => null, 
+                'cantidad'    => $p->cantidad, 
                 'precio'      => $p->precio,
-                'total_linea' => $p->cantidad * $p->precio,
+                'total_linea' => ($p->cantidad * $p->precio), // Hacemos la matemática directa
             ];
         }
 
@@ -146,7 +155,6 @@ class PresupuestoController extends Controller
 
         $productos = DB::table('productos')->where('estado', 'activo')->get();
 
-        // Traemos los productos guardados en este presupuesto
         $productosSeleccionados = DB::table('presupuestos_productos')
             ->join('productos', 'presupuestos_productos.id_producto', '=', 'productos.id_producto')
             ->select('productos.id_producto', 'productos.nombre', 'productos.codigo', 'productos.codigo_barra', 'presupuestos_productos.cantidad', 'presupuestos_productos.precio as precio_guardado')
@@ -165,9 +173,8 @@ class PresupuestoController extends Controller
         DB::beginTransaction();
         try {
             $subtotal = 0;
-            $descuento = $request->descuento ?? 0;
+            $descuento = $request->input('descuento') ?? 0;
 
-            // Borramos los productos viejos y cargamos los nuevos que mandó el formulario
             DB::table('presupuestos_productos')->where('id_presupuesto', $id)->delete();
 
             foreach ($request->productos as $prodId => $datos) {
@@ -186,6 +193,9 @@ class PresupuestoController extends Controller
             }
 
             $total = max(0, $subtotal - $descuento);
+            if ($descuento > $subtotal) {
+                $descuento = $subtotal;
+            }
 
             DB::table('presupuestos')->where('id_presupuesto', $id)->update([
                 'monto_total' => $total,

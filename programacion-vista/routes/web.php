@@ -19,6 +19,7 @@ use App\Http\Controllers\ReporteController;
 use App\Http\Controllers\PresupuestoController;
 use App\Http\Controllers\BalanceController;
 use App\Http\Controllers\HistorialPresupuestoController;
+
 //rutas del login 
 
 Route::get('/dashboard', [VentaController::class, 'mostrar'])->middleware(['auth', 'verified'])->name('dashboard');
@@ -116,11 +117,16 @@ Route::post('/lista/aumentar-precio-lista', [listacontroller::class, 'aumentarPr
 Route::get('/buscar-productos', [ProductoController::class, 'buscar'])->name('productos.buscar');
 // Ruta para obtener los métodos de pago
 Route::get('/ventas', [VentaController::class, 'mostrar'])->name('views.ventas');
-
+Route::get('/buscar-productos', [VentaController::class, 'buscarProductos'])->name('productos.buscar');
 Route::post('/ventas/guardar', [VentaController::class, 'guardar'])->name('ventas.guardar');
 
 Route::get('/obtener-clientes-corrientes', [VentaController::class, 'obtenerClientesCorrientes']);
 
+// rutas de Promociones 
+Route::get('/promociones', [PromocionController::class, 'index'])->name('promociones.index');
+Route::post('/promociones', [PromocionController::class, 'store'])->name('promociones.store');
+Route::delete('/promociones/{id}', [PromocionController::class, 'destroy'])->name('promociones.destroy');
+Route::put('/promociones/{id}', [PromocionController::class, 'update'])->name('promociones.update');
 
 //rutas para historial
 Route::get('/historial', [HistorialController::class, 'mostrar'])->name('views.historial');

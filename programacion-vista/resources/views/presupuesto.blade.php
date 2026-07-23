@@ -9,7 +9,7 @@
     @endif
 
     {{-- Formulario principal: Enmarca toda la estructura row/col --}}
-    <form method="POST" action="{{ route('presupuesto.generar') }}">
+    <form id="formPresupuestoPrincipal" method="POST" action="{{ route('presupuesto.generar') }}">
         @csrf
         <div class="row h-100">
             
@@ -18,12 +18,24 @@
 
                 {{-- Tabla de productos seleccionados --}}
                 <div class="card mb-3 flex-grow-1 left-table position-relative">
-                    <div class="card-body d-flex flex-column">
-                        <div class="d-flex justify-content-between align-items-center mb-3">
-                            <h5 class="card-title">Presupuesto</h5>
+                    {{-- Encabezado con título a la izquierda y acciones a la derecha --}}
+                    <div class="card-header d-flex justify-content-between align-items-center bg-dark text-white border-bottom border-secondary py-3">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-file-invoice-dollar me-2"></i>Presupuesto
+                        </h5>
+                        <div class="d-flex gap-2">
+                            <button type="button" class="btn btn-primary fw-bold" data-bs-toggle="modal" data-bs-target="#buscarProductoPresupuestoModal">
+                                <i class="fas fa-plus me-1"></i> Agregar Producto
+                            </button>
+                            <button type="submit" class="btn btn-success fw-bold">
+                                <i class="fas fa-check me-1"></i> Generar Presupuesto
+                            </button>
                         </div>
-                        <div class="table-responsive flex-grow-1 table-scroll">
-                            <table class="table table-dark table-striped">
+                    </div>
+
+                    <div class="card-body d-flex flex-column">
+                        <div class="table-responsive flex-grow-1 table-scroll" style="max-height: 350px; overflow-y: auto;">
+                            <table class="table table-dark table-striped mb-0">
                                 <thead>
                                     <tr>
                                         <th>Código</th>
@@ -40,34 +52,51 @@
                             </table>
                         </div>
                     </div>
-                    <div class="action-buttons p-3 border-top border-secondary">
-                        <button type="button" class="btn btn-primary" data-bs-toggle="modal"
-                            data-bs-target="#buscarProductoPresupuestoModal">
-                            Agregar Producto
-                        </button>
-                        <button type="submit" class="btn btn-success">Generar Presupuesto</button>
-                    </div>
                 </div>
 
-                {{-- Datos del cliente y totales --}}
-                <div class="card">
+                {{-- TARJETA: DATOS DEL CLIENTE Y DESCUENTOS --}}
+                <div class="card mb-3">
                     <div class="card-body">
-                        <h5 class="card-title">Datos del cliente</h5>
-                        <div class="mb-3">
-                            <input type="text" name="nombre_cliente" class="form-control mb-2"
-                                placeholder="Nombre del cliente (opcional)">
-                            <input type="text" name="telefono_cliente" class="form-control"
-                                placeholder="Teléfono (opcional)">
-                        </div>
-                        <div class="d-flex justify-content-between mb-2 align-items-center">
-                            <label class="me-2 fw-bold">Descuento ($):</label>
-                            <input type="number" id="descuento" name="descuento" class="form-control w-25"
-                                placeholder="0.00" step="0.01" min="0" oninput="calcularTotalPresupuesto()">
-                        </div>
-                        <div class="d-flex justify-content-between fs-5 fw-bold">
-                            <span>Total:</span>
-                            <span id="totalPresupuesto" class="text-success">$0.00</span>
-                        </div>
+                        <div class="row">
+                            
+                            {{-- Bloque Unificado de Datos del Cliente (Ahora ocupa todo el ancho) --}}
+                            <div class="col-12">
+                                <h5 class="card-title mb-3">Datos del cliente</h5>
+                                <div class="row mb-3">
+                                    <div class="col-md-6 mb-2 mb-md-0">
+                                        <input type="text" name="nombre_cliente" class="form-control"
+                                            placeholder="Nombre del cliente (opcional)">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <input type="text" name="telefono_cliente" class="form-control"
+                                            placeholder="Teléfono (opcional)">
+                                    </div>
+                                </div>
+                                
+                                <div class="row align-items-center">
+                                    <div class="col-md-6 d-flex align-items-center mb-3 mb-md-0">
+                                        <label for="descuento" class="me-2 mb-0 fw-bold">Descuento:</label>
+                                        <div class="d-flex gap-1" style="width: 50%;">
+                                            <input type="number" id="descuento" class="form-control" placeholder="0.00" step="0.01" min="0" oninput="calcularTotalPresupuesto()">
+                                            
+                                            <select id="tipo_descuento" name="tipo_descuento" class="form-select bg-secondary text-white w-auto" onchange="calcularTotalPresupuesto()">
+                                                <option value="fijo" selected>$</option>
+                                                <option value="porcentaje">%</option>
+                                            </select>
+                                        </div>
+                                        <input type="hidden" id="descuento_final_pesos" name="descuento" value="0">
+                                    </div>
+
+                                    <div class="col-md-6 text-md-end">
+                                        <div class="fs-4 fw-bold">
+                                            <span>Total:</span>
+                                            <span id="totalPresupuesto" class="text-success">$0.00</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div> {{-- Fin row interno --}}
                     </div>
                 </div>
 
@@ -132,14 +161,37 @@
 
     {{-- SCRIPTS DE JAVASCRIPT --}}
     <script>
-        // Buscador interno del modal
+        // Buscador interno del modal optimizado para múltiples palabras y tolerante a acentos (tildes)
         document.getElementById('buscadorPresupuesto').addEventListener('keyup', function() {
-            const filtro = this.value.toLowerCase();
+            // Convertimos a minúsculas, quitamos acentos y limpiamos múltiples espacios
+            const filtroRaw = this.value
+                .toLowerCase()
+                .normalize("NFD")
+                .replace(/[\u0300-\u036f]/g, "")
+                .trim()
+                .replace(/\s+/g, ' ');
+                
             const filas = document.querySelectorAll('.item-producto-presupuesto');
 
+            if (filtroRaw === '') {
+                filas.forEach(fila => fila.style.display = '');
+                return;
+            }
+
+            // Separamos por palabras individuales
+            const palabrasFiltro = filtroRaw.split(' ');
+
             filas.forEach(fila => {
-                const texto = fila.textContent.toLowerCase();
-                fila.style.display = texto.includes(filtro) ? '' : 'none';
+                // Obtenemos el texto de la fila y le removemos los acentos para una comparación justa
+                const textoFila = fila.textContent
+                    .toLowerCase()
+                    .normalize("NFD")
+                    .replace(/[\u0300-\u036f]/g, "");
+                
+                // CADA una de las palabras buscadas debe estar dentro del texto de la fila
+                const coincideTodo = palabrasFiltro.every(palabra => textoFila.includes(palabra));
+                
+                fila.style.display = coincideTodo ? '' : 'none';
             });
         });
 
@@ -177,6 +229,10 @@
             const modal = bootstrap.Modal.getInstance(modalElement) || new bootstrap.Modal(modalElement);
             modal.hide();
 
+            // Limpiamos el buscador para la próxima apertura
+            document.getElementById('buscadorPresupuesto').value = '';
+            filas.forEach(fila => fila.style.display = '');
+
             calcularTotalPresupuesto();
         }
 
@@ -199,17 +255,37 @@
         // Recalcular el total general
         function calcularTotalPresupuesto() {
             let subtotal = 0;
+            const descuentoInput = parseFloat(document.getElementById('descuento').value) || 0;
+            const tipoDescuento = document.getElementById('tipo_descuento').value;
+
+            // Sumar subtotales de la tabla
             document.querySelectorAll('#tablaPresupuesto .total-linea').forEach(celda => {
                 subtotal += parseFloat(celda.textContent.replace('$', '')) || 0;
             });
             
-            const descuento = parseFloat(document.getElementById('descuento').value) || 0;
-            const totalFinal = Math.max(0, subtotal - descuento); // Evita que dé números negativos si el descuento supera el subtotal
+            // Calcular el valor real a restar en pesos ($)
+            let descuentoCalculado = 0;
+            if (tipoDescuento === 'porcentaje') {
+                descuentoCalculado = subtotal * (descuentoInput / 100);
+            } else {
+                descuentoCalculado = descuentoInput;
+            }
+
+            // Evitar que dé números negativos si el descuento supera el subtotal
+            let totalFinal = subtotal - descuentoCalculado;
+            if (totalFinal < 0) {
+                totalFinal = 0;
+                descuentoCalculado = subtotal; // El descuento real máximo es el subtotal
+            }
+
+            // Guardar valor real en pesos para la base de datos
+            document.getElementById('descuento_final_pesos').value = descuentoCalculado.toFixed(2);
 
             document.getElementById('totalPresupuesto').textContent = '$' + totalFinal.toFixed(2);
         }
     </script>
-@if (session('nuevo_presupuesto_id'))
+
+    @if (session('nuevo_presupuesto_id'))
         <div class="modal fade" id="presupuestoGuardadoModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
             <div class="modal-dialog modal-dialog-centered">
                 <div class="modal-content bg-dark text-white border border-secondary">

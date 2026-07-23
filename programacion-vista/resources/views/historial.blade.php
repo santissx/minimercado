@@ -33,18 +33,31 @@
                                 <td>{{ $venta->descuento }}</td>
                                 <td>{{ $venta->metodo_pago }}</td>
                                 <td>
-                                    @if($venta->clientec)
-                                        {{ $venta->clientec }} - {{ $venta->nombre_clientec }}
-                                    @else
-                                        N/A
+                                {{-- Lógica Unificada para la columna Cliente --}}
+                                @if($venta->clientec)
+                                    <span class="badge bg-info text-dark">Cta Cte</span> {{ $venta->nombre_clientec }}
+                                    @if(!empty($venta->telefono_clientec))
+                                        <br><span class="text-white"><i class="fas fa-phone-alt me-1 text-info"></i>{{ $venta->telefono_clientec }}</span>
                                     @endif
+                                @elseif(!empty($venta->cliente_nombre))
+                                    {{ $venta->cliente_nombre }}
+                                    @if(!empty($venta->cliente_telefono))
+                                        <br><span class="text-white"><i class="fas fa-phone-alt me-1 text-info"></i>{{ $venta->cliente_telefono }}</span>
+                                    @endif
+                                @else
+                                    <span class="text-white-50">Consumidor final</span>
+                                @endif
                                 </td>
                                 <td class="text-center">
                                     <div class="d-flex justify-content-center align-items-center gap-2">
+                                        {{-- Añadimos los nuevos atributos data-* para pasárselos de forma síncrona al Modal --}}
                                         <button name="boton detalle"
                                                 type="button" 
                                                 class="btn btn-primary ver-detalle-venta" 
                                                 data-id="{{ $venta->id_venta }}" 
+                                                data-nombre="{{ $venta->cliente_nombre ?? '' }}"
+                                                data-telefono="{{ $venta->cliente_telefono ?? '' }}"
+                                                data-observaciones="{{ $venta->observaciones ?? '' }}"
                                                 data-bs-toggle="modal" 
                                                 data-bs-target="#verdetalleventa">
                                             Ver Detalle
@@ -129,19 +142,34 @@
 </div>
 @endsection 
 
+{{-- MODAL DETALLE MODIFICADO: Muestra Nombre, Teléfono y Observaciones --}}
 <div class="modal fade" id="verdetalleventa" tabindex="-1" aria-labelledby="verdetalleventaLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
-        <div class="modal-content bg-dark">
-            <div class="modal-header">
-                <h5 class="modal-title" id="verdetalleventaLabel">Detalle de la venta</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        <div class="modal-content bg-dark text-white border border-secondary">
+            <div class="modal-header border-secondary">
+                <h5 class="modal-title" id="verdetalleventaLabel">Detalle de la Venta</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <div class="card mb-3 flex-grow-1 left-table position-relative">
+                
+                {{-- SECCIÓN DATOS CLIENTE: Cambiamos bg-secondary (gris) por un borde sutil y texto claro --}}
+                <div id="detalle_cliente_casual_container" class="mb-3 p-3 bg-dark border border-secondary rounded text-light" style="display: none;">
+                    <h6 class="fw-bold text-info mb-2"><i class="fas fa-user me-2"></i>Datos del Cliente Registrado (Casual)</h6>
+                    <div class="row">
+                        <div class="col-6">
+                            <strong class="text-white-50">Nombre:</strong> <span id="det_cliente_nombre" class="text-white fw-medium"></span>
+                        </div>
+                        <div class="col-6">
+                            <strong class="text-white-50">Teléfono:</strong> <span id="det_cliente_telefono" class="text-white fw-medium"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card mb-3 flex-grow-1 left-table position-relative bg-dark text-white border-secondary">
                     <div class="card-body d-flex flex-column">
                         <h5 class="card-title">Productos vendidos</h5>
                         <div class="table-responsive flex-grow-1">
-                            <table class="table table-dark table-striped">
+                            <table class="table table-dark table-striped mb-0">
                                 <thead>
                                     <tr>
                                         <th>ID Venta</th>
@@ -151,13 +179,21 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    </tbody>
+                                    {{-- Productos vía AJAX --}}
+                                </tbody>
                             </table>
                         </div>
                     </div>
                 </div>
+
+                {{-- SECCIÓN OBSERVACIONES: Agregamos la clase text-light al párrafo para que brille --}}
+                <div class="mb-2 p-3 bg-dark border border-secondary rounded" id="detalle_observaciones_container" style="display: none;">
+                    <h6 class="fw-bold text-warning mb-2"><i class="fas fa-comment-alt me-2"></i>Observaciones Internas</h6>
+                    <p class="mb-0 text-light bg-dark" id="det_observaciones" style="white-space: pre-wrap; font-size: 14px;"></p>
+                </div>
+
             </div>
-            <div class="modal-footer">
+            <div class="modal-footer border-secondary">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
             </div>
         </div>
@@ -192,11 +228,36 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-        // Carga asíncrona de los productos del Detalle de Venta
+        // Carga asíncrona de los productos del Detalle de Venta e Inyección de metadatos
         document.querySelectorAll('.ver-detalle-venta').forEach(button => {
             button.addEventListener('click', function () {
                 const idVenta = this.getAttribute('data-id');
                 
+                // Capturar nuevos campos síncronos desde el botón del bucle
+                const nombre = this.getAttribute('data-nombre');
+                const telefono = this.getAttribute('data-telefono');
+                const observaciones = this.getAttribute('data-observaciones');
+
+                // 1. Controlar contenedor de datos del cliente
+                const contenedorCliente = document.getElementById('detalle_cliente_casual_container');
+                if (nombre || telefono) {
+                    document.getElementById('det_cliente_nombre').textContent = nombre ? nombre : 'No indicado';
+                    document.getElementById('det_cliente_telefono').textContent = telefono ? telefono : 'No indicado';
+                    contenedorCliente.style.display = 'block';
+                } else {
+                    contenedorCliente.style.display = 'none';
+                }
+
+                // 2. Controlar contenedor de observaciones internas
+                const contenedorObs = document.getElementById('detalle_observaciones_container');
+                if (observaciones) {
+                    document.getElementById('det_observaciones').textContent = observaciones;
+                    contenedorObs.style.display = 'block';
+                } else {
+                    contenedorObs.style.display = 'none';
+                }
+
+                // 3. Consultar productos del detalle por AJAX
                 fetch(`/detalle-venta/${idVenta}`)
                     .then(response => response.json())
                     .then(data => {

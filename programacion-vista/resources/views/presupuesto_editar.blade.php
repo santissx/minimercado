@@ -11,11 +11,28 @@
         @method('PUT')
         <div class="row h-100">
             <div class="col-lg-8 d-flex flex-column">
+                
+                {{-- Tabla de productos seleccionados --}}
                 <div class="card mb-3 flex-grow-1 left-table position-relative">
+                    
+                    {{-- Encabezado unificado con Título a la izquierda y Acciones a la derecha --}}
+                    <div class="card-header d-flex justify-content-between align-items-center bg-dark text-white border-bottom border-secondary py-3">
+                        <h5 class="card-title text-warning mb-0">
+                            <i class="fas fa-edit me-2"></i>Editando Presupuesto #{{ $presupuesto->id_presupuesto }}
+                        </h5>
+                        <div class="d-flex gap-2">
+                            <button type="button" class="btn btn-primary fw-bold" data-bs-toggle="modal" data-bs-target="#buscarProductoPresupuestoModal">
+                                <i class="fas fa-plus me-1"></i> Agregar Producto
+                            </button>
+                            <button type="submit" class="btn btn-warning fw-bold text-dark">
+                                <i class="fas fa-save me-1"></i> Guardar Cambios
+                            </button>
+                        </div>
+                    </div>
+
                     <div class="card-body d-flex flex-column">
-                        <h5 class="card-title text-warning">Editando Presupuesto #{{ $presupuesto->id_presupuesto }}</h5>
                         <div class="table-responsive flex-grow-1 table-scroll">
-                            <table class="table table-dark table-striped">
+                            <table class="table table-dark table-striped mb-0">
                                 <thead>
                                     <tr>
                                         <th>Código</th>
@@ -30,29 +47,41 @@
                             </table>
                         </div>
                     </div>
-                    <div class="action-buttons p-3 border-top border-secondary">
-                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#buscarProductoPresupuestoModal">
-                            Agregar Producto
-                        </button>
-                        <button type="submit" class="btn btn-warning">Guardar Cambios</button>
-                    </div>
                 </div>
 
-                <div class="card">
+                {{-- TARJETA: DATOS DEL CLIENTE Y TOTALES --}}
+                <div class="card mb-3">
                     <div class="card-body">
-                        <h5 class="card-title">Datos del cliente</h5>
-                        <div class="mb-3">
-                            <input type="text" name="nombre_cliente" class="form-control mb-2" value="{{ $presupuesto->nombre_cliente }}" placeholder="Nombre del cliente">
-                            <input type="text" name="telefono_cliente" class="form-control" value="{{ $presupuesto->telefono_cliente }}" placeholder="Teléfono">
-                        </div>
-                        <div class="d-flex justify-content-between mb-2 align-items-center">
-                            <label class="me-2 fw-bold">Descuento ($):</label>
-                            <input type="number" id="descuento" name="descuento" class="form-control w-25" value="{{ $presupuesto->descuento }}" step="0.01" min="0" oninput="calcularTotalPresupuesto()">
-                        </div>
-                        <div class="d-flex justify-content-between fs-5 fw-bold">
-                            <span>Total:</span>
-                            <span id="totalPresupuesto" class="text-warning">${{ number_format($presupuesto->monto_total, 2) }}</span>
-                        </div>
+                        <div class="row">
+                            
+                            {{-- Datos del Cliente e Inputs --}}
+                            <div class="col-12">
+                                <h5 class="card-title mb-3">Datos del cliente</h5>
+                                <div class="row mb-3">
+                                    <div class="col-md-6 mb-2 mb-md-0">
+                                        <input type="text" name="nombre_cliente" class="form-control" value="{{ $presupuesto->nombre_cliente }}" placeholder="Nombre del cliente (opcional)">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <input type="text" name="telefono_cliente" class="form-control" value="{{ $presupuesto->telefono_cliente }}" placeholder="Teléfono (opcional)">
+                                    </div>
+                                </div>
+                                
+                                <div class="row align-items-center">
+                                    <div class="col-md-6 d-flex align-items-center mb-3 mb-md-0">
+                                        <label for="descuento" class="me-2 mb-0 fw-bold">Descuento ($):</label>
+                                        <input type="number" id="descuento" name="descuento" class="form-control w-50" value="{{ $presupuesto->descuento }}" step="0.01" min="0" oninput="calcularTotalPresupuesto()">
+                                    </div>
+
+                                    <div class="col-md-6 text-md-end">
+                                        <div class="fs-4 fw-bold">
+                                            <span>Total:</span>
+                                            <span id="totalPresupuesto" class="text-warning">${{ number_format($presupuesto->monto_total, 2) }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div> {{-- Fin row interno --}}
                     </div>
                 </div>
             </div>
@@ -63,11 +92,11 @@
         </div>
     </form>
 
-    {{-- MODAL BUSCAR PRODUCTO (Igual al de crear) --}}
+    {{-- MODAL BUSCAR PRODUCTO --}}
     <div class="modal fade" id="buscarProductoPresupuestoModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-lg">
-            <div class="modal-content bg-dark text-white">
-                <div class="modal-header">
+            <div class="modal-content bg-dark text-white border border-secondary">
+                <div class="modal-header border-secondary">
                     <h5 class="modal-title">Buscar Producto</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
@@ -75,7 +104,15 @@
                     <input type="text" id="buscadorPresupuesto" class="form-control mb-3" placeholder="Buscar por nombre o código...">
                     <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
                         <table class="table table-dark table-hover">
-                            <thead><tr><th>Código</th><th>Nombre</th><th>Stock</th><th>Precio</th><th>Acción</th></tr></thead>
+                            <thead>
+                                <tr>
+                                    <th>Código</th>
+                                    <th>Nombre</th>
+                                    <th>Stock</th>
+                                    <th>Precio</th>
+                                    <th>Acción</th>
+                                </tr>
+                            </thead>
                             <tbody id="listaProductosPresupuesto">
                                 @foreach ($productos as $p)
                                     @php $nombreEscapado = str_replace(['"', "'"], ['\\"', "\\'"], $p->nombre); @endphp
@@ -84,7 +121,11 @@
                                         <td class="nombre-prod">{{ $p->nombre }}</td>
                                         <td>{{ $p->stock }}</td>
                                         <td>${{ number_format($p->precio_venta, 2) }}</td>
-                                        <td><button type="button" class="btn btn-sm btn-success" onclick="agregarProductoPresupuesto('{{ $p->id_producto }}', '{{ $nombreEscapado }}', '{{ $p->codigo ?: $p->codigo_barra }}', '{{ $p->precio_venta }}')">Seleccionar</button></td>
+                                        <td>
+                                            <button type="button" class="btn btn-sm btn-success" onclick="agregarProductoPresupuesto('{{ $p->id_producto }}', '{{ $nombreEscapado }}', '{{ $p->codigo ?: $p->codigo_barra }}', '{{ $p->precio_venta }}')">
+                                                Seleccionar
+                                            </button>
+                                        </td>
                                     </tr>
                                 @endforeach
                             </tbody>
@@ -96,10 +137,38 @@
     </div>
 
     <script>
+        // Buscador interno del modal de EDICIÓN tolerante a múltiples palabras y tildes
         document.getElementById('buscadorPresupuesto').addEventListener('keyup', function() {
-            const filtro = this.value.toLowerCase();
-            document.querySelectorAll('.item-producto-presupuesto').forEach(fila => {
-                fila.style.display = fila.textContent.toLowerCase().includes(filtro) ? '' : 'none';
+            // Convertimos la búsqueda a minúsculas, quitamos acentos y limpiamos espacios de más
+            const filtroRaw = this.value
+                .toLowerCase()
+                .normalize("NFD")
+                .replace(/[\u0300-\u036f]/g, "")
+                .trim()
+                .replace(/\s+/g, ' ');
+                
+            const filas = document.querySelectorAll('.item-producto-presupuesto');
+
+            if (filtroRaw === '') {
+                filas.forEach(fila => fila.style.display = '');
+                return;
+            }
+
+            // Dividimos los términos introducidos en un array de palabras individuales
+            const palabrasFiltro = filtroRaw.split(' ');
+
+            filas.forEach(fila => {
+                // Obtenemos todo el contenido de la fila y removemos tildes para igualar la comparación
+                const textoFila = fila.textContent
+                    .toLowerCase()
+                    .normalize("NFD")
+                    .replace(/[\u0300-\u036f]/g, "");
+                
+                // Evaluamos que CADA una de las palabras buscadas existan dentro de la fila (.every)
+                const coincideTodo = palabrasFiltro.every(palabra => textoFila.includes(palabra));
+                
+                // Mostramos u ocultamos la fila según la condición cruzada
+                fila.style.display = coincideTodo ? '' : 'none';
             });
         });
 

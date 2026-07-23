@@ -94,7 +94,31 @@
         <hr>
         <div class="datos-cliente">
             <table>
-                <tr><td>CLIENTE</td><td>{{ $venta->clientec ? $venta->nombre_clientec : 'Consumidor final' }}</td></tr>
+                <tr>
+                    <td>CLIENTE</td>
+                    <td>
+                        @if($venta->clientec)
+                            {{ $venta->nombre_clientec }} 
+                        @elseif(!empty($venta->cliente_nombre))
+                            {{ $venta->cliente_nombre }} 
+                        @else
+                            Consumidor final
+                        @endif
+                    </td>
+                </tr>
+                <tr>
+                    <td>TELEFONO</td>
+                    <td>
+                    @if($venta->clientec)
+                        {{ $venta->telefono_clientec ?? 'No proporcionado' }}
+                    @elseif(!empty($venta->cliente_telefono))
+                        {{ $venta->cliente_telefono }}
+                    @else
+                        No proporcionado
+                    @endif
+                </td>
+                </tr>
+                <tr>
                 <tr><td>VENDEDOR</td><td>{{ $venta->vendedor_name }}</td></tr>
                 <tr><td>MÉTODO DE PAGO</td><td>{{ $venta->metodo_pago }}</td></tr>
             </table>

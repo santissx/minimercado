@@ -6,7 +6,7 @@
 @if ($errors->any())
     <div class="alert alert-danger">
         @foreach ($errors->all() as $error)
-            <p>{{ $error }}</p>
+            <p class="mb-0">{{ $error }}</p>
         @endforeach
     </div>
 @endif
@@ -15,15 +15,35 @@
     @csrf
     <div class="row h-100">
         <div class="col-lg-8 d-flex flex-column">
+            
+            {{-- Tabla de productos de la venta --}}
             <div class="card mb-3 flex-grow-1 left-table position-relative">
                 
-                <div class="card-body d-flex flex-column ">
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <h5 class="card-title">Venta</h5>
-                    </div>
+               <div class="card-header d-flex justify-content-between align-items-center bg-dark text-white border-bottom border-secondary py-3">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-shopping-cart me-2"></i>Venta
+                </h5>
+                <div class="d-flex gap-2">
+                    {{-- Botón Agregar Promoción (a la izquierda) --}}
+                    <button type="button" class="btn btn-warning fw-bold text-dark" data-bs-toggle="modal" data-bs-target="#buscarPromocionModal">
+                        <i class="fas fa-gift me-1"></i> Agregar Promoción
+                    </button>
 
+                    {{-- Botón Agregar Producto --}}
+                    <button type="button" class="btn btn-primary fw-bold" data-bs-toggle="modal" data-bs-target="#buscarProductoModal">
+                        <i class="fas fa-plus me-1"></i> Agregar Producto
+                    </button>
+
+                    {{-- Botón Guardar Venta --}}
+                    <button type="submit" class="btn btn-success fw-bold">
+                        <i class="fas fa-save me-1"></i> Guardar Venta
+                    </button>
+                </div>
+            </div>
+
+                <div class="card-body d-flex flex-column">
                     <div class="table-responsive flex-grow-1 table-scroll">
-                        <table class="table table-dark table-striped ">
+                        <table class="table table-dark table-striped mb-0">
                             <thead>
                                 <tr>
                                     <th>Código del producto</th>
@@ -35,42 +55,72 @@
                                 </tr>
                             </thead>
                             <tbody id="tablaVentas">
-                                </tbody>
+                                {{-- Los productos se cargan dinámicamente aquí --}}
+                            </tbody>
                         </table>
                     </div>
-
-                </div>
-                <div class="action-buttons">
-                    <button type="button" class="btn btn-primary me-2" data-bs-toggle="modal" data-bs-target="#buscarProductoModal">
-                        Agregar Producto
-                    </button>
-                    <button type="submit" class="btn btn-success">Guardar venta</button>
                 </div>
             </div>
             
+            {{-- Sección de Totales y Filtros --}}
             <div class="filtros mb-3 p-3 bg-dark rounded border border-secondary">
                 <div class="card-body">
-                    <h5 class="card-title">Ventas Totales</h5>
-                    <select class="form-select mb-3" name="metodo_pago" id="metodo_pago" required onchange="toggleClientesCorrientes()">
-                        <option selected disabled value="">Método de pago</option>
-                        @foreach($metodosDePago as $metodo)
-                            <option value="{{ $metodo->id_metodo_pago }}">{{ $metodo->nombre }}</option>
-                        @endforeach
-                    </select>
+                    <h5 class="card-title mb-3"><i class="fas fa-cash-register me-2"></i>Ventas Totales</h5>
+                    
+                    <div class="row align-items-center">
+                        <div class="col-md-6 mb-3 mb-md-0">
+                            <select class="form-select mb-3" name="metodo_pago" id="metodo_pago" required onchange="toggleClientesCorrientes()">
+                                <option selected disabled value="">Método de pago</option>
+                                @foreach($metodosDePago as $metodo)
+                                    <option value="{{ $metodo->id_metodo_pago }}">{{ $metodo->nombre }}</option>
+                                @endforeach
+                            </select>
 
-                    <div id="clientes_corrientes_container" style="display: none;">
-                        <select class="form-select mb-3" name="id_cliente" id="id_cliente">
-                            <option selected disabled value="">Seleccione un cliente</option>
-                        </select>
+                            <div id="clientes_corrientes_container" style="display: none;">
+                                <select class="form-select mb-3" name="id_cliente" id="id_cliente">
+                                    <option selected disabled value="">Seleccione un cliente</option>
+                                </select>
+                            </div>
+
+                            {{-- Campos opcionales para datos manuales u origen Presupuestos --}}
+                            <div id="cliente_casual_container" class="mt-2">
+                                <div class="row g-2 mb-2">
+                                    <div class="col-6">
+                                        <input type="text" name="cliente_nombre" id="cliente_nombre" placeholder="Nombre cliente (Opcional)" class="form-control bg-dark text-white border-secondary">
+                                    </div>
+                                    <div class="col-6">
+                                        <input type="text" name="cliente_telefono" id="cliente_telefono" placeholder="Teléfono (Opcional)" class="form-control bg-dark text-white border-secondary">
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-12">
+                                        <textarea name="observaciones" id="observaciones" placeholder="Observaciones internas de la venta (Opcional)" rows="2" class="form-control bg-dark text-white border-secondary"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <label for="descuento" class="me-2 mb-0 fw-bold">Descuento:</label>
+                                <div class="d-flex gap-1" style="width: 50%;">
+                                    <input type="number" id="descuento" class="form-control" placeholder="0.00" step="0.01" min="0" oninput="aplicarDescuento()">
+                                    
+                                    <select id="tipo_descuento" name="tipo_descuento" class="form-select bg-secondary text-white w-auto" onchange="aplicarDescuento()">
+                                        <option value="fijo" selected>$</option>
+                                        <option value="porcentaje">%</option>
+                                    </select>
+                                </div>
+                                <input type="hidden" id="descuento_final_pesos" name="descuento" value="0">
+                            </div>
+
+                            <div class="d-flex justify-content-between fs-4 fw-bold">
+                                <span>Total:</span>
+                                <span id="totalVenta" class="text-success">$0.00</span>
+                            </div>
+                        </div>
                     </div>
-                    <div class="d-flex justify-content-between mb-2">
-                        <label for="descuento" class="me-2">Descuento:</label>
-                        <input type="number" id="descuento" name="descuento" class="form-control w-25" placeholder="$0.00" step="0.01" min="0" onchange="aplicarDescuento()">
-                    </div>
-                    <div class="d-flex justify-content-between">
-                        <span>Total:</span>
-                        <span id="totalVenta">$0.00</span>
-                    </div>
+
                 </div>
             </div>
         </div>
@@ -86,28 +136,90 @@
     </div>
 </div>
 
+{{-- MODAL: Buscar Producto --}}
 <div class="modal fade" id="buscarProductoModal" tabindex="-1" aria-labelledby="buscarProductoModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
-        <div class="modal-content bg-dark">
-            <div class="modal-header">
+        <div class="modal-content bg-dark text-white border border-secondary">
+            <div class="modal-header border-secondary">
                 <h5 class="modal-title" id="buscarProductoModalLabel">Buscar Producto</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <input type="text" id="buscarProductoInput" class="form-control" placeholder="Buscar por nombre o código...">
-                <table class="table table-dark table-striped mt-3">
-                    <thead>
-                        <tr>
-                            <th>Código de barra</th>
-                            <th>Nombre</th>
-                            <th>Precio</th>
-                            <th>Stock</th>
-                            <th>Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody id="resultadosProductos">
-                    </tbody>
-                </table>
+                <input type="text" id="buscarProductoInput" class="form-control mb-3" placeholder="Buscar por nombre o código...">
+                <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
+                    <table class="table table-dark table-striped">
+                        <thead>
+                            <tr>
+                                <th>Código de barra</th>
+                                <th>Nombre</th>
+                                <th>Precio</th>
+                                <th>Stock</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="resultadosProductos">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="buscarPromocionModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content bg-dark text-white border-secondary">
+            <div class="modal-header border-bottom border-secondary">
+                <h5 class="modal-title"><i class="fas fa-tags me-2"></i>Seleccionar Promoción</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <input type="text" id="inputBuscarPromoVenta" class="form-control bg-dark text-white border-secondary" placeholder="Buscar promoción por nombre..." onkeyup="filtrarPromocionesVenta()">
+                </div>
+
+                <div class="table-responsive" style="max-height: 350px; overflow-y: auto;">
+                    <table class="table table-dark table-hover align-middle mb-0">
+                        <thead>
+                            <tr class="border-secondary bg-dark text-white">
+                                <th class="border-secondary">Promoción</th>
+                                <th class="border-secondary">Productos Incluidos</th>
+                                <th class="border-secondary">Precio Combo</th>
+                                <th class="text-center border-secondary">Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tablaPromocionesVenta">
+                            @forelse($promociones as $promo)
+                            <tr class="fila-promo-venta border-secondary" data-nombre="{{ $promo->nombre }}">
+                                <td class="fw-bold border-secondary">{{ $promo->nombre }}</td>
+                                <td class="border-secondary">
+                                    <ul class="mb-0 ps-3 small text-white-50">
+                                        @foreach($promo->productos as $p)
+                                            <li><strong class="text-white">{{ $p->cantidad }}x</strong> {{ $p->nombre }}</li>
+                                        @endforeach
+                                    </ul>
+                                </td>
+                                <td class="fw-bold text-success border-secondary">${{ number_format($promo->precio, 2) }}</td>
+                                <td class="text-center border-secondary">
+                                    <button type="button" class="btn btn-warning btn-sm fw-bold text-dark px-3" 
+                                            onclick='agregarPromocionAVenta({{ json_encode($promo) }})'>
+                                        <i class="fas fa-plus me-1"></i> Agregar
+                                    </button>
+                                </td>
+                            </tr>
+                            @empty
+                            <tr>
+                                <td colspan="4" class="text-center text-muted py-4 border-secondary">
+                                    No hay promociones activas disponibles.
+                                </td>
+                            </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer border-top border-secondary">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
             </div>
         </div>
     </div>
@@ -159,7 +271,7 @@
                         fila.innerHTML = `
                             <td>${producto.codigo_barra}</td>
                             <td>${producto.nombre}</td>
-                            <td>${producto.precio_venta}</td>
+                            <td>$${parseFloat(producto.precio_venta).toFixed(2)}</td>
                             <td>${producto.stock}</td>
                             <td>
                                 <button class="btn btn-success btn-sm agregar-producto" data-id="${producto.id_producto}">
@@ -182,7 +294,7 @@
             
             const codigo_barra = fila.cells[0].textContent.trim();
             const nombre = fila.cells[1].textContent.trim();
-            const precio = parseFloat(fila.cells[2].textContent.trim());
+            const precio = parseFloat(fila.cells[2].textContent.replace('$', '').trim());
             const stock = parseInt(fila.cells[3].textContent.trim());
 
             const tablaVentas = document.getElementById('tablaVentas');
@@ -212,6 +324,97 @@
         }
     });
 
+
+    // Filtrar promociones dentro del modal
+function filtrarPromocionesVenta() {
+    const filtro = normalizarTexto(document.getElementById('inputBuscarPromoVenta').value);
+    const palabras = filtro.split(' ').filter(p => p !== '');
+    const filas = document.querySelectorAll('.fila-promo-venta');
+
+    filas.forEach(fila => {
+        const nombre = normalizarTexto(fila.getAttribute('data-nombre'));
+        const coincide = palabras.every(palabra => nombre.includes(palabra));
+        fila.style.display = coincide ? '' : 'none';
+    });
+}
+
+// Función para agregar todos los productos de la promoción a la tabla de venta
+function agregarPromocionAVenta(promo) {
+    if (!promo.productos || promo.productos.length === 0) {
+        alert("Esta promoción no contiene productos.");
+        return;
+    }
+
+    // Calcular proporción de precio si el precio del combo difiere de la suma de los precios lista
+    let sumaPreciosLista = 0;
+    promo.productos.forEach(p => {
+        sumaPreciosLista += (parseFloat(p.precio_venta) * parseInt(p.cantidad));
+    });
+
+    // Factor de descuento aplicado proporcionalmente a cada producto
+    const factorDescuento = (sumaPreciosLista > 0) ? (parseFloat(promo.precio) / sumaPreciosLista) : 1;
+
+    promo.productos.forEach(prod => {
+        const idProd = prod.id_producto;
+        const cantidadPromo = parseInt(prod.cantidad);
+        const stockDisponible = parseInt(prod.stock) || 999;
+        const codigo = prod.codigo_barra ?? 'S/C';
+
+        // Precio unitario ajustado según el precio final del combo
+        const precioUnitarioAjustado = parseFloat(prod.precio_venta) * factorDescuento;
+
+        // Verificar si el producto ya existe en el carrito
+        const filaExistente = document.querySelector(`tr[data-id-producto="${idProd}"]`);
+
+        if (filaExistente) {
+            const inputCant = filaExistente.querySelector('.cantidad');
+            let nuevaCant = parseInt(inputCant.value) + cantidadPromo;
+            if (nuevaCant > stockDisponible) {
+                nuevaCant = stockDisponible;
+                alert(`Stock máximo alcanzado para ${prod.nombre}`);
+            }
+            inputCant.value = nuevaCant;
+            actualizarTotal(inputCant);
+        } else {
+            const tablaVentas = document.getElementById('tablaVentas') || document.querySelector('#tablaVentas tbody');
+            const nuevaFila = document.createElement('tr');
+            nuevaFila.setAttribute('data-id-producto', idProd);
+            nuevaFila.className = 'border-secondary';
+
+            const subtotal = precioUnitarioAjustado * cantidadPromo;
+
+            nuevaFila.innerHTML = `
+                <td class="border-secondary">${codigo}</td>
+                <td class="border-secondary">${prod.nombre} <span class="badge bg-warning text-dark ms-1">Promo</span></td>
+                <td class="border-secondary">
+                    <input type="number" name="productos[${idProd}][cantidad]" value="${cantidadPromo}" min="1" max="${stockDisponible}" class="form-control form-control-sm bg-dark text-white border-secondary cantidad" data-precio="${precioUnitarioAjustado.toFixed(2)}" data-stock="${stockDisponible}" oninput="actualizarTotal(this)">
+                    <input type="hidden" name="productos[${idProd}][id_producto]" value="${idProd}">
+                    <input type="hidden" name="productos[${idProd}][precio]" value="${precioUnitarioAjustado.toFixed(2)}">
+                </td>
+                <td class="border-secondary">$${precioUnitarioAjustado.toFixed(2)}</td>
+                <td class="precio-total fw-bold text-success border-secondary">$${subtotal.toFixed(2)}</td>
+                <td class="text-center border-secondary">
+                    <button type="button" class="btn btn-danger btn-sm px-2 py-1" onclick="quitarProductoDelCarrito(this)">&times;</button>
+                </td>`;
+
+            tablaVentas.appendChild(nuevaFila);
+        }
+    });
+
+    // Recalcular total de la venta principal
+    if (typeof calcularTotalVenta === 'function') {
+        calcularTotalVenta();
+    } else if (typeof recalcularTotal === 'function') {
+        recalcularTotal();
+    }
+
+    // Cerrar modal
+    const modalElement = document.getElementById('buscarPromocionModal');
+    const modalInstance = bootstrap.Modal.getInstance(modalElement);
+    if (modalInstance) {
+        modalInstance.hide();
+    }
+}
     function quitarProductoDelCarrito(boton) {
         const fila = boton.closest('tr');
         if (fila) {
@@ -237,18 +440,29 @@
 
     function calcularTotalVenta() {
         let total = 0;
-        const descuento = parseFloat(document.getElementById('descuento').value) || 0;
+        const descuentoInput = parseFloat(document.getElementById('descuento').value) || 0;
+        const tipoDescuento = document.getElementById('tipo_descuento').value;
 
         document.querySelectorAll('.precio-total').forEach(celda => {
             const precio = parseFloat(celda.textContent.replace('$', '').trim()) || 0;
             total += precio;
         });
 
-        // CORRECCIÓN VISUAL: Si el descuento es más grande que los productos, mostramos $0.00 en lugar de un número negativo
-        let totalConDescuento = total - descuento;
+        let descuentoCalculado = 0;
+        if (tipoDescuento === 'porcentaje') {
+            descuentoCalculado = total * (descuentoInput / 100);
+        } else {
+            descuentoCalculado = descuentoInput;
+        }
+
+        // CONTROL VISUAL: Evitar números negativos
+        let totalConDescuento = total - descuentoCalculado;
         if (totalConDescuento < 0) {
             totalConDescuento = 0;
+            descuentoCalculado = total; 
         }
+
+        document.getElementById('descuento_final_pesos').value = descuentoCalculado.toFixed(2);
 
         const totalVentaElement = document.querySelector('#totalVenta');
         if (totalVentaElement) {
@@ -256,36 +470,47 @@
         }
     }
 
-    // CONTROL JS ANTI-RELOAD (ACTUALIZADO CON VALIDACIÓN DE DESCUENTO)
+    // CONTROL JS ANTI-RELOAD
     document.getElementById('formVentaPrincipal').addEventListener('submit', function (e) {
         const tablaVentas = document.getElementById('tablaVentas');
         const metodoPago = document.getElementById('metodo_pago').value;
         const idCliente = document.getElementById('id_cliente').value;
         const descuentoInput = parseFloat(document.getElementById('descuento').value) || 0;
 
-        // 1. Validar carrito vacío
         if (tablaVentas.children.length === 0) {
             e.preventDefault();
             alert('¡Atención! No podés guardar una venta vacía. Agregá al menos un producto al listado.');
             return;
         }
 
-        // 2. Calcular subtotal bruto actual en el carrito para auditar el descuento
         let subtotalProductos = 0;
         document.querySelectorAll('.precio-total').forEach(celda => {
             const precio = parseFloat(celda.textContent.replace('$', '').trim()) || 0;
             subtotalProductos += precio;
         });
 
-        // 3. NUEVA VALIDACIÓN: Detener el envío si el descuento supera la mercadería
-        if (descuentoInput > subtotalProductos) {
-            e.preventDefault(); // Evitamos que la página se recargue y se borre el carrito
-            alert('¡Atención! El descuento ingresado ($' + descuentoInput.toFixed(2) + ') no puede ser mayor al total acumulado de los productos ($' + subtotalProductos.toFixed(2) + '). Por favor, corregilo.');
+        const tipoDescuento = document.getElementById('tipo_descuento').value;
+        let descuentoEnPesos = 0;
+
+        if (tipoDescuento === 'porcentaje') {
+            if (descuentoInput > 100) {
+                e.preventDefault();
+                alert('¡Atención! El porcentaje de descuento no puede ser superior al 100%.');
+                document.getElementById('descuento').focus();
+                return;
+            }
+            descuentoEnPesos = subtotalProductos * (descuentoInput / 100);
+        } else {
+            descuentoEnPesos = descuentoInput;
+        }
+
+        if (descuentoEnPesos > subtotalProductos) {
+            e.preventDefault();
+            alert('¡Atención! El descuento ingresado equivale a $' + descuentoEnPesos.toFixed(2) + ' y no puede ser mayor al total acumulado de los productos ($' + subtotalProductos.toFixed(2) + '). Por favor, corregilo.');
             document.getElementById('descuento').focus();
             return;
         }
 
-        // 4. Validar método de pago seleccionado
         if (!metodoPago) {
             e.preventDefault();
             alert('¡Atención! Es obligatorio que selecciones un Método de pago válido para guardar el registro.');
@@ -293,7 +518,6 @@
             return;
         }
 
-        // 5. Validar asociación de cliente corriente obligatorio
         if (metodoPago === '3' && !idCliente) {
             e.preventDefault();
             alert('¡Atención! Seleccionaste la opción "Cliente Corriente". Por lo tanto, debes indicar el cliente titular de la cuenta obligatoriamente.');
@@ -307,14 +531,17 @@
 function toggleClientesCorrientes() {
     const metodoPago = document.getElementById('metodo_pago');
     const clientesCorrientesContainer = document.getElementById('clientes_corrientes_container');
+    const clienteCasualContainer = document.getElementById('cliente_casual_container');
     const selectClientes = document.getElementById('id_cliente');
     
     if (metodoPago.value === '3') { 
         clientesCorrientesContainer.style.display = 'block';
+        clienteCasualContainer.style.display = 'none'; // Se ocultan los campos manuales en Cta Cte
         selectClientes.setAttribute('required', 'required');
         cargarClientesCorrientes();
     } else {
         clientesCorrientesContainer.style.display = 'none';
+        clienteCasualContainer.style.display = 'block'; // Visibles para Efectivo, Débito, etc.
         selectClientes.removeAttribute('required');
     }
 }
@@ -338,55 +565,68 @@ function cargarClientesCorrientes() {
 document.addEventListener('DOMContentLoaded', toggleClientesCorrientes);
 </script>
 
-
-// carga de presupuestos
-
 @if(session('cargar_presupuesto'))
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const productosPresupuesto = @json(session('cargar_presupuesto'));
-        const descuentoPresupuesto = {{ session('descuento_presupuesto') ?? 0 }};
-        
-        // Cargar el descuento
-        const inputDescuento = document.getElementById('descuento');
-        if (inputDescuento) {
-            inputDescuento.value = descuentoPresupuesto;
-        }
-
-        const tablaVentas = document.getElementById('tablaVentas');
-
-        // Renderizar todos los productos traidos del presupuesto a la tabla HTML
-        productosPresupuesto.forEach(prod => {
-            const codigo = prod.codigo_barra || prod.codigo || '-';
-            const precio = parseFloat(prod.precio) || 0;
-            const cantidad = parseInt(prod.cantidad) || 1;
-            const stock = parseInt(prod.stock) || 0;
-            const precioTotal = precio * cantidad;
-
-            const nuevaFila = document.createElement('tr');
-            nuevaFila.innerHTML = `
-                <td>${codigo}</td>
-                <td>${prod.nombre}</td>
-                <td>
-                    <input type="number" name="productos[${prod.id_producto}][cantidad]" value="${cantidad}" min="1" max="${stock}" class="form-control cantidad" data-precio="${precio}" data-stock="${stock}" oninput="actualizarTotal(this)">
-                    <input type="hidden" name="productos[${prod.id_producto}][id_producto]" value="${prod.id_producto}">
-                    <input type="hidden" name="productos[${prod.id_producto}][precio]" value="${precio}">
-                </td>
-                <td>$${precio.toFixed(2)}</td>
-                <td class="precio-total">$${precioTotal.toFixed(2)}</td>
-                <td class="text-center">
-                    <button type="button" class="btn btn-danger btn-sm px-2 py-1" onclick="quitarProductoDelCarrito(this)">×</button>
-                </td>`;
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const productosPresupuesto = @json(session('cargar_presupuesto'));
+            const descuentoPresupuesto = {{ session('descuento_presupuesto') ?? 0 }};
             
-            tablaVentas.appendChild(nuevaFila);
-        });
+            // Mapeo de los datos del cliente procedentes del presupuesto
+            const nombrePresupuesto = "{{ session('nombre_cliente') ?? '' }}";
+            const telefonoPresupuesto = "{{ session('telefono_cliente') ?? '' }}";
 
-        // Simular que agregamos algo para que se actualice el DOM de los totales
-        if (typeof calcularTotalVenta === 'function') {
-            calcularTotalVenta();
-        }
-    });
-</script>
+            // Rellenar Nombre del Cliente
+            const inputNombre = document.getElementById('cliente_nombre');
+            if (inputNombre && nombrePresupuesto) {
+                inputNombre.value = nombrePresupuesto;
+            }
+            
+            // Rellenar Teléfono del Cliente
+            const inputTelefono = document.getElementById('cliente_telefono');
+            if (inputTelefono && telefonoPresupuesto) {
+                inputTelefono.value = telefonoPresupuesto;
+            }
+
+            // Rellenar Descuento
+            const inputDescuento = document.getElementById('descuento');
+            if (inputDescuento) {
+                inputDescuento.value = descuentoPresupuesto;
+            }
+
+            const tablaVentas = document.getElementById('tablaVentas');
+
+            productosPresupuesto.forEach(prod => {
+                const codigo = prod.codigo_barra || prod.codigo || '-';
+                const precio = parseFloat(prod.precio) || 0;
+                const cantidad = parseInt(prod.cantidad) || 1;
+                const stock = parseInt(prod.stock) || 0;
+                const precioTotal = precio * cantidad;
+
+                const nuevaFila = document.createElement('tr');
+                nuevaFila.innerHTML = `
+                    <td>${codigo}</td>
+                    <td>${prod.nombre}</td>
+                    <td>
+                        <input type="number" name="productos[${prod.id_producto}][cantidad]" value="${cantidad}" min="1" max="${stock}" class="form-control cantidad" data-precio="${precio}" data-stock="${stock}" oninput="actualizarTotal(this)">
+                        <input type="hidden" name="productos[${prod.id_producto}][id_producto]" value="${prod.id_producto}">
+                        <input type="hidden" name="productos[${prod.id_producto}][precio]" value="${precio}">
+                    </td>
+                    <td>$${precio.toFixed(2)}</td>
+                    <td class="precio-total">$${precioTotal.toFixed(2)}</td>
+                    <td class="text-center">
+                        <button type="button" class="btn btn-danger btn-sm px-2 py-1" onclick="quitarProductoDelCarrito(this)">×</button>
+                    </td>`;
+                
+                if (tablaVentas) {
+                    tablaVentas.appendChild(nuevaFila);
+                }
+            });
+
+            if (typeof calcularTotalVenta === 'function') {
+                calcularTotalVenta();
+            }
+        });
+    </script>
 @endif
 
 @endsection
