@@ -68,87 +68,148 @@ class VentaController extends Controller
         $request->validate([
             'metodo_pago' => 'required|exists:metodos_pago,id_metodo_pago',
             'descuento' => 'nullable|numeric|min:0',
-            'productos' => 'required|array',
-            'productos.*' => 'required|array',
+            'productos' => 'nullable|array',
             'productos.*.id_producto' => 'required|exists:productos,id_producto',
             'productos.*.cantidad' => 'required|integer|min:1',
             'productos.*.precio' => 'required|numeric|min:0',
+            'promociones' => 'nullable|array',
+            'promociones.*.id_promocion' => 'required|exists:promociones,id_promocion',
+            'promociones.*.cantidad' => 'required|integer|min:1',
+            'promociones.*.precio' => 'required|numeric|min:0',
             'id_cliente' => 'required_if:metodo_pago,3|exists:clientes_corrientes,id_cliente',
             'cliente_nombre' => 'nullable|string|max:255',
             'cliente_telefono' => 'nullable|string|max:50',
             'observaciones' => 'nullable|string|max:1000',
         ]);
 
+        // Validar que se haya enviado al menos un producto o una promoción
+        if (empty($request->productos) && empty($request->promociones)) {
+            return redirect()->back()->with('error', 'Debes agregar al menos un producto o una promoción a la venta.');
+        }
+
         DB::beginTransaction();
 
         try {
-            // 1. Agrupar la cantidad total requerida por cada id_producto (Normal + Promo)
-            $cantidadesTotales = [];
-            foreach ($request->productos as $producto) {
-                $id = $producto['id_producto'];
-                $cantidadesTotales[$id] = ($cantidadesTotales[$id] ?? 0) + $producto['cantidad'];
-            }
+            $cantidadesTotales = []; // Acumulador de stock requerido por id_producto
 
-            // 2. Validar que haya stock suficiente para el acumulado total
-            foreach ($cantidadesTotales as $idProducto => $cantidadTotalRequerida) {
-                $productoInfo = DB::table('productos')
-                    ->where('id_producto', $idProducto)
-                    ->first();
-
-                if (!$productoInfo || $productoInfo->stock < $cantidadTotalRequerida) {
-                    DB::rollBack();
-                    return redirect()->back()->with('error', 'Stock insuficiente para el producto: ' . ($productoInfo ? $productoInfo->nombre : 'Desconocido') . " (Solicitado total: {$cantidadTotalRequerida}, Disponible: " . ($productoInfo->stock ?? 0) . ')');
+            // 1. Acumular stock de productos individuales
+            if (!empty($request->productos)) {
+                foreach ($request->productos as $p) {
+                    $id = $p['id_producto'];
+                    $cantidadesTotales[$id] = ($cantidadesTotales[$id] ?? 0) + $p['cantidad'];
                 }
             }
 
-            // 3. Calcular monto total sumando cada ítem enviado
+            // 2. Consultar productos de promos y acumular stock requerido
+            $promosDesglosadas = [];
+            if (!empty($request->promociones)) {
+                foreach ($request->promociones as $indexPromo => $promoItem) {
+                    $idPromo = $promoItem['id_promocion'];
+                    $cantCombos = $promoItem['cantidad'];
+                    $precioComboIngresado = $promoItem['precio'];
+
+                    // Traer los productos componentes de la promo
+                    $itemsPromoDB = DB::table('promocion_productos as pp')
+                        ->join('productos as p', 'pp.id_producto', '=', 'p.id_producto')
+                        ->where('pp.id_promocion', $idPromo)
+                        ->select('p.id_producto', 'p.nombre', 'p.precio_venta', 'pp.cantidad as cant_unitario')
+                        ->get();
+
+                    // Calcular precio proporcional por ítem
+                    $sumaPreciosLista = 0;
+                    foreach ($itemsPromoDB as $ip) {
+                        $sumaPreciosLista += ($ip->precio_venta * $ip->cant_unitario);
+                    }
+                    $factorDescuento = ($sumaPreciosLista > 0) ? ($precioComboIngresado / $sumaPreciosLista) : 1;
+
+                    foreach ($itemsPromoDB as $ip) {
+                        $cantTotalItem = $ip->cant_unitario * $cantCombos;
+                        $cantidadesTotales[$ip->id_producto] = ($cantidadesTotales[$ip->id_producto] ?? 0) + $cantTotalItem;
+
+                        $promosDesglosadas[] = [
+                            'id_producto' => $ip->id_producto,
+                            'cantidad'    => $cantTotalItem,
+                            'precio'      => $ip->precio_venta * $factorDescuento,
+                        ];
+                    }
+                }
+            }
+
+            // 3. Validar stock físico en BD para todos los artículos requeridos
+            foreach ($cantidadesTotales as $idProd => $cantRequerida) {
+                $pInfo = DB::table('productos')->where('id_producto', $idProd)->first();
+
+                if (!$pInfo || $pInfo->stock < $cantRequerida) {
+                    DB::rollBack();
+                    return redirect()->back()->with('error', 'Stock insuficiente para el producto: ' . ($pInfo ? $pInfo->nombre : 'Desconocido') . " (Requerido: {$cantRequerida}, Disponible: " . ($pInfo->stock ?? 0) . ')');
+                }
+            }
+
+            // 4. Calcular el subtotal / monto total de la venta
             $montoTotal = 0;
-            foreach ($request->productos as $producto) {
-                $montoTotal += $producto['precio'] * $producto['cantidad'];
+            if (!empty($request->productos)) {
+                foreach ($request->productos as $p) {
+                    $montoTotal += ($p['precio'] * $p['cantidad']);
+                }
+            }
+            if (!empty($request->promociones)) {
+                foreach ($request->promociones as $pr) {
+                    $montoTotal += ($pr['precio'] * $pr['cantidad']);
+                }
             }
 
             $descuento = $request->descuento ?? 0;
-
             if ($descuento > $montoTotal) {
                 DB::rollBack();
-                return redirect()->back()->with('error', 'Error comercial: El descuento ingresado no puede superar el monto total de los productos.');
+                return redirect()->back()->with('error', 'El descuento no puede superar el monto total de la venta.');
             }
 
             $montoTotal -= $descuento;
             $esClienteCorriente = ($request->metodo_pago == 3);
 
-            // 4. Crear la cabecera de la venta
-            $idVenta = DB::table('ventas')
-                ->insertGetId([
-                    'id_usuario' => Auth::id(),
-                    'fecha_venta' => now()->format('Y-m-d H:i:s'), 
-                    'monto_total' => $montoTotal,
-                    'id_metodo_pago' => $request->metodo_pago,
-                    'descuento' => $descuento,
-                    'id_cliente' => $esClienteCorriente ? $request->id_cliente : null,
-                    'cliente_nombre' => !$esClienteCorriente ? $request->cliente_nombre : null,
-                    'cliente_telefono' => !$esClienteCorriente ? $request->cliente_telefono : null,
-                    'observaciones' => $request->observaciones,
-                ]);
+            // 5. Crear la venta en la tabla `ventas`
+            $idVenta = DB::table('ventas')->insertGetId([
+                'id_usuario'       => Auth::id(),
+                'fecha_venta'      => now()->format('Y-m-d H:i:s'), 
+                'monto_total'      => $montoTotal,
+                'id_metodo_pago'   => $request->metodo_pago,
+                'descuento'        => $descuento,
+                'id_cliente'       => $esClienteCorriente ? $request->id_cliente : null,
+                'cliente_nombre'   => !$esClienteCorriente ? $request->cliente_nombre : null,
+                'cliente_telefono' => !$esClienteCorriente ? $request->cliente_telefono : null,
+                'observaciones'    => $request->observaciones,
+            ]);
 
-            // 5. Insertar cada línea de producto (guardará tanto la fila normal como las filas de promociones)
-            foreach ($request->productos as $producto) {
-                $precioListaDB = DB::table('productos')
-                    ->where('id_producto', $producto['id_producto'])
-                    ->value('precio_lista');
-                
+            // 6. Insertar productos individuales en `ventas_productos`
+            if (!empty($request->productos)) {
+                foreach ($request->productos as $p) {
+                    $precioListaDB = DB::table('productos')->where('id_producto', $p['id_producto'])->value('precio_lista');
+
+                    DB::table('ventas_productos')->insert([
+                        'id_venta'     => $idVenta,
+                        'id_producto'  => $p['id_producto'],
+                        'cantidad'     => $p['cantidad'],
+                        'precio'       => $p['precio'],
+                        'precio_lista' => $precioListaDB ?? 0.00,
+                    ]);
+
+                    DB::table('productos')->where('id_producto', $p['id_producto'])->decrement('stock', $p['cantidad']);
+                }
+            }
+
+            // 7. Insertar productos desglosados de las promociones en `ventas_productos`
+            foreach ($promosDesglosadas as $itemDesglosado) {
+                $precioListaDB = DB::table('productos')->where('id_producto', $itemDesglosado['id_producto'])->value('precio_lista');
+
                 DB::table('ventas_productos')->insert([
-                    'id_venta' => $idVenta,
-                    'id_producto' => $producto['id_producto'],
-                    'cantidad' => $producto['cantidad'],
-                    'precio' => $producto['precio'],
-                    'precio_lista' => $precioListaDB ?? 0.00, 
+                    'id_venta'     => $idVenta,
+                    'id_producto'  => $itemDesglosado['id_producto'],
+                    'cantidad'     => $itemDesglosado['cantidad'],
+                    'precio'       => $itemDesglosado['precio'],
+                    'precio_lista' => $precioListaDB ?? 0.00,
                 ]);
 
-                // Descontar el stock de esta línea
-                DB::table('productos')
-                    ->where('id_producto', $producto['id_producto'])
-                    ->decrement('stock', $producto['cantidad']);
+                DB::table('productos')->where('id_producto', $itemDesglosado['id_producto'])->decrement('stock', $itemDesglosado['cantidad']);
             }
 
             DB::commit();

@@ -296,25 +296,27 @@
 
     // Helper para normalizar acentos
     function normalizarTexto(texto) {
-        return texto.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
-    }
+    if (!texto) return '';
+    return texto.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
+}
 
-    // Filtrado multipalabra e insensible a acentos
-    function filtrarProductosPromo(inputId, filaSelector) {
-        const filtroRaw = document.getElementById(inputId).value;
-        const filtroLimpio = normalizarTexto(filtroRaw);
-        const palabras = filtroLimpio.split(' ').filter(p => p !== '');
-        const filas = document.querySelectorAll(filaSelector);
+// Función de filtrado multipalabra e insensible a acentos
+function filtrarProductosPromo(inputId = 'inputBuscadorPromo', filaSelector = '.fila-producto-promo') {
+    const filtroRaw = document.getElementById(inputId).value;
+    const filtroLimpio = normalizarTexto(filtroRaw);
+    const palabras = filtroLimpio.split(' ').filter(p => p !== '');
+    const filas = document.querySelectorAll(filaSelector);
 
-        filas.forEach(fila => {
-            const nombre = normalizarTexto(fila.getAttribute('data-nombre'));
-            const codigo = normalizarTexto(fila.getAttribute('data-codigo'));
-            const textoCompleto = `${nombre} ${codigo}`;
+    filas.forEach(fila => {
+        const nombre = normalizarTexto(fila.getAttribute('data-nombre'));
+        const codigo = normalizarTexto(fila.getAttribute('data-codigo'));
+        const textoCompleto = `${nombre} ${codigo}`;
 
-            const coincide = palabras.every(palabra => textoCompleto.includes(palabra));
-            fila.style.display = coincide ? '' : 'none';
-        });
-    }
+        const coincide = palabras.every(palabra => textoCompleto.includes(palabra));
+
+        fila.style.display = coincide ? '' : 'none';
+    });
+}
 
     // Agregar producto desde tabla buscador
     function agregarItemDesdeFila(btn, modo) {

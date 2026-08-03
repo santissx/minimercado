@@ -85,7 +85,7 @@
             </div>
 
             <div class="header-der">
-                <div>Fecha: {{ $fecha }}</div>
+                <div>Fecha: {{ \Carbon\Carbon::parse($presupuesto->fecha)->format('d/m/Y H:i') }}</div>
                 <div style="font-weight:bold; font-size:14px;">PRESUPUESTO</div>
             </div>
         </div>
@@ -94,16 +94,19 @@
 
         <div class="datos-cliente">
             <table>
-                <tr>
-                    <td>CLIENTE</td>
-                    <td>{{ $nombre_cliente ?: 'Consumidor final' }}</td>
-                </tr>
-                @if ($telefono_cliente)
+                @if (!empty($presupuesto->titulo))
                     <tr>
-                        <td>TELÉFONO</td>
-                        <td>{{ $telefono_cliente }}</td>
+                        <td colspan="2" style="padding-bottom: 5px;">
+                            <strong>Título / Obra:</strong> {{ $presupuesto->titulo }}
+                        </td>
                     </tr>
                 @endif
+                <tr>
+                    <td>Cliente: {{ $presupuesto->nombre_cliente ?: 'Consumidor final' }}</td>
+                </tr>
+                <tr>
+                    <td>Teléfono: {{ $presupuesto->telefono_cliente ?: '-' }}</td>
+                </tr>
             </table>
         </div>
 
@@ -120,33 +123,57 @@
                 </tr>
             </thead>
             <tbody>
+                {{-- Imprimir Productos Individuales --}}
                 @foreach ($productos as $producto)
                     <tr>
-                        <td>{{ $producto['codigo'] }}</td>
-                        <td>{{ $producto['nombre'] }}</td>
-                        <td>{{ $producto['cantidad'] }}</td>
-                        <td>${{ number_format($producto['precio'], 2) }}</td>
-                        <td>${{ number_format($producto['total_linea'], 2) }}</td>
+                        {{-- Intenta imprimir codigo, si está vacío usa codigo_barra --}}
+                        <td>{{ $producto->codigo ?: $producto->codigo_barra ?: '-' }}</td>
+                        <td>{{ $producto->nombre }}</td>
+                        <td>{{ $producto->cantidad }}</td>
+                        <td>${{ number_format($producto->precio, 2) }}</td>
+                        <td>${{ number_format($producto->cantidad * $producto->precio, 2) }}</td>
                     </tr>
                 @endforeach
+
+                {{-- Imprimir Promociones (Si hay) --}}
+                @if(isset($promociones) && count($promociones) > 0)
+                    @foreach ($promociones as $promo)
+                        <tr>
+                            <td>PROMO</td>
+                            <td>{{ $promo->nombre }}</td>
+                            <td>{{ $promo->cantidad }}</td>
+                            <td>${{ number_format($promo->precio, 2) }}</td>
+                            <td>${{ number_format($promo->cantidad * $promo->precio, 2) }}</td>
+                        </tr>
+                    @endforeach
+                @endif
             </tbody>
         </table>
 
+        @if (!empty($presupuesto->observaciones))
+            <div style="margin-top: 15px; padding: 8px 12px; border: 1px dashed #999; border-radius: 4px; background-color: #f8f9fa;">
+                <strong>Observaciones:</strong>
+                <p style="margin-top: 3px; font-size: 12px; white-space: pre-line;">{{ $presupuesto->observaciones }}</p>
+            </div>
+        @endif
         <div class="totales">
             <table>
                 <tr>
                     <td>SUBTOTAL $</td>
-                    <td>{{ number_format($subtotal, 2) }}</td>
+                    {{-- El subtotal es el Total final + el Descuento --}}
+                    <td>{{ number_format($presupuesto->monto_total + $presupuesto->descuento, 2) }}</td>
                 </tr>
-                @if ($descuento > 0)
+                
+                @if ($presupuesto->descuento > 0)
                     <tr>
                         <td>DESCUENTO $</td>
-                        <td>{{ number_format($descuento, 2) }}</td>
+                        <td>{{ number_format($presupuesto->descuento, 2) }}</td>
                     </tr>
                 @endif
+                
                 <tr class="fila-total">
                     <td>Total $</td>
-                    <td>{{ number_format($total, 2) }}</td>
+                    <td>{{ number_format($presupuesto->monto_total, 2) }}</td>
                 </tr>
             </table>
         </div>

@@ -13,18 +13,21 @@
             <div class="col-lg-8 d-flex flex-column">
                 
                 {{-- Tabla de productos seleccionados --}}
+                <!-- 👇 ESTA ES LA ETIQUETA QUE FALTABA 👇 -->
                 <div class="card mb-3 flex-grow-1 left-table position-relative">
                     
-                    {{-- Encabezado unificado con Título a la izquierda y Acciones a la derecha --}}
                     <div class="card-header d-flex justify-content-between align-items-center bg-dark text-white border-bottom border-secondary py-3">
                         <h5 class="card-title text-warning mb-0">
                             <i class="fas fa-edit me-2"></i>Editando Presupuesto #{{ $presupuesto->id_presupuesto }}
                         </h5>
                         <div class="d-flex gap-2">
+                            <button type="button" class="btn btn-warning fw-bold text-dark" data-bs-toggle="modal" data-bs-target="#buscarPromocionModal">
+                                <i class="fas fa-gift me-1"></i> Agregar Promoción
+                            </button>
                             <button type="button" class="btn btn-primary fw-bold" data-bs-toggle="modal" data-bs-target="#buscarProductoPresupuestoModal">
                                 <i class="fas fa-plus me-1"></i> Agregar Producto
                             </button>
-                            <button type="submit" class="btn btn-warning fw-bold text-dark">
+                            <button type="submit" class="btn btn-success fw-bold">
                                 <i class="fas fa-save me-1"></i> Guardar Cambios
                             </button>
                         </div>
@@ -136,6 +139,59 @@
         </div>
     </div>
 
+    {{-- MODAL BUSCAR PROMOCIÓN --}}
+    <div class="modal fade" id="buscarPromocionModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content bg-dark text-white border-secondary">
+                <div class="modal-header border-bottom border-secondary">
+                    <h5 class="modal-title"><i class="fas fa-tags me-2"></i>Seleccionar Promoción</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="text" id="buscadorPromoEdit" class="form-control mb-3 bg-dark text-white border-secondary" placeholder="Buscar promoción por nombre...">
+                    
+                    <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
+                        <table class="table table-dark table-hover align-middle mb-0">
+                            <thead>
+                                <tr class="border-secondary bg-dark text-white">
+                                    <th class="border-secondary">Promoción</th>
+                                    <th class="border-secondary">Productos Incluidos</th>
+                                    <th class="border-secondary">Precio Combo</th>
+                                    <th class="text-center border-secondary">Acción</th>
+                                </tr>
+                            </thead>
+                            <tbody id="listaPromocionesEdit">
+                                @foreach ($promociones as $promo)
+                                    @php $promoNomEscapado = str_replace(['"', "'"], ['\\"', "\\'"], $promo->nombre); @endphp
+                                    <tr class="item-promo-edit border-secondary" data-nombre="{{ $promoNomEscapado }}">
+                                        <td class="fw-bold border-secondary">{{ $promo->nombre }}</td>
+                                        <td class="border-secondary">
+                                            <ul class="mb-0 ps-3 small text-white-50">
+                                                @foreach($promo->productos as $p)
+                                                    <li><strong class="text-white">{{ $p->cantidad }}x</strong> {{ $p->nombre }}</li>
+                                                @endforeach
+                                            </ul>
+                                        </td>
+                                        <td class="fw-bold text-success border-secondary">${{ number_format($promo->precio, 2) }}</td>
+                                        <td class="text-center border-secondary">
+                                            <button type="button" class="btn btn-warning btn-sm fw-bold text-dark px-3" 
+                                                    onclick="agregarPromocionPresupuesto('{{ $promo->id_promocion }}', '{{ $promoNomEscapado }}', '{{ $promo->precio }}')">
+                                                <i class="fas fa-plus me-1"></i> Agregar
+                                            </button>
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer border-top border-secondary">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
         // Buscador interno del modal de EDICIÓN tolerante a múltiples palabras y tildes
         document.getElementById('buscadorPresupuesto').addEventListener('keyup', function() {
@@ -218,15 +274,69 @@
             document.getElementById('totalPresupuesto').textContent = '$' + Math.max(0, subtotal - desc).toFixed(2);
         }
 
-        // Auto-carga de los productos que el presupuesto ya tenía guardados
-        document.addEventListener('DOMContentLoaded', function() {
-            @foreach($productosSeleccionados as $prod)
-                @php 
-                    $cod = $prod->codigo ?: $prod->codigo_barra;
-                    $nom = str_replace(['"', "'"], ['\\"', "\\'"], $prod->nombre);
-                @endphp
-                agregarProductoPresupuesto('{{ $prod->id_producto }}', '{!! $nom !!}', '{{ $cod }}', '{{ $prod->precio_guardado }}', {{ $prod->cantidad }});
-            @endforeach
+        // Buscador del modal de Promociones
+    document.getElementById('buscadorPromoEdit').addEventListener('keyup', function() {
+        const filtroRaw = this.value.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim().replace(/\s+/g, ' ');
+        const filas = document.querySelectorAll('.item-promo-edit');
+
+        if (filtroRaw === '') {
+            filas.forEach(fila => fila.style.display = '');
+            return;
+        }
+        const palabrasFiltro = filtroRaw.split(' ');
+        filas.forEach(fila => {
+            const textoFila = fila.getAttribute('data-nombre').toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+            const coincideTodo = palabrasFiltro.every(palabra => textoFila.includes(palabra));
+            fila.style.display = coincideTodo ? '' : 'none';
         });
+    });
+
+    function agregarPromocionPresupuesto(id, nombre, precio, cantidadInicial = 1) {
+        const tbody = document.getElementById('tablaPresupuesto');
+        if (document.getElementById(`cant_promo_${id}`)) {
+            alert('Esta promoción ya está en la lista. Modifique su cantidad.');
+            return;
+        }
+
+        const subtotalLinea = (cantidadInicial * parseFloat(precio)).toFixed(2);
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td>PROMO</td>
+            <td><strong>Promo:</strong> ${nombre}<input type="hidden" name="promociones[${id}][id_promocion]" value="${id}"></td>
+            <td>
+                <input type="number" id="cant_promo_${id}" name="promociones[${id}][cantidad]" class="form-control form-control-sm w-75" value="${cantidadInicial}" min="1" data-precio="${precio}" oninput="actualizarFilaPresupuesto(this)">
+                <input type="hidden" name="promociones[${id}][precio]" value="${precio}">
+            </td>
+            <td>$${parseFloat(precio).toFixed(2)}</td>
+            <td class="total-linea">$${subtotalLinea}</td>
+            <td><button type="button" class="btn btn-danger btn-sm" onclick="eliminarFilaPresupuesto(this)">✕</button></td>
+        `;
+        tbody.appendChild(tr);
+
+        const modalElement = document.getElementById('buscarPromocionModal');
+        const modal = bootstrap.Modal.getInstance(modalElement);
+        if(modal) modal.hide();
+        calcularTotalPresupuesto();
+    }
+
+    // Auto-carga de los productos y promociones que el presupuesto ya tenía guardados
+    document.addEventListener('DOMContentLoaded', function() {
+        // Cargar Promociones Detectadas
+        @foreach($promocionesDetectadas as $promo)
+            @php 
+                $nomPromo = str_replace(['"', "'"], ['\\"', "\\'"], $promo->nombre);
+            @endphp
+            agregarPromocionPresupuesto('{{ $promo->id_promocion }}', '{!! $nomPromo !!}', '{{ $promo->precio_guardado }}', {{ $promo->cantidad }});
+        @endforeach
+
+        // Cargar Productos Individuales
+        @foreach($productosSeleccionados as $prod)
+            @php 
+                $cod = $prod->codigo ?: $prod->codigo_barra;
+                $nom = str_replace(['"', "'"], ['\\"', "\\'"], $prod->nombre);
+            @endphp
+            agregarProductoPresupuesto('{{ $prod->id_producto }}', '{!! $nom !!}', '{{ $cod }}', '{{ $prod->precio_guardado }}', {{ $prod->cantidad }});
+        @endforeach
+    });
     </script>
 @endsection

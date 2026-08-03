@@ -80,10 +80,18 @@ class HistorialController extends Controller
             ->select(
                 'productos.nombre as producto',
                 'ventas_productos.cantidad',
-                'ventas_productos.precio'
+                'ventas_productos.precio',
+                'ventas_productos.precio_lista' // <--- Seleccionamos el precio de lista original
             )
             ->where('ventas_productos.id_venta', $idVenta)
             ->get();
+
+        // Adjuntamos la leyenda "- Promo" si el precio vendido es menor al precio de lista
+        foreach ($productos as $p) {
+            if (isset($p->precio_lista) && $p->precio < $p->precio_lista) {
+                $p->producto .= ' - Promo';
+            }
+        }
 
         return response()->json($productos);
     }
@@ -121,47 +129,48 @@ class HistorialController extends Controller
     }
 
     public function generarTicket($idVenta)
-{
-    $venta = DB::table('ventas')
-        ->join('users', 'ventas.id_usuario', '=', 'users.id')
-        ->join('metodos_pago', 'ventas.id_metodo_pago', '=', 'metodos_pago.id_metodo_pago')
-        ->leftJoin('clientes_corrientes', 'ventas.id_cliente', '=', 'clientes_corrientes.id_cliente')
-        ->select(
-            'ventas.id_venta',
-            'users.name as vendedor_name',
-            'ventas.monto_total',
-            'ventas.descuento',
-            'metodos_pago.nombre as metodo_pago',
-            'ventas.fecha_venta',
-            'clientes_corrientes.id_cliente as clientec',
-            'clientes_corrientes.nombre_y_apellido as nombre_clientec',
-            'clientes_corrientes.telefono as telefono_clientec', 
-            'ventas.cliente_nombre',
-            'ventas.cliente_telefono'
-        )
-        ->where('ventas.id_venta', $idVenta)
-        ->first();
+    {
+        $venta = DB::table('ventas')
+            ->join('users', 'ventas.id_usuario', '=', 'users.id')
+            ->join('metodos_pago', 'ventas.id_metodo_pago', '=', 'metodos_pago.id_metodo_pago')
+            ->leftJoin('clientes_corrientes', 'ventas.id_cliente', '=', 'clientes_corrientes.id_cliente')
+            ->select(
+                'ventas.id_venta',
+                'users.name as vendedor_name',
+                'ventas.monto_total',
+                'ventas.descuento',
+                'metodos_pago.nombre as metodo_pago',
+                'ventas.fecha_venta',
+                'clientes_corrientes.id_cliente as clientec',
+                'clientes_corrientes.nombre_y_apellido as nombre_clientec',
+                'clientes_corrientes.telefono as telefono_clientec', 
+                'ventas.cliente_nombre',
+                'ventas.cliente_telefono'
+            )
+            ->where('ventas.id_venta', $idVenta)
+            ->first();
 
-    $productos = DB::table('ventas_productos')
-        ->join('productos', 'ventas_productos.id_producto', '=', 'productos.id_producto')
-        ->select(
-            'productos.nombre as producto',
-            'productos.codigo',
-            'productos.codigo_barra',
-            'ventas_productos.cantidad',
-            'ventas_productos.precio'
-        )
-        ->where('ventas_productos.id_venta', $idVenta)
-        ->get();
+        $productos = DB::table('ventas_productos')
+            ->join('productos', 'ventas_productos.id_producto', '=', 'productos.id_producto')
+            ->select(
+                'productos.nombre as producto',
+                'productos.codigo',
+                'productos.codigo_barra',
+                'ventas_productos.cantidad',
+                'ventas_productos.precio',
+                'ventas_productos.precio_lista' // <--- Seleccionamos el precio de lista
+            )
+            ->where('ventas_productos.id_venta', $idVenta)
+            ->get();
 
-    $local = [
-        'nombre'    => 'SOLUCIONES ELÉCTRICAS',
-        'telefono'  => '3705033180',
-        'direccion' => 'AV. Cabral 586 - Formosa Capital',
-        'facebook'  => 'Soluciones Eléctricas Fsa',
-        'instagram' => '@solucioneselectricasfsa',
-    ];
+        $local = [
+            'nombre'    => 'SOLUCIONES ELÉCTRICAS',
+            'telefono'  => '3705033180',
+            'direccion' => 'AV. Cabral 586 - Formosa Capital',
+            'facebook'  => 'Soluciones Eléctricas Fsa',
+            'instagram' => '@solucioneselectricasfsa',
+        ];
 
-    return view('ticket', compact('venta', 'productos', 'local'));
-}
+        return view('ticket', compact('venta', 'productos', 'local'));
+    }
 }

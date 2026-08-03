@@ -13,22 +13,29 @@
         @csrf
         <div class="row h-100">
             
-            {{-- Columna Izquierda: Tablas y Datos del Cliente --}}
+            
             <div class="col-lg-8 d-flex flex-column">
 
-                {{-- Tabla de productos seleccionados --}}
+                
                 <div class="card mb-3 flex-grow-1 left-table position-relative">
-                    {{-- Encabezado con título a la izquierda y acciones a la derecha --}}
                     <div class="card-header d-flex justify-content-between align-items-center bg-dark text-white border-bottom border-secondary py-3">
                         <h5 class="card-title mb-0">
                             <i class="fas fa-file-invoice-dollar me-2"></i>Presupuesto
                         </h5>
                         <div class="d-flex gap-2">
+                            {{-- Botón Agregar Promoción --}}
+                            <button type="button" class="btn btn-warning fw-bold text-dark" data-bs-toggle="modal" data-bs-target="#buscarPromocionModal">
+                                <i class="fas fa-gift me-1"></i> Agregar Promoción
+                            </button>
+
+                            {{-- Botón Agregar Producto --}}
                             <button type="button" class="btn btn-primary fw-bold" data-bs-toggle="modal" data-bs-target="#buscarProductoPresupuestoModal">
                                 <i class="fas fa-plus me-1"></i> Agregar Producto
                             </button>
+
+                            {{-- Botón Generar Presupuesto --}}
                             <button type="submit" class="btn btn-success fw-bold">
-                                <i class="fas fa-check me-1"></i> Generar Presupuesto
+                                <i class="fas fa-save me-1"></i> Generar Presupuesto
                             </button>
                         </div>
                     </div>
@@ -47,39 +54,38 @@
                                     </tr>
                                 </thead>
                                 <tbody id="tablaPresupuesto">
-                                    {{-- Los productos se agregan dinámicamente aquí --}}
                                 </tbody>
                             </table>
                         </div>
                     </div>
                 </div>
 
-                {{-- TARJETA: DATOS DEL CLIENTE Y DESCUENTOS --}}
                 <div class="card mb-3">
                     <div class="card-body">
                         <div class="row">
                             
-                            {{-- Bloque Unificado de Datos del Cliente (Ahora ocupa todo el ancho) --}}
                             <div class="col-12">
-                                <h5 class="card-title mb-3">Datos del cliente</h5>
-                                <div class="row mb-3">
-                                    <div class="col-md-6 mb-2 mb-md-0">
-                                        <input type="text" name="nombre_cliente" class="form-control"
-                                            placeholder="Nombre del cliente (opcional)">
+                                <div class="row mb-4">
+                                    <div class="col-md-6 mb-3 mb-md-0 border-end border-secondary">
+                                        <h5 class="card-title mb-3"><i class="fas fa-file-alt me-2"></i>Detalles del Presupuesto</h5>
+                                        <input type="text" name="titulo" class="form-control mb-2 bg-dark text-white border-secondary" value="{{ old('titulo') }}" placeholder="Título (ej: Obra Bº Centro) (Opcional)">
+                                        <textarea name="observaciones" class="form-control bg-dark text-white border-secondary" rows="2" placeholder="Observaciones internas (Opcional)">{{ old('observaciones') }}</textarea>
                                     </div>
+
                                     <div class="col-md-6">
-                                        <input type="text" name="telefono_cliente" class="form-control"
-                                            placeholder="Teléfono (opcional)">
+                                        <h5 class="card-title mb-3"><i class="fas fa-user me-2"></i>Datos del cliente</h5>
+                                        <input type="text" name="nombre_cliente" class="form-control mb-2 bg-dark text-white border-secondary" value="{{ old('nombre_cliente') }}" placeholder="Nombre del cliente (opcional)">
+                                        <input type="text" name="telefono_cliente" class="form-control bg-dark text-white border-secondary" value="{{ old('telefono_cliente') }}" placeholder="Teléfono (opcional)">
                                     </div>
                                 </div>
-                                
-                                <div class="row align-items-center">
+                            
+                                <div class="row align-items-center bg-dark p-3 rounded border border-secondary mx-0">
                                     <div class="col-md-6 d-flex align-items-center mb-3 mb-md-0">
                                         <label for="descuento" class="me-2 mb-0 fw-bold">Descuento:</label>
                                         <div class="d-flex gap-1" style="width: 50%;">
-                                            <input type="number" id="descuento" class="form-control" placeholder="0.00" step="0.01" min="0" oninput="calcularTotalPresupuesto()">
+                                            <input type="number" id="descuento" class="form-control bg-secondary text-white border-0" placeholder="0.00" step="0.01" min="0" oninput="calcularTotalPresupuesto()">
                                             
-                                            <select id="tipo_descuento" name="tipo_descuento" class="form-select bg-secondary text-white w-auto" onchange="calcularTotalPresupuesto()">
+                                            <select id="tipo_descuento" name="tipo_descuento" class="form-select bg-secondary text-white border-0 w-auto" onchange="calcularTotalPresupuesto()">
                                                 <option value="fijo" selected>$</option>
                                                 <option value="porcentaje">%</option>
                                             </select>
@@ -96,18 +102,17 @@
                                 </div>
                             </div>
 
-                        </div> {{-- Fin row interno --}}
+                        </div> 
                     </div>
                 </div>
 
-            </div> {{-- Fin col-lg-8 --}}
+            </div> 
 
-            {{-- Columna derecha --}}
             <div class="col-lg-4 right-column">
                 @include('parciales.columna_derecha')
             </div>
 
-        </div> {{-- Fin row --}}
+        </div> 
     </form>
 
     {{-- MODAL: Buscar Producto para Presupuesto --}}
@@ -159,7 +164,65 @@
         </div>
     </div>
 
-    {{-- SCRIPTS DE JAVASCRIPT --}}
+    <div class="modal fade" id="buscarPromocionModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content bg-dark text-white border-secondary">
+                <div class="modal-header border-bottom border-secondary">
+                    <h5 class="modal-title"><i class="fas fa-tags me-2"></i>Seleccionar Promoción</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <input type="text" id="inputBuscarPromoPresupuesto" class="form-control bg-dark text-white border-secondary" placeholder="Buscar promoción por nombre... (ej: combo lampara)" onkeyup="filtrarPromocionesPresupuesto()">
+                    </div>
+
+                    <div class="table-responsive" style="max-height: 350px; overflow-y: auto;">
+                        <table class="table table-dark table-hover align-middle mb-0">
+                            <thead>
+                                <tr class="border-secondary bg-dark text-white">
+                                    <th class="border-secondary">Promoción</th>
+                                    <th class="border-secondary">Productos Incluidos</th>
+                                    <th class="border-secondary">Precio Combo</th>
+                                    <th class="text-center border-secondary">Acción</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @forelse($promociones as $promo)
+                                <tr class="fila-promo-presupuesto border-secondary" data-nombre="{{ $promo->nombre }}">
+                                    <td class="fw-bold border-secondary">{{ $promo->nombre }}</td>
+                                    <td class="border-secondary">
+                                        <ul class="mb-0 ps-3 small text-white-50">
+                                            @foreach($promo->productos as $p)
+                                                <li><strong class="text-white">{{ $p->cantidad }}x</strong> {{ $p->nombre }}</li>
+                                            @endforeach
+                                        </ul>
+                                    </td>
+                                    <td class="fw-bold text-success border-secondary">${{ number_format($promo->precio, 2) }}</td>
+                                    <td class="text-center border-secondary">
+                                        <button type="button" class="btn btn-warning btn-sm fw-bold text-dark px-3" 
+                                                onclick='agregarPromocionAPresupuesto({{ json_encode($promo) }})'>
+                                            <i class="fas fa-plus me-1"></i> Agregar
+                                        </button>
+                                    </td>
+                                </tr>
+                                @empty
+                                <tr>
+                                    <td colspan="4" class="text-center text-muted py-4 border-secondary">
+                                        No hay promociones activas disponibles.
+                                    </td>
+                                </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer border-top border-secondary">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
         // Buscador interno del modal optimizado para múltiples palabras y tolerante a acentos (tildes)
         document.getElementById('buscadorPresupuesto').addEventListener('keyup', function() {
@@ -260,7 +323,8 @@
 
             // Sumar subtotales de la tabla
             document.querySelectorAll('#tablaPresupuesto .total-linea').forEach(celda => {
-                subtotal += parseFloat(celda.textContent.replace('$', '')) || 0;
+                const valorTexto = celda.textContent.replace('$', '').trim();
+                subtotal += parseFloat(valorTexto) || 0;
             });
             
             // Calcular el valor real a restar en pesos ($)
@@ -275,13 +339,85 @@
             let totalFinal = subtotal - descuentoCalculado;
             if (totalFinal < 0) {
                 totalFinal = 0;
-                descuentoCalculado = subtotal; // El descuento real máximo es el subtotal
+                descuentoCalculado = subtotal;
             }
 
             // Guardar valor real en pesos para la base de datos
             document.getElementById('descuento_final_pesos').value = descuentoCalculado.toFixed(2);
 
             document.getElementById('totalPresupuesto').textContent = '$' + totalFinal.toFixed(2);
+        }
+
+
+        let promoIndexPresupuesto = 0;
+
+        // Helper para normalizar acentos y minúsculas
+        function normalizarTexto(texto) {
+            if (!texto) return '';
+            return texto.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
+        }
+
+        // Filtrar promociones dentro del modal de presupuestos
+        function filtrarPromocionesPresupuesto() {
+            const filtro = normalizarTexto(document.getElementById('inputBuscarPromoPresupuesto').value);
+            const palabras = filtro.split(' ').filter(p => p !== '');
+            const filas = document.querySelectorAll('.fila-promo-presupuesto');
+
+            filas.forEach(fila => {
+                const nombre = normalizarTexto(fila.getAttribute('data-nombre'));
+                const coincide = palabras.every(palabra => nombre.includes(palabra));
+                fila.style.display = coincide ? '' : 'none';
+            });
+        }
+
+        // Agregar todos los productos de la promoción desglosados al presupuesto
+        function agregarPromocionAPresupuesto(promo) {
+            if (!promo || !promo.id_promocion) return;
+
+            const rowId = `promo-row-${promo.id_promocion}`;
+            const filaExistente = document.querySelector(`tr[data-row-id="${rowId}"]`);
+            const precioCombo = parseFloat(promo.precio) || 0;
+
+            if (filaExistente) {
+                // Si la promo ya está en la tabla, aumentamos su cantidad
+                const inputCant = filaExistente.querySelector('.cantidad');
+                inputCant.value = parseInt(inputCant.value, 10) + 1;
+                actualizarFilaPresupuesto(inputCant);
+            } else {
+                promoIndexPresupuesto++;
+                const tablaPresupuesto = document.getElementById('tablaPresupuesto');
+                const nuevaFila = document.createElement('tr');
+                nuevaFila.setAttribute('data-row-id', rowId);
+
+                nuevaFila.innerHTML = `
+                    <td>PROMO</td>
+                    <td>
+                        <strong>Promo:</strong> ${promo.nombre}
+                        <input type="hidden" name="promociones[${promoIndexPresupuesto}][id_promocion]" value="${promo.id_promocion}">
+                        <input type="hidden" name="promociones[${promoIndexPresupuesto}][precio]" value="${precioCombo.toFixed(2)}">
+                    </td>
+                    <td>
+                        <input type="number" name="promociones[${promoIndexPresupuesto}][cantidad]" value="1" min="1" 
+                            class="form-control form-control-sm w-75 cantidad" data-precio="${precioCombo.toFixed(2)}" 
+                            oninput="actualizarFilaPresupuesto(this)">
+                    </td>
+                    <td>$${precioCombo.toFixed(2)}</td>
+                    <td class="total-linea">$${precioCombo.toFixed(2)}</td>
+                    <td>
+                        <button type="button" class="btn btn-danger btn-sm" onclick="eliminarFilaPresupuesto(this)">✕</button>
+                    </td>`;
+
+                tablaPresupuesto.appendChild(nuevaFila);
+            }
+
+            calcularTotalPresupuesto();
+
+            // Cerrar modal
+            const modalElement = document.getElementById('buscarPromocionModal');
+            const modalInstance = bootstrap.Modal.getInstance(modalElement);
+            if (modalInstance) {
+                modalInstance.hide();
+            }
         }
     </script>
 

@@ -130,7 +130,12 @@
                 @foreach ($productos as $producto)
                     <tr>
                         <td>{{ $producto->codigo ?: $producto->codigo_barra }}</td>
-                        <td>{{ $producto->producto }}</td>
+                        <td>
+                            {{ $producto->producto }}
+                            @if(isset($producto->precio_lista) && $producto->precio < $producto->precio_lista)
+                                <strong style="font-size: 11px;"> - Promo</strong>
+                            @endif
+                        </td>
                         <td>{{ $producto->cantidad }}</td>
                         <td>${{ number_format($producto->precio, 2) }}</td>
                         <td>${{ number_format($producto->precio * $producto->cantidad, 2) }}</td>

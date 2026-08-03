@@ -10,7 +10,19 @@
         @endforeach
     </div>
 @endif
+@if (session('error'))
+    <div class="alert alert-danger alert-dismissible fade show fw-bold mb-3" role="alert">
+        <i class="fas fa-exclamation-triangle me-2"></i>{{ session('error') }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+@endif
 
+@if (session('success'))
+    <div class="alert alert-success alert-dismissible fade show fw-bold mb-3" role="alert">
+        <i class="fas fa-check-circle me-2"></i>{{ session('success') }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+@endif
 <form id="formVentaPrincipal" method="POST" action="{{ route('ventas.guardar') }}">
     @csrf
     <div class="row h-100">
@@ -256,6 +268,20 @@
 @endif
 
 <script>
+    // Variable global para que cada fila del formulario tenga name="productos[itemIndex][...]" único
+    let itemIndex = 0;
+
+    // ==========================================
+    // 0. FUNCIONES DE APOYO Y NORMALIZACIÓN
+    // ==========================================
+    function normalizarTexto(texto) {
+        if (!texto) return '';
+        return texto.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
+    }
+
+    // ==========================================
+    // 1. BÚSQUEDA Y AGREGADO DE PRODUCTOS INDIVIDUALES (NORMAL)
+    // ==========================================
     document.getElementById('buscarProductoInput').addEventListener('input', function () {
         const termino = this.value;
 
@@ -269,12 +295,12 @@
                     data.forEach(producto => {
                         const fila = document.createElement('tr');
                         fila.innerHTML = `
-                            <td>${producto.codigo_barra}</td>
+                            <td>${producto.codigo_barra || '-'}</td>
                             <td>${producto.nombre}</td>
                             <td>$${parseFloat(producto.precio_venta).toFixed(2)}</td>
                             <td>${producto.stock}</td>
                             <td>
-                                <button class="btn btn-success btn-sm agregar-producto" data-id="${producto.id_producto}">
+                                <button type="button" class="btn btn-success btn-sm agregar-producto" data-id="${producto.id_producto}">
                                     Agregar
                                 </button>
                             </td>
@@ -297,124 +323,115 @@
             const precio = parseFloat(fila.cells[2].textContent.replace('$', '').trim());
             const stock = parseInt(fila.cells[3].textContent.trim());
 
-            const tablaVentas = document.getElementById('tablaVentas');
-            const nuevaFila = document.createElement('tr');
+            // Identificador exclusivo para productos vendidos a precio lista
+            const rowId = `normal-${id_producto}`;
+            const filaExistente = document.querySelector(`tr[data-row-id="${rowId}"]`);
 
-            nuevaFila.innerHTML = `
-                <td>${codigo_barra}</td>
-                <td>${nombre}</td>
-                <td>
-                    <input type="number" name="productos[${id_producto}][cantidad]" value="1" min="1" max="${stock}" class="form-control cantidad" data-precio="${precio}" data-stock="${stock}" oninput="actualizarTotal(this)">
-                    <input type="hidden" name="productos[${id_producto}][id_producto]" value="${id_producto}">
-                    <input type="hidden" name="productos[${id_producto}][precio]" value="${precio}">
-                </td>
-                <td>$${precio.toFixed(2)}</td>
-                <td class="precio-total">$${precio.toFixed(2)}</td>
-                <td class="text-center">
-                    <button type="button" class="btn btn-danger btn-sm px-2 py-1" onclick="quitarProductoDelCarrito(this)">
-                        ×
-                    </button>
-                </td>`;
-            tablaVentas.appendChild(nuevaFila);
+            if (filaExistente) {
+                const inputCant = filaExistente.querySelector('.cantidad');
+                let nuevaCant = parseInt(inputCant.value) + 1;
+                if (nuevaCant > stock) {
+                    nuevaCant = stock;
+                    alert('Stock máximo alcanzado para este producto.');
+                }
+                inputCant.value = nuevaCant;
+                actualizarTotal(inputCant);
+            } else {
+                itemIndex++;
+                const tablaVentas = document.getElementById('tablaVentas');
+                const nuevaFila = document.createElement('tr');
+                nuevaFila.setAttribute('data-row-id', rowId);
+
+                nuevaFila.innerHTML = `
+                    <td>${codigo_barra}</td>
+                    <td>${nombre}</td>
+                    <td>
+                        <input type="number" name="productos[${itemIndex}][cantidad]" value="1" min="1" max="${stock}" class="form-control cantidad" data-precio="${precio}" data-stock="${stock}" oninput="actualizarTotal(this)">
+                        <input type="hidden" name="productos[${itemIndex}][id_producto]" value="${id_producto}">
+                        <input type="hidden" name="productos[${itemIndex}][precio]" value="${precio}">
+                    </td>
+                    <td>$${precio.toFixed(2)}</td>
+                    <td class="precio-total">$${precio.toFixed(2)}</td>
+                    <td class="text-center">
+                        <button type="button" class="btn btn-danger btn-sm px-2 py-1" onclick="quitarProductoDelCarrito(this)">×</button>
+                    </td>`;
+                tablaVentas.appendChild(nuevaFila);
+            }
 
             const modal = bootstrap.Modal.getInstance(document.getElementById('buscarProductoModal'));
-            modal.hide();
+            if (modal) modal.hide();
 
             calcularTotalVenta();
         }
     });
 
+    // ==========================================
+    // 2. LÓGICA DE PROMOCIONES EN VENTA
+    // ==========================================
+    function filtrarPromocionesVenta() {
+        const filtro = normalizarTexto(document.getElementById('inputBuscarPromoVenta').value);
+        const palabras = filtro.split(' ').filter(p => p !== '');
+        const filas = document.querySelectorAll('.fila-promo-venta');
 
-    // Filtrar promociones dentro del modal
-function filtrarPromocionesVenta() {
-    const filtro = normalizarTexto(document.getElementById('inputBuscarPromoVenta').value);
-    const palabras = filtro.split(' ').filter(p => p !== '');
-    const filas = document.querySelectorAll('.fila-promo-venta');
-
-    filas.forEach(fila => {
-        const nombre = normalizarTexto(fila.getAttribute('data-nombre'));
-        const coincide = palabras.every(palabra => nombre.includes(palabra));
-        fila.style.display = coincide ? '' : 'none';
-    });
-}
-
-// Función para agregar todos los productos de la promoción a la tabla de venta
-function agregarPromocionAVenta(promo) {
-    if (!promo.productos || promo.productos.length === 0) {
-        alert("Esta promoción no contiene productos.");
-        return;
+        filas.forEach(fila => {
+            const nombre = normalizarTexto(fila.getAttribute('data-nombre'));
+            const coincide = palabras.every(palabra => nombre.includes(palabra));
+            fila.style.display = coincide ? '' : 'none';
+        });
     }
 
-    // Calcular proporción de precio si el precio del combo difiere de la suma de los precios lista
-    let sumaPreciosLista = 0;
-    promo.productos.forEach(p => {
-        sumaPreciosLista += (parseFloat(p.precio_venta) * parseInt(p.cantidad));
-    });
+    let promoIndex = 0; // Índice único para el array promociones[]
 
-    // Factor de descuento aplicado proporcionalmente a cada producto
-    const factorDescuento = (sumaPreciosLista > 0) ? (parseFloat(promo.precio) / sumaPreciosLista) : 1;
+    function agregarPromocionAVenta(promo) {
+        if (!promo || !promo.id_promocion) return;
 
-    promo.productos.forEach(prod => {
-        const idProd = prod.id_producto;
-        const cantidadPromo = parseInt(prod.cantidad);
-        const stockDisponible = parseInt(prod.stock) || 999;
-        const codigo = prod.codigo_barra ?? 'S/C';
-
-        // Precio unitario ajustado según el precio final del combo
-        const precioUnitarioAjustado = parseFloat(prod.precio_venta) * factorDescuento;
-
-        // Verificar si el producto ya existe en el carrito
-        const filaExistente = document.querySelector(`tr[data-id-producto="${idProd}"]`);
+        const rowId = `promo-row-${promo.id_promocion}`;
+        const filaExistente = document.querySelector(`tr[data-row-id="${rowId}"]`);
+        const precioCombo = parseFloat(promo.precio) || 0;
 
         if (filaExistente) {
+            // Si ya está la promo en la tabla, aumentamos su multiplicador
             const inputCant = filaExistente.querySelector('.cantidad');
-            let nuevaCant = parseInt(inputCant.value) + cantidadPromo;
-            if (nuevaCant > stockDisponible) {
-                nuevaCant = stockDisponible;
-                alert(`Stock máximo alcanzado para ${prod.nombre}`);
-            }
-            inputCant.value = nuevaCant;
+            inputCant.value = parseInt(inputCant.value) + 1;
             actualizarTotal(inputCant);
         } else {
-            const tablaVentas = document.getElementById('tablaVentas') || document.querySelector('#tablaVentas tbody');
+            promoIndex++;
+            const tablaVentas = document.getElementById('tablaVentas');
             const nuevaFila = document.createElement('tr');
-            nuevaFila.setAttribute('data-id-producto', idProd);
-            nuevaFila.className = 'border-secondary';
-
-            const subtotal = precioUnitarioAjustado * cantidadPromo;
+            nuevaFila.setAttribute('data-row-id', rowId);
 
             nuevaFila.innerHTML = `
-                <td class="border-secondary">${codigo}</td>
-                <td class="border-secondary">${prod.nombre} <span class="badge bg-warning text-dark ms-1">Promo</span></td>
-                <td class="border-secondary">
-                    <input type="number" name="productos[${idProd}][cantidad]" value="${cantidadPromo}" min="1" max="${stockDisponible}" class="form-control form-control-sm bg-dark text-white border-secondary cantidad" data-precio="${precioUnitarioAjustado.toFixed(2)}" data-stock="${stockDisponible}" oninput="actualizarTotal(this)">
-                    <input type="hidden" name="productos[${idProd}][id_producto]" value="${idProd}">
-                    <input type="hidden" name="productos[${idProd}][precio]" value="${precioUnitarioAjustado.toFixed(2)}">
+                <td>PROMO</td>
+                <td>
+                    <strong>Promo:</strong> ${promo.nombre}
                 </td>
-                <td class="border-secondary">$${precioUnitarioAjustado.toFixed(2)}</td>
-                <td class="precio-total fw-bold text-success border-secondary">$${subtotal.toFixed(2)}</td>
-                <td class="text-center border-secondary">
-                    <button type="button" class="btn btn-danger btn-sm px-2 py-1" onclick="quitarProductoDelCarrito(this)">&times;</button>
+                <td>
+                    <input type="number" name="promociones[${promoIndex}][cantidad]" value="1" min="1" class="form-control cantidad" data-precio="${precioCombo.toFixed(2)}" oninput="actualizarTotal(this)">
+                    <input type="hidden" name="promociones[${promoIndex}][id_promocion]" value="${promo.id_promocion}">
+                    <input type="hidden" name="promociones[${promoIndex}][precio]" value="${precioCombo.toFixed(2)}">
+                </td>
+                <td>$${precioCombo.toFixed(2)}</td>
+                <td class="precio-total">$${precioCombo.toFixed(2)}</td>
+                <td class="text-center">
+                    <button type="button" class="btn btn-danger btn-sm px-2 py-1" onclick="quitarProductoDelCarrito(this)">×</button>
                 </td>`;
 
             tablaVentas.appendChild(nuevaFila);
         }
-    });
 
-    // Recalcular total de la venta principal
-    if (typeof calcularTotalVenta === 'function') {
         calcularTotalVenta();
-    } else if (typeof recalcularTotal === 'function') {
-        recalcularTotal();
+
+        // Cerrar modal
+        const modalElement = document.getElementById('buscarPromocionModal');
+        const modalInstance = bootstrap.Modal.getInstance(modalElement);
+        if (modalInstance) {
+            modalInstance.hide();
+        }
     }
 
-    // Cerrar modal
-    const modalElement = document.getElementById('buscarPromocionModal');
-    const modalInstance = bootstrap.Modal.getInstance(modalElement);
-    if (modalInstance) {
-        modalInstance.hide();
-    }
-}
+    // ==========================================
+    // 3. OPERACIONES EN LA TABLA DE VENTAS Y CÁLCULOS
+    // ==========================================
     function quitarProductoDelCarrito(boton) {
         const fila = boton.closest('tr');
         if (fila) {
@@ -455,7 +472,6 @@ function agregarPromocionAVenta(promo) {
             descuentoCalculado = descuentoInput;
         }
 
-        // CONTROL VISUAL: Evitar números negativos
         let totalConDescuento = total - descuentoCalculado;
         if (totalConDescuento < 0) {
             totalConDescuento = 0;
@@ -470,7 +486,9 @@ function agregarPromocionAVenta(promo) {
         }
     }
 
-    // CONTROL JS ANTI-RELOAD
+    // ==========================================
+    // 4. VALIDACIÓN DEL FORMULARIO DE VENTA
+    // ==========================================
     document.getElementById('formVentaPrincipal').addEventListener('submit', function (e) {
         const tablaVentas = document.getElementById('tablaVentas');
         const metodoPago = document.getElementById('metodo_pago').value;
@@ -525,103 +543,129 @@ function agregarPromocionAVenta(promo) {
             return;
         }
     });
-</script>
 
-<script>
-function toggleClientesCorrientes() {
-    const metodoPago = document.getElementById('metodo_pago');
-    const clientesCorrientesContainer = document.getElementById('clientes_corrientes_container');
-    const clienteCasualContainer = document.getElementById('cliente_casual_container');
-    const selectClientes = document.getElementById('id_cliente');
-    
-    if (metodoPago.value === '3') { 
-        clientesCorrientesContainer.style.display = 'block';
-        clienteCasualContainer.style.display = 'none'; // Se ocultan los campos manuales en Cta Cte
-        selectClientes.setAttribute('required', 'required');
-        cargarClientesCorrientes();
-    } else {
-        clientesCorrientesContainer.style.display = 'none';
-        clienteCasualContainer.style.display = 'block'; // Visibles para Efectivo, Débito, etc.
-        selectClientes.removeAttribute('required');
+    // ==========================================
+    // 5. CLIENTES CORRIENTES & INICIALIZACIÓN
+    // ==========================================
+    function toggleClientesCorrientes() {
+        const metodoPago = document.getElementById('metodo_pago');
+        const clientesCorrientesContainer = document.getElementById('clientes_corrientes_container');
+        const clienteCasualContainer = document.getElementById('cliente_casual_container');
+        const selectClientes = document.getElementById('id_cliente');
+        
+        if (metodoPago && metodoPago.value === '3') { 
+            clientesCorrientesContainer.style.display = 'block';
+            clienteCasualContainer.style.display = 'none';
+            selectClientes.setAttribute('required', 'required');
+            cargarClientesCorrientes();
+        } else if (clientesCorrientesContainer && clienteCasualContainer) {
+            clientesCorrientesContainer.style.display = 'none';
+            clienteCasualContainer.style.display = 'block';
+            selectClientes.removeAttribute('required');
+        }
     }
-}
 
-function cargarClientesCorrientes() {
-    fetch('/obtener-clientes-corrientes')
-        .then(response => response.json())
-        .then(data => {
-            const selectClientes = document.getElementById('id_cliente');
-            selectClientes.innerHTML = '<option selected disabled value="">Seleccione un cliente</option>';
-            
-            data.forEach(cliente => {
-                const option = document.createElement('option');
-                option.value = cliente.id_cliente;
-                option.textContent = `${cliente.nombre_y_apellido} - DNI: ${cliente.dni}`;
-                selectClientes.appendChild(option);
-            });
-        })
-        .catch(error => console.error('Error:', error));
-}
-document.addEventListener('DOMContentLoaded', toggleClientesCorrientes);
+    function cargarClientesCorrientes() {
+        fetch('/obtener-clientes-corrientes')
+            .then(response => response.json())
+            .then(data => {
+                const selectClientes = document.getElementById('id_cliente');
+                selectClientes.innerHTML = '<option selected disabled value="">Seleccione un cliente</option>';
+                
+                data.forEach(cliente => {
+                    const option = document.createElement('option');
+                    option.value = cliente.id_cliente;
+                    option.textContent = `${cliente.nombre_y_apellido} - DNI: ${cliente.dni}`;
+                    selectClientes.appendChild(option);
+                });
+            })
+            .catch(error => console.error('Error:', error));
+    }
+
+    document.addEventListener('DOMContentLoaded', toggleClientesCorrientes);
 </script>
 
-@if(session('cargar_presupuesto'))
+{{-- Carga Automática desde Presupuesto (Si Aplica) --}}
+@if(session('cargar_presupuesto') || session('cargar_promociones_presupuesto'))
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const productosPresupuesto = @json(session('cargar_presupuesto'));
+            // 1. Cargar datos del cliente y descuento
             const descuentoPresupuesto = {{ session('descuento_presupuesto') ?? 0 }};
-            
-            // Mapeo de los datos del cliente procedentes del presupuesto
             const nombrePresupuesto = "{{ session('nombre_cliente') ?? '' }}";
             const telefonoPresupuesto = "{{ session('telefono_cliente') ?? '' }}";
 
-            // Rellenar Nombre del Cliente
             const inputNombre = document.getElementById('cliente_nombre');
-            if (inputNombre && nombrePresupuesto) {
-                inputNombre.value = nombrePresupuesto;
-            }
+            if (inputNombre && nombrePresupuesto) inputNombre.value = nombrePresupuesto;
             
-            // Rellenar Teléfono del Cliente
             const inputTelefono = document.getElementById('cliente_telefono');
-            if (inputTelefono && telefonoPresupuesto) {
-                inputTelefono.value = telefonoPresupuesto;
-            }
+            if (inputTelefono && telefonoPresupuesto) inputTelefono.value = telefonoPresupuesto;
 
-            // Rellenar Descuento
             const inputDescuento = document.getElementById('descuento');
-            if (inputDescuento) {
-                inputDescuento.value = descuentoPresupuesto;
-            }
+            if (inputDescuento) inputDescuento.value = descuentoPresupuesto;
 
-            const tablaVentas = document.getElementById('tablaVentas');
+            // 2. Cargar Promociones en un solo renglón
+            @if(session('cargar_promociones_presupuesto'))
+                const promocionesPresupuesto = @json(session('cargar_promociones_presupuesto'));
 
-            productosPresupuesto.forEach(prod => {
-                const codigo = prod.codigo_barra || prod.codigo || '-';
-                const precio = parseFloat(prod.precio) || 0;
-                const cantidad = parseInt(prod.cantidad) || 1;
-                const stock = parseInt(prod.stock) || 0;
-                const precioTotal = precio * cantidad;
+                promocionesPresupuesto.forEach(promo => {
+                    // Agrega el renglón de la promoción usando la función existente
+                    agregarPromocionAVenta({
+                        id_promocion: promo.id_promocion,
+                        nombre: promo.nombre,
+                        precio: parseFloat(promo.precio)
+                    });
 
-                const nuevaFila = document.createElement('tr');
-                nuevaFila.innerHTML = `
-                    <td>${codigo}</td>
-                    <td>${prod.nombre}</td>
-                    <td>
-                        <input type="number" name="productos[${prod.id_producto}][cantidad]" value="${cantidad}" min="1" max="${stock}" class="form-control cantidad" data-precio="${precio}" data-stock="${stock}" oninput="actualizarTotal(this)">
-                        <input type="hidden" name="productos[${prod.id_producto}][id_producto]" value="${prod.id_producto}">
-                        <input type="hidden" name="productos[${prod.id_producto}][precio]" value="${precio}">
-                    </td>
-                    <td>$${precio.toFixed(2)}</td>
-                    <td class="precio-total">$${precioTotal.toFixed(2)}</td>
-                    <td class="text-center">
-                        <button type="button" class="btn btn-danger btn-sm px-2 py-1" onclick="quitarProductoDelCarrito(this)">×</button>
-                    </td>`;
-                
-                if (tablaVentas) {
-                    tablaVentas.appendChild(nuevaFila);
-                }
-            });
+                    // Si la cantidad en el presupuesto era mayor a 1, actualizamos el input
+                    if (promo.cantidad && promo.cantidad > 1) {
+                        const rowId = `promo-row-${promo.id_promocion}`;
+                        const fila = document.querySelector(`tr[data-row-id="${rowId}"]`);
+                        if (fila) {
+                            const inputCant = fila.querySelector('.cantidad');
+                            if (inputCant) {
+                                inputCant.value = promo.cantidad;
+                                actualizarTotal(inputCant);
+                            }
+                        }
+                    }
+                });
+            @endif
 
+            // 3. Cargar Productos Individuales
+            @if(session('cargar_presupuesto'))
+                const productosPresupuesto = @json(session('cargar_presupuesto'));
+                const tablaVentas = document.getElementById('tablaVentas');
+
+                productosPresupuesto.forEach(prod => {
+                    itemIndex++;
+                    const codigo = prod.codigo_barra || prod.codigo || '-';
+                    const precio = parseFloat(prod.precio) || 0;
+                    const cantidad = parseInt(prod.cantidad) || 1;
+                    const stock = parseInt(prod.stock) || 0;
+                    const precioTotal = precio * cantidad;
+
+                    const rowId = `normal-${prod.id_producto}`;
+
+                    const nuevaFila = document.createElement('tr');
+                    nuevaFila.setAttribute('data-row-id', rowId);
+                    nuevaFila.innerHTML = `
+                        <td>${codigo}</td>
+                        <td>${prod.nombre}</td>
+                        <td>
+                            <input type="number" name="productos[${itemIndex}][cantidad]" value="${cantidad}" min="1" max="${stock}" class="form-control cantidad" data-precio="${precio}" data-stock="${stock}" oninput="actualizarTotal(this)">
+                            <input type="hidden" name="productos[${itemIndex}][id_producto]" value="${prod.id_producto}">
+                            <input type="hidden" name="productos[${itemIndex}][precio]" value="${precio}">
+                        </td>
+                        <td>$${precio.toFixed(2)}</td>
+                        <td class="precio-total">$${precioTotal.toFixed(2)}</td>
+                        <td class="text-center">
+                            <button type="button" class="btn btn-danger btn-sm px-2 py-1" onclick="quitarProductoDelCarrito(this)">×</button>
+                        </td>`;
+                    
+                    if (tablaVentas) tablaVentas.appendChild(nuevaFila);
+                });
+            @endif
+
+            // 4. Recalcular el total final
             if (typeof calcularTotalVenta === 'function') {
                 calcularTotalVenta();
             }
