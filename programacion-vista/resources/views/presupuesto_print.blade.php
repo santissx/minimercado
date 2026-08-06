@@ -112,43 +112,98 @@
 
         <hr>
 
-        <table class="tabla-productos">
-            <thead>
-                <tr>
-                    <th>Código</th>
-                    <th>Descripción</th>
-                    <th>Cant.</th>
-                    <th>Precio unit.</th>
-                    <th>Total</th>
-                </tr>
-            </thead>
-            <tbody>
-                {{-- Imprimir Productos Individuales --}}
-                @foreach ($productos as $producto)
-                    <tr>
-                        {{-- Intenta imprimir codigo, si está vacío usa codigo_barra --}}
-                        <td>{{ $producto->codigo ?: $producto->codigo_barra ?: '-' }}</td>
-                        <td>{{ $producto->nombre }}</td>
-                        <td>{{ $producto->cantidad }}</td>
-                        <td>${{ number_format($producto->precio, 2) }}</td>
-                        <td>${{ number_format($producto->cantidad * $producto->precio, 2) }}</td>
-                    </tr>
-                @endforeach
+        @php
+            $serviciosCategorias = [13, 14];
+            $articulos = $productos->filter(function($item) use ($serviciosCategorias) {
+                $cat = strtolower($item->nombre_categoria ?? '');
+                return !in_array($item->id_categoria ?? 0, $serviciosCategorias) 
+                    && !str_starts_with($cat, 's -') 
+                    && !str_starts_with($cat, 'in -') 
+                    && !str_contains($cat, 'servicio') 
+                    && !str_contains($cat, 'instalac');
+            });
 
-                {{-- Imprimir Promociones (Si hay) --}}
-                @if(isset($promociones) && count($promociones) > 0)
-                    @foreach ($promociones as $promo)
+            $servicios = $productos->filter(function($item) use ($serviciosCategorias) {
+                $cat = strtolower($item->nombre_categoria ?? '');
+                return in_array($item->id_categoria ?? 0, $serviciosCategorias) 
+                    || str_starts_with($cat, 's -') 
+                    || str_starts_with($cat, 'in -') 
+                    || str_contains($cat, 'servicio') 
+                    || str_contains($cat, 'instalac');
+            });
+        @endphp
+
+        @if($articulos->count() > 0 || (isset($promociones) && count($promociones) > 0))
+            @if($servicios->count() > 0)
+                <div style="font-weight: bold; font-size: 12px; text-transform: uppercase; margin-bottom: 5px; background: #f0f0f0; padding: 4px 8px; border-left: 3px solid #333;">
+                    PRODUCTOS
+                </div>
+            @endif
+            <table class="tabla-productos">
+                <thead>
+                    <tr>
+                        <th>Código</th>
+                        <th>Descripción</th>
+                        <th>Cant.</th>
+                        <th>Precio unit.</th>
+                        <th>Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{-- Imprimir Productos Individuales --}}
+                    @foreach ($articulos as $producto)
                         <tr>
-                            <td>PROMO</td>
-                            <td>{{ $promo->nombre }}</td>
-                            <td>{{ $promo->cantidad }}</td>
-                            <td>${{ number_format($promo->precio, 2) }}</td>
-                            <td>${{ number_format($promo->cantidad * $promo->precio, 2) }}</td>
+                            <td>{{ $producto->codigo ?: $producto->codigo_barra ?: '-' }}</td>
+                            <td>{{ $producto->nombre }}</td>
+                            <td>{{ $producto->cantidad }}</td>
+                            <td>${{ number_format($producto->precio, 2) }}</td>
+                            <td>${{ number_format($producto->cantidad * $producto->precio, 2) }}</td>
                         </tr>
                     @endforeach
-                @endif
-            </tbody>
-        </table>
+
+                    {{-- Imprimir Promociones (Si hay) --}}
+                    @if(isset($promociones) && count($promociones) > 0)
+                        @foreach ($promociones as $promo)
+                            <tr>
+                                <td>PROMO</td>
+                                <td>{{ $promo->nombre }}</td>
+                                <td>{{ $promo->cantidad }}</td>
+                                <td>${{ number_format($promo->precio, 2) }}</td>
+                                <td>${{ number_format($promo->cantidad * $promo->precio, 2) }}</td>
+                            </tr>
+                        @endforeach
+                    @endif
+                </tbody>
+            </table>
+        @endif
+
+        @if($servicios->count() > 0)
+            <div style="font-weight: bold; font-size: 12px; text-transform: uppercase; margin-top: 15px; margin-bottom: 5px; background: #f0f0f0; padding: 4px 8px; border-left: 3px solid #333;">
+                SERVICIOS E INSTALACIONES
+            </div>
+            <table class="tabla-productos">
+                <thead>
+                    <tr>
+                        <th>Código</th>
+                        <th>Descripción</th>
+                        <th>Cant.</th>
+                        <th>Precio unit.</th>
+                        <th>Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach ($servicios as $servicio)
+                        <tr>
+                            <td>{{ $servicio->codigo ?: $servicio->codigo_barra ?: '-' }}</td>
+                            <td>{{ $servicio->nombre }}</td>
+                            <td>{{ $servicio->cantidad }}</td>
+                            <td>${{ number_format($servicio->precio, 2) }}</td>
+                            <td>${{ number_format($servicio->cantidad * $servicio->precio, 2) }}</td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        @endif
 
         @if (!empty($presupuesto->observaciones))
             <div style="margin-top: 15px; padding: 8px 12px; border: 1px dashed #999; border-radius: 4px; background-color: #f8f9fa;">

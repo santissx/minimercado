@@ -340,9 +340,10 @@ class PresupuestoController extends Controller
         // Obtener productos individuales
         $productos = DB::table('presupuestos_productos as pp')
             ->join('productos as p', 'pp.id_producto', '=', 'p.id_producto')
+            ->leftJoin('categorias as c', 'p.id_categoria', '=', 'c.id_categoria')
             ->where('pp.id_presupuesto', $id)
             ->whereNull('pp.id_promocion')
-            ->select('p.nombre', 'p.codigo', 'p.codigo_barra', 'pp.cantidad', 'pp.precio')
+            ->select('p.nombre', 'p.codigo', 'p.codigo_barra', 'p.id_categoria', 'c.categoria as nombre_categoria', 'pp.cantidad', 'pp.precio')
             ->get();
 
         // Obtener promociones agrupadas

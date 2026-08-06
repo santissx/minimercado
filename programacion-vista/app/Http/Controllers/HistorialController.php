@@ -152,10 +152,13 @@ class HistorialController extends Controller
 
         $productos = DB::table('ventas_productos')
             ->join('productos', 'ventas_productos.id_producto', '=', 'productos.id_producto')
+            ->leftJoin('categorias', 'productos.id_categoria', '=', 'categorias.id_categoria')
             ->select(
                 'productos.nombre as producto',
                 'productos.codigo',
                 'productos.codigo_barra',
+                'productos.id_categoria',
+                'categorias.categoria as nombre_categoria',
                 'ventas_productos.cantidad',
                 'ventas_productos.precio',
                 'ventas_productos.precio_lista' // <--- Seleccionamos el precio de lista

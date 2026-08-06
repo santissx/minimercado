@@ -124,25 +124,78 @@
             </table>
         </div>
         <hr>
-        <table class="tabla-productos">
-            <thead><tr><th>Código</th><th>Descripción</th><th>Cant.</th><th>Precio unit.</th><th>Total</th></tr></thead>
-            <tbody>
-                @foreach ($productos as $producto)
-                    <tr>
-                        <td>{{ $producto->codigo ?: $producto->codigo_barra }}</td>
-                        <td>
-                            {{ $producto->producto }}
-                            @if(isset($producto->precio_lista) && $producto->precio < $producto->precio_lista)
-                                <strong style="font-size: 11px;"> - Promo</strong>
-                            @endif
-                        </td>
-                        <td>{{ $producto->cantidad }}</td>
-                        <td>${{ number_format($producto->precio, 2) }}</td>
-                        <td>${{ number_format($producto->precio * $producto->cantidad, 2) }}</td>
-                    </tr>
-                @endforeach
-            </tbody>
-        </table>
+        @php
+            $serviciosCategorias = [13, 14];
+            $articulos = $productos->filter(function($item) use ($serviciosCategorias) {
+                $cat = strtolower($item->nombre_categoria ?? '');
+                return !in_array($item->id_categoria ?? 0, $serviciosCategorias) 
+                    && !str_starts_with($cat, 's -') 
+                    && !str_starts_with($cat, 'in -') 
+                    && !str_contains($cat, 'servicio') 
+                    && !str_contains($cat, 'instalac');
+            });
+
+            $servicios = $productos->filter(function($item) use ($serviciosCategorias) {
+                $cat = strtolower($item->nombre_categoria ?? '');
+                return in_array($item->id_categoria ?? 0, $serviciosCategorias) 
+                    || str_starts_with($cat, 's -') 
+                    || str_starts_with($cat, 'in -') 
+                    || str_contains($cat, 'servicio') 
+                    || str_contains($cat, 'instalac');
+            });
+        @endphp
+
+        @if($articulos->count() > 0)
+            @if($servicios->count() > 0)
+                <div style="font-weight: bold; font-size: 12px; text-transform: uppercase; margin-bottom: 5px; background: #f0f0f0; padding: 4px 8px; border-left: 3px solid #333;">
+                    PRODUCTOS
+                </div>
+            @endif
+            <table class="tabla-productos">
+                <thead><tr><th>Código</th><th>Descripción</th><th>Cant.</th><th>Precio unit.</th><th>Total</th></tr></thead>
+                <tbody>
+                    @foreach ($articulos as $producto)
+                        <tr>
+                            <td>{{ $producto->codigo ?: $producto->codigo_barra }}</td>
+                            <td>
+                                {{ $producto->producto }}
+                                @if(isset($producto->precio_lista) && $producto->precio < $producto->precio_lista)
+                                    <strong style="font-size: 11px;"> - Promo</strong>
+                                @endif
+                            </td>
+                            <td>{{ $producto->cantidad }}</td>
+                            <td>${{ number_format($producto->precio, 2) }}</td>
+                            <td>${{ number_format($producto->precio * $producto->cantidad, 2) }}</td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        @endif
+
+        @if($servicios->count() > 0)
+            <div style="font-weight: bold; font-size: 12px; text-transform: uppercase; margin-top: 15px; margin-bottom: 5px; background: #f0f0f0; padding: 4px 8px; border-left: 3px solid #333;">
+                SERVICIOS E INSTALACIONES
+            </div>
+            <table class="tabla-productos">
+                <thead><tr><th>Código</th><th>Descripción</th><th>Cant.</th><th>Precio unit.</th><th>Total</th></tr></thead>
+                <tbody>
+                    @foreach ($servicios as $servicio)
+                        <tr>
+                            <td>{{ $servicio->codigo ?: $servicio->codigo_barra }}</td>
+                            <td>
+                                {{ $servicio->producto }}
+                                @if(isset($servicio->precio_lista) && $servicio->precio < $servicio->precio_lista)
+                                    <strong style="font-size: 11px;"> - Promo</strong>
+                                @endif
+                            </td>
+                            <td>{{ $servicio->cantidad }}</td>
+                            <td>${{ number_format($servicio->precio, 2) }}</td>
+                            <td>${{ number_format($servicio->precio * $servicio->cantidad, 2) }}</td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        @endif
         <div class="totales">
             <table>
                 <tr><td>SUBTOTAL $</td><td>{{ number_format($venta->monto_total + $venta->descuento, 2) }}</td></tr>

@@ -35,13 +35,24 @@
                                             <select class="onlyread styled-select">
                                                 @foreach ($compraGroup as $producto)
                                                     <option>
-                                                        {{ $producto->producto }} - Cantidad:
+                                                        {{ $producto->producto }} ({{ $producto->proveedor ?: 'Sin proveedor' }}) - Cantidad:
                                                         {{ $producto->cantidad_agregada }}
                                                     </option>
                                                 @endforeach
                                             </select>
                                         </td>
-                                        <td>{{ $compra->id_proveedor }} - {{ $compra->proveedor }}</td>
+                                        @php
+                                            $provsUnicos = $compraGroup->pluck('proveedor')->filter()->unique();
+                                        @endphp
+                                        <td>
+                                            @if($provsUnicos->count() > 1)
+                                                <span class="badge bg-info text-dark" title="{{ $provsUnicos->implode(', ') }}">Varios ({{ $provsUnicos->count() }})</span>
+                                            @elseif($provsUnicos->count() === 1)
+                                                {{ $provsUnicos->first() }}
+                                            @else
+                                                Sin proveedor
+                                            @endif
+                                        </td>
                                         <td class="d-flex justify-content-center align-items-center gap-2">
                                             <form action="{{ route('compras.eliminar', $compra->id_compra) }}"
                                                 method="POST">
@@ -102,7 +113,7 @@
 
     <!-- Modal Agregar Compra -->
     <div class="modal fade" id="agregarCompraModal" tabindex="-1" aria-labelledby="agregarCompraLabel" aria-hidden="true">
-        <div class="modal-dialog">
+        <div class="modal-dialog modal-lg">
             <div class="modal-content bg-dark">
                 <div class="modal-header">
                     <h5 class="modal-title" id="agregarCompraLabel">Agregar Compra</h5>
@@ -112,15 +123,15 @@
                     <form action="{{ route('compras.agregar') }}" method="POST">
                         @csrf
                         <div class="mb-3">
-                            <label for="monto" class="form-label">Monto de la compra</label>
-                            <input type="int" class="form-control" id="monto" name="monto" required>
+                            <label for="monto" class="form-label">Monto total de la compra ($)</label>
+                            <input type="number" step="0.01" class="form-control" id="monto" name="monto" required placeholder="Ej: 1500.00">
                         </div>
 
                         <!-- Select Proveedor -->
                         <div class="mb-3">
-                            <label for="id_proveedor" class="form-label">Proveedor</label>
-                            <select id="id_proveedor" class="form-select" name="id_proveedor" required>
-                                <option value="">Seleccione un proveedor</option>
+                            <label for="id_proveedor" class="form-label">Filtrar Productos por Proveedor (Opcional)</label>
+                            <select id="id_proveedor" class="form-select" name="id_proveedor">
+                                <option value="todos" selected>Todos / Múltiples proveedores</option>
                                 @foreach ($proveedores as $proveedor)
                                     <option value="{{ $proveedor->id_proveedor }}">{{ $proveedor->nombre }}</option>
                                 @endforeach
@@ -152,7 +163,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="submit" class="btn btn-success">Guardar</button>
+                    <button type="submit" class="btn btn-success">Guardar Compra</button>
                 </div>
                 </form>
             </div>
@@ -165,6 +176,9 @@
             const productosContainer = document.getElementById('productosContainer');
             let productoCount = 1; // Contador para los productos adicionales
 
+            // Cargar productos al abrir/iniciar
+            actualizarProductos();
+
             // Evento para agregar otro producto
             document.getElementById('addProducto').addEventListener('click', () => {
                 // Crear un nuevo item de producto
@@ -173,13 +187,13 @@
 
                 newProductDiv.innerHTML = `
                 <div class="col-7">
-                    <label for="id_producto" class="form-label">Producto</label>
+                    <label class="form-label">Producto</label>
                     <select name="productos[${productoCount}][id_producto]" class="form-select producto" required>
                         <option value="">Seleccione un producto</option>
                     </select>
                 </div>
                 <div class="col-3">
-                    <label for="cantidad" class="form-label">Cantidad</label>
+                    <label class="form-label">Cantidad</label>
                     <input type="number" name="productos[${productoCount}][cantidad]" class="form-control" min="1" required>
                 </div>
                 <div class="col-1 d-flex align-items-end">
@@ -195,16 +209,16 @@
             });
 
             // Función para actualizar el select de productos al seleccionar un proveedor
-            proveedorSelect.addEventListener('change', async (event) => {
+            proveedorSelect.addEventListener('change', async () => {
                 await actualizarProductos();
             });
 
             // Actualizar los productos para todos los selects
             async function actualizarProductos() {
-                const proveedorId = proveedorSelect.value;
+                const proveedorId = proveedorSelect.value || 'todos';
                 const productoSelects = document.querySelectorAll('.producto');
 
-                if (proveedorId) {
+                try {
                     const response = await fetch(`/productos-por-proveedor/${proveedorId}`);
                     const productos = await response.json();
 
@@ -215,7 +229,8 @@
                         productos.forEach(producto => {
                             const option = document.createElement('option');
                             option.value = producto.id_producto;
-                            option.textContent = producto.nombre;
+                            const provTag = producto.proveedor_nombre ? ` (Prov: ${producto.proveedor_nombre})` : '';
+                            option.textContent = `${producto.nombre}${provTag}`;
                             select.appendChild(option);
                         });
 
@@ -224,12 +239,11 @@
                             select.value = valorActual;
                         }
                     });
-                } else {
-                    productoSelects.forEach(select => {
-                        select.innerHTML = '<option value="">Seleccione un producto</option>';
-                    });
+                } catch (error) {
+                    console.error('Error al cargar productos:', error);
                 }
             }
+
             // Eliminar un producto
             productosContainer.addEventListener('click', (event) => {
                 if (event.target.classList.contains('remove-producto')) {
