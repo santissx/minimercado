@@ -222,24 +222,16 @@ body {
 .action-buttons {
     display: flex !important;
     flex-direction: row !important; 
-    flex-wrap: nowrap !important;   
+    flex-wrap: wrap !important;   
     gap: 10px;
     width: 100%;
 }
 
 .action-buttons .btn {
     flex: 1 1 auto !important; 
-    min-height: 45px;
+    min-height: 40px;
     font-size: 0.9rem;
     white-space: nowrap; 
-}
-
-/* Restaura el absolute para las vistas que no son la lista de stock */
-.main-content:not(:has(.table-scrolllis)) .action-buttons {
-    position: absolute !important;
-    bottom: 1rem !important;
-    right: 1rem !important;
-    width: auto !important;
 }
 
 /* ==========================================

@@ -23,6 +23,18 @@
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
 @endif
+
+@if (session('cargar_presupuesto') || session('cargar_promociones_presupuesto') || session('id_presupuesto_convertido'))
+    <div class="alert alert-info alert-dismissible fade show fw-bold mb-3 d-flex flex-wrap justify-content-between align-items-center gap-2" role="alert">
+        <div>
+            <i class="fas fa-file-invoice-dollar me-2"></i>
+            Presupuesto {{ session('id_presupuesto_convertido') ? '#'.session('id_presupuesto_convertido') : '' }} cargado a Caja.
+        </div>
+        <a href="{{ route('views.historial_presupuestos') }}" class="btn btn-sm btn-dark text-white fw-bold">
+            <i class="fas fa-arrow-left me-1"></i> Volver a Historial de Presupuestos
+        </a>
+    </div>
+@endif
 <form id="formVentaPrincipal" method="POST" action="{{ route('ventas.guardar') }}">
     @csrf
     <div class="row h-100">

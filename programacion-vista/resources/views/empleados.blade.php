@@ -7,11 +7,18 @@
 @section('ladoizq')
 <div class="row h-100">
     <div class="col-lg-8 d-flex flex-column">
-        <div class="card mb-3 flex-grow-1 left-table position-relative">
-            <div class="card-body d-flex flex-column">
-                <h5 class="card-title">Usuarios</h5>
-                <div class="table-responsive flex-grow-1 table-scrollgr" >
-                    <table class="table table-dark table-striped">
+        <div class="card mb-3 flex-grow-1 left-table border-secondary">
+            <div class="card-header d-flex justify-content-between align-items-center bg-dark text-white border-bottom border-secondary py-3">
+                <h5 class="card-title mb-0 fw-bold">
+                    <i class="fas fa-users me-2"></i>Usuarios
+                </h5>
+                <button type="button" class="btn btn-success fw-bold" data-bs-toggle="modal" data-bs-target="#veragregarusuario">
+                    <i class="fas fa-user-plus me-1"></i> Agregar Usuario
+                </button>
+            </div>
+            <div class="card-body d-flex flex-column p-0">
+                <div class="table-responsive flex-grow-1 table-scrollgr">
+                    <table class="table table-dark table-striped align-middle mb-0">
                         <thead>
                             <tr>
                                 <th>ID</th>
@@ -19,7 +26,7 @@
                                 <th>Email</th>
                                 <th>Rol</th>
                                 <th>Estado</th>
-                                <th style="text-align: center">Acciones</th>
+                                <th class="text-center">Acciones</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -28,29 +35,28 @@
                                 <td>{{ $usuario->id }}</td>
                                 <td>{{ $usuario->name }}</td>
                                 <td>{{ $usuario->email }}</td>
-                                <td>{{ $usuario->rol }}</td>
+                                <td><span class="badge bg-secondary">{{ $usuario->rol }}</span></td>
                                 <td>{{ $usuario->estado }}</td>
-                                <td class="d-flex justify-content-center align-items-center gap-2">
-                                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#vermodificarusuario" 
-                                    data-id="{{ $usuario->id }}"
-                                    data-name="{{ $usuario->name }}"
-                                    data-email="{{ $usuario->email }}"
-                                    data-rol="{{ $usuario->rol }}"
-                                    data-estado="{{ $usuario->estado }}"
-                                     onclick="document.getElementById('modal_id_usuario').value = {{ $usuario->id }}">Modificar</button>
-                                    <form class="m-0 d-flex" action="{{route('empleados.borrar' , ['id' => $usuario->id])}}" method="POST">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="btn btn-danger">Eliminar</button>
-                                    </form>
+                                <td class="text-center">
+                                    <div class="d-flex justify-content-center gap-1">
+                                        <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#vermodificarusuario" 
+                                        data-id="{{ $usuario->id }}"
+                                        data-name="{{ $usuario->name }}"
+                                        data-email="{{ $usuario->email }}"
+                                        data-rol="{{ $usuario->rol }}"
+                                        data-estado="{{ $usuario->estado }}"
+                                         onclick="document.getElementById('modal_id_usuario').value = {{ $usuario->id }}">Modificar</button>
+                                        <form class="m-0 d-inline" action="{{route('empleados.borrar' , ['id' => $usuario->id])}}" method="POST" onsubmit="return confirm('¿Eliminar usuario?')">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="btn btn-danger btn-sm">Eliminar</button>
+                                        </form>
+                                    </div>
                                 </td>
                             </tr>
                             @endforeach
                         </tbody>
                     </table>
-                </div>
-                <div class="action-buttons">
-                    <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#veragregarusuario">Agregar Usuario</button>
                 </div>
             </div>
         </div>

@@ -6,11 +6,18 @@
     <div class="row h-100">
         <div class="col-lg-8 d-flex flex-column">
             <!-- Cuadro de Compras -->
-            <div class="card mb-3 flex-grow-1 left-table position-relative">
-                <div class="card-body d-flex flex-column">
-                    <h5 class="card-title">Lista de Compras</h5>
+            <div class="card mb-3 flex-grow-1 left-table border-secondary">
+                <div class="card-header d-flex justify-content-between align-items-center bg-dark text-white border-bottom border-secondary py-3">
+                    <h5 class="card-title mb-0 fw-bold">
+                        <i class="fas fa-shopping-bag me-2"></i>Lista de Compras
+                    </h5>
+                    <button type="button" class="btn btn-success fw-bold" data-bs-toggle="modal" data-bs-target="#agregarCompraModal">
+                        <i class="fas fa-plus me-1"></i> Agregar Compra
+                    </button>
+                </div>
+                <div class="card-body d-flex flex-column p-0">
                     <div class="table-responsive flex-grow-1 table-scrollcom">
-                        <table class="table table-dark table-striped">
+                        <table class="table table-dark table-striped align-middle mb-0">
                             <thead>
                                 <tr>
                                     <th>ID Compra</th>
@@ -18,25 +25,23 @@
                                     <th>Fecha (A-M-D)</th>
                                     <th>Productos</th>
                                     <th>Proveedor</th>
-                                    <th>Acciones</th>
+                                    <th class="text-center">Acciones</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                @php $currentCompra = null; @endphp
                                 @foreach ($compras as $idCompra => $compraGroup)
                                     @php
-                                        $compra = $compraGroup->first(); // Obtener la primera compra de este grupo
+                                        $compra = $compraGroup->first();
                                     @endphp
                                     <tr>
                                         <td>{{ $compra->id_compra }}</td>
-                                        <td>${{ number_format($compra->monto_compra, 2) }}</td>
+                                        <td class="fw-bold text-success">${{ number_format($compra->monto_compra, 2) }}</td>
                                         <td>{{ $compra->fecha }}</td>
                                         <td>
                                             <select class="onlyread styled-select">
                                                 @foreach ($compraGroup as $producto)
                                                     <option>
-                                                        {{ $producto->producto }} ({{ $producto->proveedor ?: 'Sin proveedor' }}) - Cantidad:
-                                                        {{ $producto->cantidad_agregada }}
+                                                        {{ $producto->producto }} ({{ $producto->proveedor ?: 'Sin proveedor' }}) - Cantidad: {{ $producto->cantidad_agregada }}
                                                     </option>
                                                 @endforeach
                                             </select>
@@ -53,12 +58,11 @@
                                                 Sin proveedor
                                             @endif
                                         </td>
-                                        <td class="d-flex justify-content-center align-items-center gap-2">
-                                            <form action="{{ route('compras.eliminar', $compra->id_compra) }}"
-                                                method="POST">
+                                        <td class="text-center">
+                                            <form action="{{ route('compras.eliminar', $compra->id_compra) }}" method="POST" class="d-inline">
                                                 @csrf
                                                 @method('DELETE')
-                                                <button type="submit" class="btn btn-danger">Eliminar</button>
+                                                <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('¿Eliminar esta compra?')">Eliminar</button>
                                             </form>
                                         </td>
                                     </tr>
@@ -66,14 +70,10 @@
                             </tbody>
                         </table>
                     </div>
-
                 </div>
-                <div class="action-buttons">
-                    <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#agregarCompraModal">Agregar
-                        Compra</button>
+                <div class="card-footer bg-dark border-top border-secondary py-2 text-end">
+                    <strong class="text-white small">Gasto en compras total: <span class="text-success font-monospace fs-6">${{ number_format($totalcompras, 2) }}</span></strong>
                 </div>
-                <strong> <label for="totalcompras">Gasto en compras total: ${{ number_format($totalcompras, 2) }}</label>
-                </strong>
             </div>
 
             <div class="filtros mb-3">
@@ -112,25 +112,25 @@
     </div>
 
     <!-- Modal Agregar Compra -->
-    <div class="modal fade" id="agregarCompraModal" tabindex="-1" aria-labelledby="agregarCompraLabel" aria-hidden="true">
+    <div class="modal fade" id="agregarCompraModal" tabindex="-1" aria-labelledby="agregarCompraLabel" aria-hidden="true" data-bs-backdrop="static">
         <div class="modal-dialog modal-lg">
-            <div class="modal-content bg-dark">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="agregarCompraLabel">Agregar Compra</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <form action="{{ route('compras.agregar') }}" method="POST">
-                        @csrf
+            <div class="modal-content bg-dark text-white border-secondary">
+                <form action="{{ route('compras.agregar') }}" method="POST" id="formAgregarCompra">
+                    @csrf
+                    <div class="modal-header border-bottom border-secondary">
+                        <h5 class="modal-title" id="agregarCompraLabel"><i class="fas fa-shopping-bag me-2"></i>Agregar Compra</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
                         <div class="mb-3">
-                            <label for="monto" class="form-label">Monto total de la compra ($)</label>
-                            <input type="number" step="0.01" class="form-control" id="monto" name="monto" required placeholder="Ej: 1500.00">
+                            <label for="monto" class="form-label fw-bold">Monto total de la compra ($)</label>
+                            <input type="number" step="0.01" class="form-control bg-dark text-white border-secondary" id="monto" name="monto" required placeholder="Ej: 1500.00">
                         </div>
 
                         <!-- Select Proveedor -->
                         <div class="mb-3">
-                            <label for="id_proveedor" class="form-label">Filtrar Productos por Proveedor (Opcional)</label>
-                            <select id="id_proveedor" class="form-select" name="id_proveedor">
+                            <label for="id_proveedor" class="form-label fw-bold">Filtrar Productos por Proveedor (Opcional)</label>
+                            <select id="id_proveedor" class="form-select bg-dark text-white border-secondary" name="id_proveedor" onchange="buscarProductosCompra()">
                                 <option value="todos" selected>Todos / Múltiples proveedores</option>
                                 @foreach ($proveedores as $proveedor)
                                     <option value="{{ $proveedor->id_proveedor }}">{{ $proveedor->nombre }}</option>
@@ -138,119 +138,180 @@
                             </select>
                         </div>
 
-                        <!-- Select Productos dependientes -->
-                        <div id="productosContainer">
-                            <div class="row mb-3 producto-item">
-                                <div class="col-7">
-                                    <label for="id_producto" class="form-label">Producto</label>
-                                    <select name="productos[0][id_producto]" class="form-select producto" required>
-                                        <option value="">Seleccione un producto</option>
-                                    </select>
-                                </div>
-                                <div class="col-3">
-                                    <label for="cantidad" class="form-label">Cantidad</label>
-                                    <input type="number" name="productos[0][cantidad]" class="form-control" min="1"
-                                        required>
-                                </div>
-                                <div class="col-1 d-flex align-items-end">
-                                    <button type="button" class="btn btn-danger remove-producto">×</button>
-                                </div>
+                        <div class="card p-3 bg-dark border border-secondary mb-3">
+                            <h6 class="fw-bold mb-2"><i class="fas fa-search me-1"></i> Buscar Productos para la Compra</h6>
+                            
+                            <div class="mb-2">
+                                <input type="text" id="inputBuscarProductoCompra" class="form-control bg-dark text-white border-secondary" placeholder="Escribe para buscar por nombre o código..." oninput="buscarProductosCompra()">
+                            </div>
+
+                            <div class="table-responsive border border-secondary rounded mb-3" style="max-height: 180px; overflow-y: auto;">
+                                <table class="table table-dark table-hover table-sm mb-0 align-middle">
+                                    <thead>
+                                        <tr class="bg-dark text-white border-bottom border-secondary">
+                                            <th class="border-secondary bg-dark text-white">Producto</th>
+                                            <th class="border-secondary bg-dark text-white">Proveedor</th>
+                                            <th style="width: 90px;" class="border-secondary bg-dark text-white">Cant.</th>
+                                            <th style="width: 70px;" class="text-center border-secondary bg-dark text-white">Añadir</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tablaResultadosProductosCompra">
+                                        <tr>
+                                            <td colspan="4" class="text-center text-muted small py-3 border-secondary">Escribe en el buscador para encontrar productos.</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <h6 class="fw-bold mb-2"><i class="fas fa-boxes me-1"></i> Productos en esta Compra</h6>
+                            <div class="table-responsive border border-secondary rounded">
+                                <table class="table table-dark table-striped mb-0 align-middle">
+                                    <thead>
+                                        <tr class="bg-dark text-white border-bottom border-secondary">
+                                            <th class="border-secondary bg-dark text-white">Producto</th>
+                                            <th class="border-secondary bg-dark text-white">Proveedor</th>
+                                            <th style="width: 100px;" class="border-secondary bg-dark text-white">Cantidad</th>
+                                            <th style="width: 50px;" class="text-center border-secondary bg-dark text-white">Acción</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tablaProductosAgregadosCompra">
+                                        <tr>
+                                            <td colspan="4" class="text-center text-muted small py-3 border-secondary">Aún no has agregado productos a esta compra.</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
-
-                        <!-- Botón para agregar más productos -->
-                        <button type="button" id="addProducto" class="btn btn-primary">Agregar otro producto</button>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="submit" class="btn btn-success">Guardar Compra</button>
-                </div>
+                    </div>
+                    <div class="modal-footer border-top border-secondary">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-success fw-bold"><i class="fas fa-save me-1"></i> Guardar Compra</button>
+                    </div>
                 </form>
             </div>
         </div>
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const proveedorSelect = document.getElementById('id_proveedor');
-            const productosContainer = document.getElementById('productosContainer');
-            let productoCount = 1; // Contador para los productos adicionales
+        let productosCompra = [];
+        let debounceTimerSearchCompra = null;
 
-            // Cargar productos al abrir/iniciar
-            actualizarProductos();
+        function buscarProductosCompra() {
+            clearTimeout(debounceTimerSearchCompra);
+            debounceTimerSearchCompra = setTimeout(() => {
+                const query = document.getElementById('inputBuscarProductoCompra').value;
+                const proveedorId = document.getElementById('id_proveedor').value;
 
-            // Evento para agregar otro producto
-            document.getElementById('addProducto').addEventListener('click', () => {
-                // Crear un nuevo item de producto
-                const newProductDiv = document.createElement('div');
-                newProductDiv.classList.add('row', 'mb-3', 'producto-item');
+                fetch(`/compras/buscar-productos?q=${encodeURIComponent(query)}&proveedor=${encodeURIComponent(proveedorId)}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        const tbody = document.getElementById('tablaResultadosProductosCompra');
+                        tbody.innerHTML = '';
 
-                newProductDiv.innerHTML = `
-                <div class="col-7">
-                    <label class="form-label">Producto</label>
-                    <select name="productos[${productoCount}][id_producto]" class="form-select producto" required>
-                        <option value="">Seleccione un producto</option>
-                    </select>
-                </div>
-                <div class="col-3">
-                    <label class="form-label">Cantidad</label>
-                    <input type="number" name="productos[${productoCount}][cantidad]" class="form-control" min="1" required>
-                </div>
-                <div class="col-1 d-flex align-items-end">
-                    <button type="button" class="btn btn-danger remove-producto">×</button>
-                </div>
-            `;
-
-                productosContainer.appendChild(newProductDiv);
-                productoCount++; // Incrementar el contador de productos
-
-                // Actualizar el select de productos según el proveedor
-                actualizarProductos();
-            });
-
-            // Función para actualizar el select de productos al seleccionar un proveedor
-            proveedorSelect.addEventListener('change', async () => {
-                await actualizarProductos();
-            });
-
-            // Actualizar los productos para todos los selects
-            async function actualizarProductos() {
-                const proveedorId = proveedorSelect.value || 'todos';
-                const productoSelects = document.querySelectorAll('.producto');
-
-                try {
-                    const response = await fetch(`/productos-por-proveedor/${proveedorId}`);
-                    const productos = await response.json();
-
-                    productoSelects.forEach(select => {
-                        const valorActual = select.value; // guardamos lo que ya tenía seleccionado
-
-                        select.innerHTML = '<option value="">Seleccione un producto</option>';
-                        productos.forEach(producto => {
-                            const option = document.createElement('option');
-                            option.value = producto.id_producto;
-                            const provTag = producto.proveedor_nombre ? ` (Prov: ${producto.proveedor_nombre})` : '';
-                            option.textContent = `${producto.nombre}${provTag}`;
-                            select.appendChild(option);
-                        });
-
-                        // si ya tenía algo seleccionado, lo restauramos
-                        if (valorActual) {
-                            select.value = valorActual;
+                        if (data.length === 0) {
+                            tbody.innerHTML = `
+                                <tr>
+                                    <td colspan="4" class="text-center text-muted small py-3 border-secondary">No se encontraron productos.</td>
+                                </tr>`;
+                            return;
                         }
-                    });
-                } catch (error) {
-                    console.error('Error al cargar productos:', error);
-                }
+
+                        data.forEach(prod => {
+                            const nombreEscapado = prod.nombre.replace(/'/g, "\\'").replace(/"/g, "&quot;");
+                            const provNombreEscapado = (prod.proveedor_nombre || 'Sin proveedor').replace(/'/g, "\\'").replace(/"/g, "&quot;");
+                            
+                            tbody.innerHTML += `
+                                <tr class="border-secondary">
+                                    <td class="border-secondary">${prod.nombre}</td>
+                                    <td class="border-secondary small text-white-50">${prod.proveedor_nombre || 'Sin proveedor'}</td>
+                                    <td class="border-secondary">
+                                        <input type="number" value="1" min="1" class="form-control form-control-sm bg-dark text-white border-secondary input-cant-compra-${prod.id_producto}">
+                                    </td>
+                                    <td class="text-center border-secondary">
+                                        <button type="button" class="btn btn-primary btn-sm px-2 py-0" onclick="agregarProductoACompra(${prod.id_producto}, '${nombreEscapado}', '${provNombreEscapado}')">
+                                            <i class="fas fa-plus"></i>
+                                        </button>
+                                    </td>
+                                </tr>`;
+                        });
+                    })
+                    .catch(err => console.error('Error al buscar productos para compra:', err));
+            }, 250);
+        }
+
+        function agregarProductoACompra(idProducto, nombre, proveedor) {
+            const inputCant = document.querySelector(`.input-cant-compra-${idProducto}`);
+            const cantidad = parseInt(inputCant ? inputCant.value : 1);
+
+            if (isNaN(cantidad) || cantidad <= 0) {
+                alert("La cantidad debe ser al menos 1.");
+                return;
             }
 
-            // Eliminar un producto
-            productosContainer.addEventListener('click', (event) => {
-                if (event.target.classList.contains('remove-producto')) {
-                    const productoItem = event.target.closest('.producto-item');
-                    productoItem.remove();
-                }
+            const existe = productosCompra.find(item => item.id_producto == idProducto);
+            if (existe) {
+                existe.cantidad += cantidad;
+            } else {
+                productosCompra.push({
+                    id_producto: idProducto,
+                    nombre: nombre,
+                    proveedor: proveedor,
+                    cantidad: cantidad
+                });
+            }
+
+            if (inputCant) inputCant.value = '1';
+            renderizarTablaProductosCompra();
+        }
+
+        function eliminarProductoCompra(index) {
+            productosCompra.splice(index, 1);
+            renderizarTablaProductosCompra();
+        }
+
+        function renderizarTablaProductosCompra() {
+            const tbody = document.getElementById('tablaProductosAgregadosCompra');
+            tbody.innerHTML = '';
+
+            if (productosCompra.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="4" class="text-center text-muted small py-3 border-secondary">Aún no has agregado productos a esta compra.</td>
+                    </tr>`;
+                return;
+            }
+
+            productosCompra.forEach((item, index) => {
+                tbody.innerHTML += `
+                    <tr class="border-secondary">
+                        <td class="border-secondary">${item.nombre}
+                            <input type="hidden" name="productos[${index}][id_producto]" value="${item.id_producto}">
+                        </td>
+                        <td class="border-secondary small text-white-50">${item.proveedor}</td>
+                        <td class="border-secondary font-monospace fw-bold">${item.cantidad}
+                            <input type="hidden" name="productos[${index}][cantidad]" value="${item.cantidad}">
+                        </td>
+                        <td class="text-center border-secondary">
+                            <button type="button" class="btn btn-danger btn-sm px-2 py-0" onclick="eliminarProductoCompra(${index})">&times;</button>
+                        </td>
+                    </tr>`;
             });
+        }
+
+        document.getElementById('formAgregarCompra').addEventListener('submit', function(e) {
+            if (productosCompra.length === 0) {
+                e.preventDefault();
+                alert("Debes agregar al menos un producto a la compra.");
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const modalCompra = document.getElementById('agregarCompraModal');
+            if (modalCompra) {
+                modalCompra.addEventListener('shown.bs.modal', () => {
+                    buscarProductosCompra();
+                });
+            }
         });
     </script>
 @endsection

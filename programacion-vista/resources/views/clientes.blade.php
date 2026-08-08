@@ -7,17 +7,24 @@
 <div class="row h-100">
     <div class="col-lg-8 d-flex flex-column">
         <!-- Cuadro de historial -->
-        <div class="card mb-3 flex-grow-1 left-table position-relative">
-            <div class="card-body d-flex flex-column">
-                <h5 class="card-title">Clientes</h5>
-                <div class="table-responsive flex-grow-1 table-scrollgr" >
-                    <table class="table table-dark table-striped">
+        <div class="card mb-3 flex-grow-1 left-table border-secondary">
+            <div class="card-header d-flex justify-content-between align-items-center bg-dark text-white border-bottom border-secondary py-3">
+                <h5 class="card-title mb-0 fw-bold">
+                    <i class="fas fa-address-book me-2"></i>Clientes con Cuenta Corriente
+                </h5>
+                <button type="button" class="btn btn-success fw-bold" data-bs-toggle="modal" data-bs-target="#veragregarcliente">
+                    <i class="fas fa-plus me-1"></i> Agregar Cliente
+                </button>
+            </div>
+            <div class="card-body d-flex flex-column p-0">
+                <div class="table-responsive flex-grow-1 table-scrollgr">
+                    <table class="table table-dark table-striped align-middle mb-0">
                         <thead>
                             <tr>
-                                <th>id</th>
-                                <th>nombre y apellido</th>
-                                <th>dni</th>
-                                <th>telefono</th>
+                                <th>ID</th>
+                                <th>Nombre y Apellido</th>
+                                <th>DNI</th>
+                                <th>Teléfono</th>
                                 <th>Estado</th>
                                 <th class="text-center">Acciones</th>
                             </tr>
@@ -30,30 +37,29 @@
                                 <td>{{ $cliente->DNI }}</td>
                                 <td>{{ $cliente->telefono }}</td>
                                 <td>{{ $cliente->estado }}</td>
-                                <td class="d-flex justify-content-center align-items-center gap-2">
-                                    <button class="btn btn-primary" 
-                                    data-bs-toggle="modal" 
-                                    data-bs-target="#vermodificarcliente"
-                                    data-id="{{ $cliente->id_cliente }}"
-                                    data-nombre_y_apellido="{{ $cliente->nombre_y_apellido }}"
-                                    data-dni="{{ $cliente->DNI }}"
-                                    data-telefono="{{ $cliente->telefono }}"
-                                    data-estado="{{ $cliente->estado }}">
-                                    Modificar
-                                    </button>
-                                    <form class="m-0 d-flex" action="{{route('clientes.borrar' , ['id_cliente' => $cliente->id_cliente])}}" method="POST">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="btn btn-danger">Eliminar</button>
-                                    </form>
+                                <td class="text-center">
+                                    <div class="d-flex justify-content-center gap-1">
+                                        <button class="btn btn-primary btn-sm" 
+                                        data-bs-toggle="modal" 
+                                        data-bs-target="#vermodificarcliente"
+                                        data-id="{{ $cliente->id_cliente }}"
+                                        data-nombre_y_apellido="{{ $cliente->nombre_y_apellido }}"
+                                        data-dni="{{ $cliente->DNI }}"
+                                        data-telefono="{{ $cliente->telefono }}"
+                                        data-estado="{{ $cliente->estado }}">
+                                        Modificar
+                                        </button>
+                                        <form class="m-0 d-inline" action="{{route('clientes.borrar' , ['id_cliente' => $cliente->id_cliente])}}" method="POST" onsubmit="return confirm('¿Eliminar cliente?')">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="btn btn-danger btn-sm">Eliminar</button>
+                                        </form>
+                                    </div>
                                 </td>
                             </tr>
                             @endforeach
                         </tbody>
                     </table>
-                </div>
-                <div class="action-buttons">   
-                    <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#veragregarcliente">Agregar Cliente</button>
                 </div>
             </div>
         </div>

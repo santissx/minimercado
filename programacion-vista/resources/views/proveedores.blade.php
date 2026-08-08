@@ -5,11 +5,18 @@
 @section('ladoizq')
 <div class="row h-100">
     <div class="col-lg-8 d-flex flex-column">
-        <div class="card mb-3 flex-grow-1 left-table position-relative">
-            <div class="card-body d-flex flex-column">
-                <h5 class="card-title">Proveedores</h5>
+        <div class="card mb-3 flex-grow-1 left-table border-secondary">
+            <div class="card-header d-flex justify-content-between align-items-center bg-dark text-white border-bottom border-secondary py-3">
+                <h5 class="card-title mb-0 fw-bold">
+                    <i class="fas fa-handshake me-2"></i>Proveedores
+                </h5>
+                <button type="button" class="btn btn-success fw-bold" data-bs-toggle="modal" data-bs-target="#veragregarproveedor">
+                    <i class="fas fa-plus me-1"></i> Agregar Proveedor
+                </button>
+            </div>
+            <div class="card-body d-flex flex-column p-0">
                 <div class="table-responsive flex-grow-1 table-scrollgr">
-                    <table class="table table-dark table-striped">
+                    <table class="table table-dark table-striped align-middle mb-0">
                         <thead>
                             <tr>
                                 <th>ID</th>
@@ -17,9 +24,9 @@
                                 <th>Teléfono</th>
                                 <th>Dirección</th>
                                 <th>Email</th>
-                                <th>Nombre y Numero de Preventista</th>
+                                <th>Preventista</th>
                                 <th>Estado</th>
-                                <th style="text-align: center">Acciones</th>
+                                <th class="text-center">Acciones</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -32,34 +39,33 @@
                                 <td>{{ $proveedor->email }}</td>
                                 <td>{{ $proveedor->nombre_preventista }} - {{ $proveedor->num_preventista }} </td>
                                 <td>{{ $proveedor->estado }}</td>
-                                <td class="d-flex justify-content-center align-items-center gap-2">
-                                    <button class="btn btn-primary" 
-                                    data-bs-toggle="modal" 
-                                    data-bs-target="#vermodificarproveedor"
-                                    data-id="{{ $proveedor->id_proveedor }}"
-                                    data-nombre="{{ $proveedor->nombre }}"
-                                    data-telefono="{{ $proveedor->telefono }}"
-                                    data-direccion="{{ $proveedor->direccion }}"
-                                    data-email="{{ $proveedor->email }}"
-                                    data-nom_preventista="{{ $proveedor->nombre_preventista }}"
-                                    data-num_preventista="{{ $proveedor->num_preventista }}"
-                                    data-estado="{{ $proveedor->estado }}">
-                                    Modificar
-                                    </button>
-                                    
-                                    <form class="m-0 d-flex" action="{{route('proveedores.borrar' , ['id_proveedor' => $proveedor->id_proveedor])}}" method="POST">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="btn btn-danger">Eliminar</button>
-                                    </form>
+                                <td class="text-center">
+                                    <div class="d-flex justify-content-center gap-1">
+                                        <button class="btn btn-primary btn-sm" 
+                                        data-bs-toggle="modal" 
+                                        data-bs-target="#vermodificarproveedor"
+                                        data-id="{{ $proveedor->id_proveedor }}"
+                                        data-nombre="{{ $proveedor->nombre }}"
+                                        data-telefono="{{ $proveedor->telefono }}"
+                                        data-direccion="{{ $proveedor->direccion }}"
+                                        data-email="{{ $proveedor->email }}"
+                                        data-nom_preventista="{{ $proveedor->nombre_preventista }}"
+                                        data-num_preventista="{{ $proveedor->num_preventista }}"
+                                        data-estado="{{ $proveedor->estado }}">
+                                        Modificar
+                                        </button>
+                                        
+                                        <form class="m-0 d-inline" action="{{route('proveedores.borrar' , ['id_proveedor' => $proveedor->id_proveedor])}}" method="POST" onsubmit="return confirm('¿Eliminar proveedor?')">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="btn btn-danger btn-sm">Eliminar</button>
+                                        </form>
+                                    </div>
                                 </td>
                             </tr>
                             @endforeach
                         </tbody>
                     </table>
-                </div>
-                <div class="action-buttons">
-                    <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#veragregarproveedor">Agregar Proveedor</button>
                 </div>
             </div>
         </div>

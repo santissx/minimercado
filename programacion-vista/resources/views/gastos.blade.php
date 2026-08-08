@@ -7,21 +7,28 @@
 <div class="row h-100">
     <div class="col-lg-8 d-flex flex-column">
         <!-- Cuadro de historial -->
-        <div class="card mb-3 flex-grow-1 left-table position-relative">
-            <div class="card-body d-flex flex-column">
-                <h5 class="card-title">Historial de gastos</h5>
+        <div class="card mb-3 flex-grow-1 left-table border-secondary">
+            <div class="card-header d-flex justify-content-between align-items-center bg-dark text-white border-bottom border-secondary py-3">
+                <h5 class="card-title mb-0 fw-bold">
+                    <i class="fas fa-wallet me-2"></i>Historial de Gastos
+                </h5>
+                <button type="button" class="btn btn-success fw-bold" data-bs-toggle="modal" data-bs-target="#veragregargastos">
+                    <i class="fas fa-plus me-1"></i> Agregar Gasto
+                </button>
+            </div>
+            <div class="card-body d-flex flex-column p-0">
                 <div class="table-responsive flex-grow-1 table-scrollgr">
-                    <table class="table table-dark table-striped">
+                    <table class="table table-dark table-striped align-middle mb-0">
                         <thead>
                             <tr>
-                                <th>id</th>
+                                <th>ID</th>
                                 <th>Motivo</th>
-                                <th>descripción</th>
-                                <th>monto</th>
-                                <th>fecha</th>
-                                <th>categoria</th>
-                                <th>usuario</th>
-                                <th style="text-align: center">acciones</th>
+                                <th>Descripción</th>
+                                <th>Monto</th>
+                                <th>Fecha</th>
+                                <th>Categoría</th>
+                                <th>Usuario</th>
+                                <th class="text-center">Acciones</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -30,36 +37,35 @@
                                 <td>{{ $gasto->id_gasto }}</td>
                                 <td>{{ $gasto->motivo }}</td>
                                 <td>{{ $gasto->descripcion }}</td>
-                                <td>{{ $gasto->monto }}</td>
+                                <td class="fw-bold text-warning">${{ number_format($gasto->monto, 2) }}</td>
                                 <td>{{ $gasto->fecha_gasto }}</td>
                                 <td>{{ $gasto->categoria }}</td>
-                                <td>{{ $gasto->id_usuario }} - {{ $gasto->nombre_usuario }}</td>
-                                <td class="d-flex justify-content-center align-items-center gap-2">
-                                    <button class="btn btn-primary" 
-                                    data-bs-toggle="modal" 
-                                    data-bs-target="#vermodificargastos"
-                                    data-id="{{ $gasto->id_gasto }}"
-                                    data-motivo="{{ $gasto->motivo }}"
-                                    data-descripcion="{{ $gasto->descripcion }}"
-                                    data-monto="{{ $gasto->monto }}"
-                                    data-fecha_gasto="{{ $gasto->fecha_gasto }}"
-                                    data-categoria="{{ $gasto->categoria }}">
-                                    Modificar
-                                    </button>
-                                    <form class="m-0 d-flex" action="{{route('gastos.borrar' , ['id_gasto' => $gasto->id_gasto])}}" method="POST">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="btn btn-danger ">Eliminar</button>
-                                    </form>
+                                <td>{{ $gasto->nombre_usuario }}</td>
+                                <td class="text-center">
+                                    <div class="d-flex justify-content-center gap-1">
+                                        <button class="btn btn-primary btn-sm" 
+                                        data-bs-toggle="modal" 
+                                        data-bs-target="#vermodificargastos"
+                                        data-id="{{ $gasto->id_gasto }}"
+                                        data-motivo="{{ $gasto->motivo }}"
+                                        data-descripcion="{{ $gasto->descripcion }}"
+                                        data-monto="{{ $gasto->monto }}"
+                                        data-fecha_gasto="{{ $gasto->fecha_gasto }}"
+                                        data-categoria="{{ $gasto->categoria }}">
+                                        Modificar
+                                        </button>
+                                        <form class="m-0 d-inline" action="{{route('gastos.borrar' , ['id_gasto' => $gasto->id_gasto])}}" method="POST" onsubmit="return confirm('¿Eliminar gasto?')">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="btn btn-danger btn-sm">Eliminar</button>
+                                        </form>
+                                    </div>
                                 </td>
                             </tr>
                             @endforeach
                         </tbody>
                     </table>
                 </div>
-            </div>
-           <div class="action-buttons mt-3">   
-                <button class="btn class-btn btn-success" data-bs-toggle="modal" data-bs-target="#veragregargastos">Agregar Gastos</button>
             </div>
         </div>
 

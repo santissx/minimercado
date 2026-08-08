@@ -114,7 +114,9 @@ class HistorialPresupuestoController extends Controller
             ->with('cargar_promociones_presupuesto', $promocionesFormateadas)
             ->with('descuento_presupuesto', $presupuesto->descuento)
             ->with('nombre_cliente', $presupuesto->nombre_cliente)
-            ->with('telefono_cliente', $presupuesto->telefono_cliente);
+            ->with('telefono_cliente', $presupuesto->telefono_cliente)
+            ->with('observaciones_presupuesto', $presupuesto->observaciones)
+            ->with('id_presupuesto_convertido', $id);
     }
 
     public function actualizarPrecios($id)
