@@ -605,12 +605,16 @@
             const descuentoPresupuesto = {{ session('descuento_presupuesto') ?? 0 }};
             const nombrePresupuesto = "{{ session('nombre_cliente') ?? '' }}";
             const telefonoPresupuesto = "{{ session('telefono_cliente') ?? '' }}";
+            const observacionesPresupuesto = @json(session('observaciones_presupuesto') ?? '');
 
             const inputNombre = document.getElementById('cliente_nombre');
             if (inputNombre && nombrePresupuesto) inputNombre.value = nombrePresupuesto;
             
             const inputTelefono = document.getElementById('cliente_telefono');
             if (inputTelefono && telefonoPresupuesto) inputTelefono.value = telefonoPresupuesto;
+
+            const inputObs = document.getElementById('observaciones');
+            if (inputObs && observacionesPresupuesto) inputObs.value = observacionesPresupuesto;
 
             const inputDescuento = document.getElementById('descuento');
             if (inputDescuento) inputDescuento.value = descuentoPresupuesto;

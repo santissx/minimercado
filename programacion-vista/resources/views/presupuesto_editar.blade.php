@@ -68,6 +68,11 @@
                                         <input type="text" name="telefono_cliente" class="form-control" value="{{ $presupuesto->telefono_cliente }}" placeholder="Teléfono (opcional)">
                                     </div>
                                 </div>
+                                <div class="row mb-3">
+                                    <div class="col-12">
+                                        <textarea name="observaciones" class="form-control bg-dark text-white border-secondary" rows="2" placeholder="Observaciones internas (Opcional)">{{ $presupuesto->observaciones }}</textarea>
+                                    </div>
+                                </div>
                                 
                                 <div class="row align-items-center">
                                     <div class="col-md-6 d-flex align-items-center mb-3 mb-md-0">

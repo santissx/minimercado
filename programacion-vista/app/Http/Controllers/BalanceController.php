@@ -47,10 +47,12 @@ class BalanceController extends Controller
             ->groupBy('metodos_pago.id_metodo_pago', 'metodos_pago.nombre')
             ->get();
 
-        // REQUERIMIENTO C: Gastos / Inversión por Proveedor
-        $dataGastosProveedor = DB::table('compras')
-            ->join('proveedores', 'compras.id_proveedor', '=', 'proveedores.id_proveedor')
-            ->select('proveedores.nombre as proveedor', DB::raw('SUM(compras.monto_compra) as total'))
+        // REQUERIMIENTO C: Gastos / Inversión por Proveedor (sumado según productos de cada compra)
+        $dataGastosProveedor = DB::table('productosxcompras')
+            ->join('compras', 'productosxcompras.id_compra', '=', 'compras.id_compra')
+            ->join('productos', 'productosxcompras.id_producto', '=', 'productos.id_producto')
+            ->join('proveedores', 'productos.id_proveedor', '=', 'proveedores.id_proveedor')
+            ->select('proveedores.nombre as proveedor', DB::raw('SUM(productosxcompras.cantidad_agregada * productos.precio_lista) as total'))
             ->whereBetween('compras.fecha', [$inicio, $fin])
             ->groupBy('proveedores.id_proveedor', 'proveedores.nombre')
             ->get();
