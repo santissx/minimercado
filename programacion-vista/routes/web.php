@@ -75,6 +75,7 @@ Route::delete('/clientes/{id_cliente}', [clienteController::class, 'borrar'])->n
 //rutas para compras
 Route::get('/compras', [ComprasController::class, 'mostrar'])->name('views.compras');
 Route::post('/compras', [ComprasController::class, 'agregar'])->name('compras.agregar');
+Route::get('/compras/buscar-productos', [ComprasController::class, 'buscarProductosCompra'])->name('compras.buscar-productos');
 // Ruta para obtener productos según el proveedor en select dependiente (ajax)
 Route::get('/productos-por-proveedor/{id}', [ComprasController::class, 'getProductosPorProveedor'])->name('productos-por-proveedor');
 Route::delete('/compras/{id_compra}', [ComprasController::class, 'eliminar'])->name('compras.eliminar');

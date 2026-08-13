@@ -42,7 +42,7 @@ class VentaController extends Controller
     {
         $queryStr = $request->get('q');
     
-        $consulta = DB::table('productos');
+        $consulta = DB::table('productos')->where('estado', 'activo');
 
         if (!empty($queryStr)) {
             

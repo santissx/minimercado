@@ -9,19 +9,17 @@ class ComprasController extends Controller
 {
     public function mostrar(Request $request)
     {
-
         $proveedorId = $request->input('proveedor');
         $fechaInicio = $request->input('fechainicio');
         $fechaFin = $request->input('fechafin');
 
         if ($fechaInicio) {
-            $fechaInicio = date('Y-m-d 00:00:00', strtotime($fechaInicio)); // Desde la medianoche
+            $fechaInicio = date('Y-m-d 00:00:00', strtotime($fechaInicio));
         }
         if ($fechaFin) {
-            $fechaFin = date('Y-m-d 23:59:59', strtotime($fechaFin)); // Hasta el final del día
+            $fechaFin = date('Y-m-d 23:59:59', strtotime($fechaFin));
         }
 
-        // Obtener las compras con sus productos asociados y sus proveedores
         $query = DB::table('compras')
             ->leftJoin('productosxcompras', 'compras.id_compra', '=', 'productosxcompras.id_compra')
             ->leftJoin('productos', 'productosxcompras.id_producto', '=', 'productos.id_producto')
@@ -32,49 +30,81 @@ class ComprasController extends Controller
                 'compras.fecha',
                 'productos.nombre as producto',
                 'productosxcompras.cantidad_agregada',
+                'productosxcompras.precio_unitario', // <-- AGREGADO
                 'proveedores.id_proveedor as id_proveedor',
                 'proveedores.nombre as proveedor'
             );
-           
-            if ($proveedorId) {
-                $query->where('proveedores.id_proveedor', $proveedorId);
-            }
+        
+        if ($proveedorId) {
+            $query->where('proveedores.id_proveedor', $proveedorId);
+        }
 
-            if ($fechaInicio && $fechaFin) {
-                $query->whereBetween('compras.fecha', [$fechaInicio, $fechaFin]);
-            } elseif ($fechaInicio) {
-                $query->where('compras.fecha', '>=', $fechaInicio);
-            } elseif ($fechaFin) {
-                $query->where('compras.fecha', '<=', $fechaFin);
-            }
-            $compras = $query->get();
-    // Agrupar los productos por compra
-    $comprasAgrupadas = $compras->groupBy('id_compra');
+        if ($fechaInicio && $fechaFin) {
+            $query->whereBetween('compras.fecha', [$fechaInicio, $fechaFin]);
+        } elseif ($fechaInicio) {
+            $query->where('compras.fecha', '>=', $fechaInicio);
+        } elseif ($fechaFin) {
+            $query->where('compras.fecha', '<=', $fechaFin);
+        }
 
-    // Obtener la lista de proveedores
-    $proveedores = DB::table('proveedores')->get();
+        $compras = $query->get();
+        $comprasAgrupadas = $compras->groupBy('id_compra');
 
-    // Obtener todos los productos con nombre de su proveedor para el modal
-    $todosLosProductos = DB::table('productos')
-        ->leftJoin('proveedores', 'productos.id_proveedor', '=', 'proveedores.id_proveedor')
-        ->select('productos.*', 'proveedores.nombre as proveedor_nombre')
-        ->orderBy('productos.nombre', 'asc')
-        ->get();
+        $proveedores = DB::table('proveedores')->get();
 
-    // Calcular el total de compras
-    $totalcompras = DB::table('compras')
-    ->sum('monto_compra');
+        $todosLosProductos = DB::table('productos')
+            ->leftJoin('proveedores', 'productos.id_proveedor', '=', 'proveedores.id_proveedor')
+            ->select('productos.*', 'proveedores.nombre as proveedor_nombre')
+            ->orderBy('productos.nombre', 'asc')
+            ->get();
 
-    // Pasar los datos a la vista
-    return view('compras', [
-        'compras' => $comprasAgrupadas,
-        'proveedores' => $proveedores,
-        'todosLosProductos' => $todosLosProductos,
-        'totalcompras' => $totalcompras,
-    ]);
+        $totalcompras = DB::table('compras')->sum('monto_compra');
 
+        return view('compras', [
+            'compras' => $comprasAgrupadas,
+            'proveedores' => $proveedores,
+            'todosLosProductos' => $todosLosProductos,
+            'totalcompras' => $totalcompras,
+        ]);
     }
 
+
+    public function buscarProductosCompra(Request $request)
+    {
+        $queryStr = $request->get('q');
+        $proveedorId = $request->get('proveedor');
+        
+        // Asumimos que los productos pueden tener 'precio_compra' o 'precio' para autocompletar el costo inicial
+        $consulta = DB::table('productos')
+            ->leftJoin('proveedores', 'productos.id_proveedor', '=', 'proveedores.id_proveedor')
+            ->select('productos.*', 'proveedores.nombre as proveedor_nombre')
+            ->where('productos.estado', 'activo');
+
+        // Filtrar por proveedor únicamente si seleccionó uno específico
+        if ($proveedorId && $proveedorId !== 'todos' && $proveedorId !== '0') {
+            $consulta->where('productos.id_proveedor', $proveedorId);
+        }
+
+        if (!empty($queryStr)) {
+            $palabras = array_filter(explode(' ', $queryStr));
+
+            $consulta->where(function ($q) use ($palabras) {
+                foreach ($palabras as $palabra) {
+                    $q->where(function ($subQ) use ($palabra) {
+                        $subQ->where('productos.nombre', 'LIKE', '%' . $palabra . '%')
+                            ->orWhere('productos.codigo_barra', 'LIKE', '%' . $palabra . '%')
+                            ->orWhere('productos.codigo', 'LIKE', '%' . $palabra . '%');
+                    });
+                }
+            });
+        }
+
+        $productos = $consulta->take(40)->get();
+
+        return response()->json($productos);
+    }
+
+    
     public function getProductosPorProveedor($id)
     {
         $query = DB::table('productos')
@@ -92,13 +122,14 @@ class ComprasController extends Controller
 
     public function agregar(Request $request)
     {
-        // Validar los datos
+        // Validar los datos actualizados
         $validated = $request->validate([
             'id_proveedor' => 'nullable',
             'monto' => 'required|numeric|regex:/^\d{1,10}(\.\d{0,2})?$/',
             'productos' => 'required|array',
             'productos.*.id_producto' => 'required|exists:productos,id_producto',
             'productos.*.cantidad' => 'required|integer|min:1',
+            'productos.*.precio_unitario' => 'required|numeric|min:0', // <-- AGREGADO
         ]);
 
         $id_proveedor = $request->input('id_proveedor');
@@ -106,7 +137,6 @@ class ComprasController extends Controller
             $id_proveedor = null;
         }
 
-        // Si id_proveedor es nulo, verificar si todos los productos pertenecen a un mismo proveedor
         if (!$id_proveedor && !empty($validated['productos'])) {
             $productIds = array_column($validated['productos'], 'id_producto');
             $proveedoresIds = DB::table('productos')
@@ -118,27 +148,25 @@ class ComprasController extends Controller
             }
         }
 
-        // Crear la compra y guardar el id que se genero
         $id_compra = DB::table('compras')->insertGetId([
             'monto_compra' => $validated['monto'],
             'fecha' => now(),
             'id_proveedor' => $id_proveedor,
         ]);
 
-        // Guardar los productos según el id_compra obtenido
         foreach ($validated['productos'] as $producto) {
             DB::table('productosxcompras')->insert([
                 'id_compra' => $id_compra,
                 'id_producto' => $producto['id_producto'],
                 'cantidad_agregada' => $producto['cantidad'],
+                'precio_unitario' => $producto['precio_unitario'], // <-- GUARDADO EN LA DB
             ]);
 
-            // Actualizar el stock del producto
             DB::table('productos')
                 ->where('id_producto', $producto['id_producto'])
                 ->increment('stock', $producto['cantidad']);
         }
-        // Redirigir a la lista de compras con un mensaje de éxito
+
         return redirect()->route('views.compras')->with('success', 'Compra agregada correctamente.');
     }
 

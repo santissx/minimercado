@@ -52,7 +52,10 @@ class BalanceController extends Controller
             ->join('compras', 'productosxcompras.id_compra', '=', 'compras.id_compra')
             ->join('productos', 'productosxcompras.id_producto', '=', 'productos.id_producto')
             ->join('proveedores', 'productos.id_proveedor', '=', 'proveedores.id_proveedor')
-            ->select('proveedores.nombre as proveedor', DB::raw('SUM(productosxcompras.cantidad_agregada * productos.precio_lista) as total'))
+            ->select(
+                'proveedores.nombre as proveedor', 
+                DB::raw('SUM(productosxcompras.cantidad_agregada * productosxcompras.precio_unitario) as total')
+            )
             ->whereBetween('compras.fecha', [$inicio, $fin])
             ->groupBy('proveedores.id_proveedor', 'proveedores.nombre')
             ->get();
