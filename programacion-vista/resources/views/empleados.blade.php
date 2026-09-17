@@ -45,7 +45,13 @@
                                         data-email="{{ $usuario->email }}"
                                         data-rol="{{ $usuario->rol }}"
                                         data-estado="{{ $usuario->estado }}"
-                                         onclick="document.getElementById('modal_id_usuario').value = {{ $usuario->id }}">Modificar</button>
+                                        onclick="document.getElementById('modal_id_usuario').value = {{ $usuario->id }}">Modificar</button>
+
+                                        <a href="{{ route('empleados.sesiones', ['id' => $usuario->id]) }}" 
+                                            class="btn btn-info btn-sm">
+                                            Sesiones
+                                        </a>
+
                                         <form class="m-0 d-inline" action="{{route('empleados.borrar' , ['id' => $usuario->id])}}" method="POST" onsubmit="return confirm('¿Eliminar usuario?')">
                                             @csrf
                                             @method('DELETE')
