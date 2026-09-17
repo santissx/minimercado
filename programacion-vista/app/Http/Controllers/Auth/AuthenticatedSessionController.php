@@ -4,9 +4,12 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
+use App\Models\UserSession;
+
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Carbon;
 use Illuminate\View\View;
 
 class AuthenticatedSessionController extends Controller
@@ -42,6 +45,14 @@ class AuthenticatedSessionController extends Controller
         // Regenera la sesión
         $request->session()->regenerate();
 
+        $userSession = UserSession::create([
+            'id_usuario' => $user->id,
+            'session_start' => Carbon::now(),
+        ]);
+
+        $request->session()->put('user_session_id', $userSession->id_session);
+
+
         // Redirige según el rol del usuario
         if ($user->rol === 'administrador') {
             return redirect()->intended(route('views.ventas'));
@@ -56,14 +67,21 @@ class AuthenticatedSessionController extends Controller
      * Destroy an authenticated session.
      */
     public function destroy(Request $request): RedirectResponse
-    {
-        Auth::guard('web')->logout();
+{
+    $sessionId = $request->session()->get('user_session_id');
 
-        $request->session()->invalidate();
+    if ($sessionId) {
+        UserSession::where('id_session', $sessionId)->update([
+            'session_end' => Carbon::now(),
+        ]);
+    }
 
-        $request->session()->regenerateToken();
+    Auth::guard('web')->logout();
 
-        return redirect('/login');
+    $request->session()->invalidate();
 
+    $request->session()->regenerateToken();
+
+    return redirect('/login');
     }
 }
