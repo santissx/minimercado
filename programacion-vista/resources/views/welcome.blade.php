@@ -138,9 +138,30 @@
                                 <input type="hidden" id="descuento_final_pesos" name="descuento" value="0">
                             </div>
 
-                            <div class="d-flex justify-content-between fs-4 fw-bold">
+                            <div class="d-flex justify-content-between fs-4 fw-bold mb-3">
                                 <span>Total:</span>
                                 <span id="totalVenta" class="text-success">$0.00</span>
+                            </div>
+
+                            <div class="mb-2">
+                                <label for="monto_recibido" class="form-label fw-bold">
+                                    Monto recibido:
+                                </label>
+
+                                <input
+                                    type="number"
+                                    id="monto_recibido"
+                                    class="form-control"
+                                    placeholder="Ingrese el monto recibido"
+                                    min="0"
+                                step="0.01"
+                                oninput="calcularVuelto()"
+                                >
+                            </div>
+
+                            <div class="d-flex justify-content-between align-items-center fs-5 fw-bold">
+                                <span>Vuelto:</span>
+                                <span id="vueltoVenta" class="text-info">$0.00</span>
                             </div>
                         </div>
                     </div>
@@ -495,6 +516,38 @@
         const totalVentaElement = document.querySelector('#totalVenta');
         if (totalVentaElement) {
             totalVentaElement.textContent = `$${totalConDescuento.toFixed(2)}`;
+        }
+
+        calcularVuelto();
+    }
+
+    function calcularVuelto() {
+        const montoRecibidoInput = document.getElementById('monto_recibido');
+        const vueltoElement = document.getElementById('vueltoVenta');
+        const totalVentaElement = document.getElementById('totalVenta');
+
+        if (!montoRecibidoInput || !vueltoElement || !totalVentaElement) {
+            return;
+        }
+
+        const montoRecibido = parseFloat(montoRecibidoInput.value) || 0;
+
+        const totalTexto = totalVentaElement.textContent
+            .replace('$', '')
+            .trim();
+
+        const totalVenta = parseFloat(totalTexto) || 0;
+
+        const vuelto = montoRecibido - totalVenta;
+
+        if (vuelto >= 0) {
+            vueltoElement.textContent = `$${vuelto.toFixed(2)}`;
+            vueltoElement.classList.remove('text-danger');
+            vueltoElement.classList.add('text-info');
+        } else {
+            vueltoElement.textContent = '$0.00';
+            vueltoElement.classList.remove('text-info');
+            vueltoElement.classList.add('text-danger');
         }
     }
 
