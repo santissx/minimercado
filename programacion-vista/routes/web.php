@@ -65,6 +65,9 @@ Route::POST('/empleados', [empleadoscontroller::class, 'agregar'])->name('emplea
 Route::get('/empleados/modificar', [empleadoscontroller::class, 'modificar'])->name('empleados.modificar');
 Route::delete('/empleados/{id}', [empleadoscontroller::class, 'borrar'])->name('empleados.borrar');
 
+Route::get('/empleados/{id}/sesiones', [empleadoscontroller::class, 'sesiones'])
+    ->name('empleados.sesiones');
+
 //ruta para clientes
 Route::get('/clientes', [clienteController::class, 'mostrar'])->name('views.clientes');
 Route::POST('/clientes', [clienteController::class, 'agregar'])->name('clientes.agregar');

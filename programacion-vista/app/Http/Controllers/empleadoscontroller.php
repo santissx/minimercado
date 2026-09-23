@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 
 
 use Illuminate\Support\Facades\DB;
+use App\Models\User;
 
 class empleadoscontroller extends Controller
 {
@@ -74,5 +75,19 @@ class empleadoscontroller extends Controller
         ->update(['estado' => 'desactivado']);
         return redirect()->route('views.empleados')->with('success', 'Empleado dado de baja correctamente.');
 
+    }
+
+    public function sesiones($id)
+    {
+        $usuario = User::findOrFail($id);
+
+        $sesiones = $usuario->sessions()
+            ->orderByDesc('session_start')
+            ->get();
+
+        return view('sesiones', [
+            'usuario' => $usuario,
+            'sesiones' => $sesiones
+        ]);
     }
 }

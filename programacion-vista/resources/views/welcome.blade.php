@@ -138,9 +138,30 @@
                                 <input type="hidden" id="descuento_final_pesos" name="descuento" value="0">
                             </div>
 
-                            <div class="d-flex justify-content-between fs-4 fw-bold">
+                            <div class="d-flex justify-content-between fs-4 fw-bold mb-3">
                                 <span>Total:</span>
                                 <span id="totalVenta" class="text-success">$0.00</span>
+                            </div>
+
+                            <div class="mb-2">
+                                <label for="monto_recibido" class="form-label fw-bold">
+                                    Monto recibido:
+                                </label>
+
+                                <input
+                                    type="number"
+                                    id="monto_recibido"
+                                    class="form-control"
+                                    placeholder="Ingrese el monto recibido"
+                                    min="0"
+                                step="0.01"
+                                oninput="calcularVuelto()"
+                                >
+                            </div>
+
+                            <div class="d-flex justify-content-between align-items-center fs-5 fw-bold">
+                                <span>Vuelto:</span>
+                                <span id="vueltoVenta" class="text-info">$0.00</span>
                             </div>
                         </div>
                     </div>
@@ -342,10 +363,6 @@
             if (filaExistente) {
                 const inputCant = filaExistente.querySelector('.cantidad');
                 let nuevaCant = parseInt(inputCant.value) + 1;
-                if (nuevaCant > stock) {
-                    nuevaCant = stock;
-                    alert('Stock máximo alcanzado para este producto.');
-                }
                 inputCant.value = nuevaCant;
                 actualizarTotal(inputCant);
             } else {
@@ -358,7 +375,7 @@
                     <td>${codigo_barra}</td>
                     <td>${nombre}</td>
                     <td>
-                        <input type="number" name="productos[${itemIndex}][cantidad]" value="1" min="1" max="${stock}" class="form-control cantidad" data-precio="${precio}" data-stock="${stock}" oninput="actualizarTotal(this)">
+                        <input type="number" name="productos[${itemIndex}][cantidad]" value="1" min="1" class="form-control cantidad" data-precio="${precio}" data-stock="${stock}" oninput="actualizarTotal(this)">
                         <input type="hidden" name="productos[${itemIndex}][id_producto]" value="${id_producto}">
                         <input type="hidden" name="productos[${itemIndex}][precio]" value="${precio}">
                     </td>
@@ -495,6 +512,38 @@
         const totalVentaElement = document.querySelector('#totalVenta');
         if (totalVentaElement) {
             totalVentaElement.textContent = `$${totalConDescuento.toFixed(2)}`;
+        }
+
+        calcularVuelto();
+    }
+
+    function calcularVuelto() {
+        const montoRecibidoInput = document.getElementById('monto_recibido');
+        const vueltoElement = document.getElementById('vueltoVenta');
+        const totalVentaElement = document.getElementById('totalVenta');
+
+        if (!montoRecibidoInput || !vueltoElement || !totalVentaElement) {
+            return;
+        }
+
+        const montoRecibido = parseFloat(montoRecibidoInput.value) || 0;
+
+        const totalTexto = totalVentaElement.textContent
+            .replace('$', '')
+            .trim();
+
+        const totalVenta = parseFloat(totalTexto) || 0;
+
+        const vuelto = montoRecibido - totalVenta;
+
+        if (vuelto >= 0) {
+            vueltoElement.textContent = `$${vuelto.toFixed(2)}`;
+            vueltoElement.classList.remove('text-danger');
+            vueltoElement.classList.add('text-info');
+        } else {
+            vueltoElement.textContent = '$0.00';
+            vueltoElement.classList.remove('text-info');
+            vueltoElement.classList.add('text-danger');
         }
     }
 
@@ -667,7 +716,7 @@
                         <td>${codigo}</td>
                         <td>${prod.nombre}</td>
                         <td>
-                            <input type="number" name="productos[${itemIndex}][cantidad]" value="${cantidad}" min="1" max="${stock}" class="form-control cantidad" data-precio="${precio}" data-stock="${stock}" oninput="actualizarTotal(this)">
+                            <input type="number" name="productos[${itemIndex}][cantidad]" value="${cantidad}" min="1" class="form-control cantidad" data-precio="${precio}" data-stock="${stock}" oninput="actualizarTotal(this)">
                             <input type="hidden" name="productos[${itemIndex}][id_producto]" value="${prod.id_producto}">
                             <input type="hidden" name="productos[${itemIndex}][precio]" value="${precio}">
                         </td>

@@ -34,7 +34,7 @@ class VentaController extends Controller
             ->select('id_cliente', 'nombre_y_apellido', 'dni')
             ->where('estado', 'activo')
             ->get();
-         
+        
         return response()->json($clientesCorrientes);
     }
 
@@ -52,7 +52,7 @@ class VentaController extends Controller
                 foreach ($palabras as $palabra) {
                     $q->where(function ($subQ) use ($palabra) {
                         $subQ->where('nombre', 'LIKE', '%' . $palabra . '%')
-                             ->orWhere('codigo_barra', 'LIKE', '%' . $palabra . '%');
+                            ->orWhere('codigo_barra', 'LIKE', '%' . $palabra . '%');
                     });
                 }
             });
@@ -62,8 +62,8 @@ class VentaController extends Controller
 
         return response()->json($productos);
     }
-  
-   public function guardar(Request $request)
+
+public function guardar(Request $request)
     {
         $request->validate([
             'metodo_pago' => 'required|exists:metodos_pago,id_metodo_pago',
@@ -135,17 +135,7 @@ class VentaController extends Controller
                 }
             }
 
-            // 3. Validar stock físico en BD para todos los artículos requeridos
-            foreach ($cantidadesTotales as $idProd => $cantRequerida) {
-                $pInfo = DB::table('productos')->where('id_producto', $idProd)->first();
-
-                if (!$pInfo || $pInfo->stock < $cantRequerida) {
-                    DB::rollBack();
-                    return redirect()->back()->with('error', 'Stock insuficiente para el producto: ' . ($pInfo ? $pInfo->nombre : 'Desconocido') . " (Requerido: {$cantRequerida}, Disponible: " . ($pInfo->stock ?? 0) . ')');
-                }
-            }
-
-            // 4. Calcular el subtotal / monto total de la venta
+            // 3. Calcular el subtotal / monto total de la venta
             $montoTotal = 0;
             if (!empty($request->productos)) {
                 foreach ($request->productos as $p) {
@@ -167,7 +157,7 @@ class VentaController extends Controller
             $montoTotal -= $descuento;
             $esClienteCorriente = ($request->metodo_pago == 3);
 
-            // 5. Crear la venta en la tabla `ventas`
+            // 4. Crear la venta en la tabla `ventas`
             $idVenta = DB::table('ventas')->insertGetId([
                 'id_usuario'       => Auth::id(),
                 'fecha_venta'      => now()->format('Y-m-d H:i:s'), 
@@ -180,7 +170,7 @@ class VentaController extends Controller
                 'observaciones'    => $request->observaciones,
             ]);
 
-            // 6. Insertar productos individuales en `ventas_productos`
+            // 5. Insertar productos individuales en `ventas_productos`
             if (!empty($request->productos)) {
                 foreach ($request->productos as $p) {
                     $precioListaDB = DB::table('productos')->where('id_producto', $p['id_producto'])->value('precio_lista');
@@ -197,7 +187,7 @@ class VentaController extends Controller
                 }
             }
 
-            // 7. Insertar productos desglosados de las promociones en `ventas_productos`
+            // 6. Insertar productos desglosados de las promociones en `ventas_productos`
             foreach ($promosDesglosadas as $itemDesglosado) {
                 $precioListaDB = DB::table('productos')->where('id_producto', $itemDesglosado['id_producto'])->value('precio_lista');
 
