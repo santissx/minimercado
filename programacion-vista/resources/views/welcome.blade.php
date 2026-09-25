@@ -178,6 +178,12 @@
                 <i class="fas fa-database"></i> Descargar Backup Completo
             </a>
         </div>
+
+        <div class="mt-2">
+            <a href="{{ route('mis.sesiones') }}" class="btn btn-info w-100 shadow-sm d-flex justify-content-center align-items-center gap-2">
+                <i class="fas fa-history"></i> Mis Sesiones
+            </a>
+        </div>
     </div>
 </div>
 

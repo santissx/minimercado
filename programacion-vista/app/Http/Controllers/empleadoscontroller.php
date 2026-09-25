@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 
 use Illuminate\Support\Facades\DB;
 use App\Models\User;
+use Illuminate\Support\Facades\Auth;
 
 class empleadoscontroller extends Controller
 {
@@ -44,7 +45,6 @@ class empleadoscontroller extends Controller
     public function modificar(Request $request)
     {
 
-       
         // Validación de datos
         $request->validate([
             'id' => 'required|exists:users,id|int',
@@ -57,19 +57,19 @@ class empleadoscontroller extends Controller
         DB::table('users')
         ->where('id', $request->input('id'))
         ->update([
-          
+        
             'name' => $request->input('name'),
             'email' => $request->input('email'),
             'rol' => $request->input('rol'),
             'estado' => $request->input('estado'),
 
         ]);
-          return redirect()->route('views.empleados')->with('success', 'Empleado modificado correctamente.');
+        return redirect()->route('views.empleados')->with('success', 'Empleado modificado correctamente.');
 
     }
     public function borrar($id)
     {
-     
+    
         DB::table('users')
         ->where('id', $id)
         ->update(['estado' => 'desactivado']);
@@ -80,6 +80,20 @@ class empleadoscontroller extends Controller
     public function sesiones($id)
     {
         $usuario = User::findOrFail($id);
+
+        $sesiones = $usuario->sessions()
+            ->orderByDesc('session_start')
+            ->get();
+
+        return view('sesiones', [
+            'usuario' => $usuario,
+            'sesiones' => $sesiones
+        ]);
+    }
+
+    public function misSesiones()
+    {
+        $usuario = Auth::user();
 
         $sesiones = $usuario->sessions()
             ->orderByDesc('session_start')

@@ -31,6 +31,10 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
+Route::get('/mis-sesiones', [empleadoscontroller::class, 'misSesiones'])
+    ->middleware('auth')
+    ->name('mis.sesiones');
+
 require __DIR__.'/auth.php';
 
 //rutas del sistema
