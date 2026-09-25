@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\DB;
 
 class BalanceController extends Controller
 {
+    
     public function mostrar(Request $request)
     {
         // CONDICIONAL INTELIGENTE CORREGIDO Y SEGURO

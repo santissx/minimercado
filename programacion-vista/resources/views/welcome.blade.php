@@ -363,6 +363,12 @@
             if (filaExistente) {
                 const inputCant = filaExistente.querySelector('.cantidad');
                 let nuevaCant = parseInt(inputCant.value) + 1;
+                //habilitar la siguiente línea si se quiere limitar la cantidad al stock disponible
+                //if (nuevaCant > stock) {
+                //    nuevaCant = stock;
+                //    alert('Stock máximo alcanzado para este producto.');
+                //}
+
                 inputCant.value = nuevaCant;
                 actualizarTotal(inputCant);
             } else {
@@ -375,6 +381,9 @@
                     <td>${codigo_barra}</td>
                     <td>${nombre}</td>
                     <td>
+                        ${ /* debe modificarse para que no permita superar el stock, pero por ahora lo dejamos sin max para que no de error al vender productos con stock 0
+                        <input type="number" name="productos[${itemIndex}][cantidad]" value="1" min="1" max="${stock}" class="form-control cantidad" data-precio="${precio}" data-stock="${stock}" oninput="actualizarTotal(this)">
+                        */ ''}
                         <input type="number" name="productos[${itemIndex}][cantidad]" value="1" min="1" class="form-control cantidad" data-precio="${precio}" data-stock="${stock}" oninput="actualizarTotal(this)">
                         <input type="hidden" name="productos[${itemIndex}][id_producto]" value="${id_producto}">
                         <input type="hidden" name="productos[${itemIndex}][precio]" value="${precio}">
@@ -716,6 +725,9 @@
                         <td>${codigo}</td>
                         <td>${prod.nombre}</td>
                         <td>
+                            ${/*-- habilitar esta linea en caso de querer limitar el stock 
+                            <input type="number" name="productos[${itemIndex}][cantidad]" value="${cantidad}" min="1" max="${stock}" class="form-control cantidad" data-precio="${precio}" data-stock="${stock}" oninput="actualizarTotal(this)"> 
+                             --*/}
                             <input type="number" name="productos[${itemIndex}][cantidad]" value="${cantidad}" min="1" class="form-control cantidad" data-precio="${precio}" data-stock="${stock}" oninput="actualizarTotal(this)">
                             <input type="hidden" name="productos[${itemIndex}][id_producto]" value="${prod.id_producto}">
                             <input type="hidden" name="productos[${itemIndex}][precio]" value="${precio}">

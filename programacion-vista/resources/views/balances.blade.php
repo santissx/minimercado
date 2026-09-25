@@ -35,6 +35,7 @@
                             <button id="btn-ventas_anio" class="btn btn-dark border-secondary text-start" onclick="cambiarVista('ventas_anio')">
                                 <i class="fas fa-calendar-alt me-2 text-purple"></i> Ventas por mes en el año (gráfico de barras)
                             </button>
+                            
                         </div>
                         
                         <div class="mt-auto pt-3 border-top border-secondary w-100">

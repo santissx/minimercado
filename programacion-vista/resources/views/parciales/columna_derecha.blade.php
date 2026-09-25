@@ -162,7 +162,7 @@
                                     <span class="ms-2">Historial de presupuestos</span>
                                 </a>
                             </div>
-                            <div class="col-12 d-flex">
+                            <div class="col-6 d-flex">
                                 <form method="POST" action="{{ route('logout') }}" class="w-100 m-0 d-flex">
                                     @csrf
                                     <button type="submit"
