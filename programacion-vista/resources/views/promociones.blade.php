@@ -192,6 +192,23 @@
                     </div>
 
                     <div class="mb-2">
+                        <label class="form-label fw-bold text-success">Descuento (%)</label>
+                        <input type="number"
+                            step="0.01"
+                            min="0"
+                            max="100"
+                            id="descuento_porcentaje"
+                            name="descuento_porcentaje"
+                            class="form-control form-control-lg fw-bold bg-dark text-white border-secondary"
+                            value="0"
+                            required
+                            oninput="renderizarTablaCombo()">
+                        <small class="text-muted">
+                            Ingresá el porcentaje de descuento que tendrá la promoción.
+                        </small>
+                    </div>
+
+                    <div class="mb-2">
                         <label class="form-label fw-bold text-success">Precio Final de la Promoción ($)</label>
                         <input type="number" step="0.01" id="precio" name="precio" class="form-control form-control-lg fw-bold bg-dark text-white border-secondary" required placeholder="0.00">
                         <small class="text-muted">
@@ -282,6 +299,23 @@
                                 </tbody>
                             </table>
                         </div>
+                    </div>
+
+                    <div class="mb-2">
+                        <label class="form-label fw-bold text-success">Descuento (%)</label>
+                        <input type="number"
+                            step="0.01"
+                            min="0"
+                            max="100"
+                            id="edit_descuento_porcentaje"
+                            name="descuento_porcentaje"
+                            class="form-control form-control-lg fw-bold bg-dark text-white border-secondary"
+                            value="0"
+                            required
+                            oninput="renderizarTablaComboEdit()">
+                        <small class="text-muted">
+                            Ingresá el porcentaje de descuento que tendrá la promoción.
+                        </small>
                     </div>
 
                     <div class="mb-2">
@@ -403,7 +437,10 @@ function filtrarProductosPromo(inputId = 'inputBuscadorPromo', filaSelector = '.
                 </tr>`;
         });
 
-        document.getElementById('precio').value = sumaDefecto.toFixed(2);
+        const descuento = parseFloat(document.getElementById('descuento_porcentaje').value) || 0;
+        const precioFinal = sumaDefecto * (1 - descuento / 100);
+
+        document.getElementById('precio').value = precioFinal.toFixed(2);
     }
 
     // Modal Editar
@@ -411,6 +448,7 @@ function filtrarProductosPromo(inputId = 'inputBuscadorPromo', filaSelector = '.
         document.getElementById('formEditarPromo').action = `/promociones/${promo.id_promocion}`;
         document.getElementById('edit_nombre').value = promo.nombre;
         document.getElementById('edit_precio').value = parseFloat(promo.precio).toFixed(2);
+        document.getElementById('edit_descuento_porcentaje').value = parseFloat(promo.descuento_porcentaje) || 0;
 
         productosComboEdit = [];
         if (promo.productos) {
@@ -468,7 +506,10 @@ function filtrarProductosPromo(inputId = 'inputBuscadorPromo', filaSelector = '.
         });
 
         if (recalcularPrecio) {
-            document.getElementById('edit_precio').value = sumaDefecto.toFixed(2);
+            const descuento = parseFloat(document.getElementById('edit_descuento_porcentaje').value) || 0;
+            const precioFinal = sumaDefecto * (1 - descuento / 100);
+
+            document.getElementById('edit_precio').value = precioFinal.toFixed(2);
         }
     }
 

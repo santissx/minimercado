@@ -53,6 +53,9 @@ class PromocionController extends Controller
                     $nuevoPrecio += $producto->precio_venta * $producto->cantidad;
                 }
 
+                $descuento = (float) $promo->descuento_porcentaje;
+                $nuevoPrecio = $nuevoPrecio * (1 - $descuento / 100);
+
                 DB::table('promociones')
                     ->where('id_promocion', $promo->id_promocion)
                     ->update([
@@ -82,6 +85,7 @@ class PromocionController extends Controller
         $request->validate([
             'nombre' => 'required|string|max:255',
             'precio' => 'required|numeric|min:0',
+            'descuento_porcentaje' => 'required|numeric|min:0|max:100',
             'productos' => 'required|array|min:1',
             'productos.*.id_producto' => 'required|integer',
             'productos.*.cantidad' => 'required|integer|min:1',
@@ -92,6 +96,7 @@ class PromocionController extends Controller
             $id_promocion = DB::table('promociones')->insertGetId([
                 'nombre' => $request->nombre,
                 'precio' => $request->precio,
+                'descuento_porcentaje' => $request->descuento_porcentaje,
                 'estado' => 'activo'
             ]);
 
@@ -116,6 +121,7 @@ class PromocionController extends Controller
         $request->validate([
             'nombre' => 'required|string|max:255',
             'precio' => 'required|numeric|min:0',
+            'descuento_porcentaje' => 'required|numeric|min:0|max:100',
             'productos' => 'required|array|min:1',
             'productos.*.id_producto' => 'required|integer',
             'productos.*.cantidad' => 'required|integer|min:1',
@@ -129,6 +135,7 @@ class PromocionController extends Controller
                 ->update([
                     'nombre' => $request->nombre,
                     'precio' => $request->precio,
+                    'descuento_porcentaje' => $request->descuento_porcentaje,
                 ]);
 
             // Eliminar detalle de productos anterior y reinsertar los nuevos
