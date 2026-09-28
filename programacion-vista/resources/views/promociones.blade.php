@@ -34,9 +34,18 @@
                 <h5 class="card-title mb-0">
                     <i class="fas fa-tags me-2"></i>Gestión de Promociones
                 </h5>
-                <button type="button" class="btn btn-primary fw-bold" data-bs-toggle="modal" data-bs-target="#modalCrearPromo">
-                    <i class="fas fa-plus me-1"></i> Nueva Promoción
-                </button>
+                <div class="d-flex gap-2">
+                    <form action="{{ route('promociones.actualizar-precios') }}" method="POST" class="d-inline">
+                        @csrf
+                        <button type="submit" class="btn btn-success fw-bold">
+                            <i class="fas fa-sync-alt me-1"></i> Actualizar
+                        </button>
+                    </form>
+
+                    <button type="button" class="btn btn-primary fw-bold" data-bs-toggle="modal" data-bs-target="#modalCrearPromo">
+                        <i class="fas fa-plus me-1"></i> Nueva Promoción
+                    </button>
+                </div>
             </div>
 
             <div class="card-body d-flex flex-column p-0">

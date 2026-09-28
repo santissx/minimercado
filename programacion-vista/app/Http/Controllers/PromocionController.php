@@ -31,6 +31,52 @@ class PromocionController extends Controller
         return view('promociones', compact('promociones', 'productos'));
     }
 
+    public function actualizarPrecios()
+    {
+        DB::beginTransaction();
+
+        try {
+            $promociones = DB::table('promociones')
+                ->where('estado', 'activo')
+                ->get();
+
+            foreach ($promociones as $promo) {
+                $productos = DB::table('promocion_productos as pp')
+                    ->join('productos as p', 'pp.id_producto', '=', 'p.id_producto')
+                    ->where('pp.id_promocion', $promo->id_promocion)
+                    ->select('p.precio_venta', 'pp.cantidad')
+                    ->get();
+
+                $nuevoPrecio = 0;
+
+                foreach ($productos as $producto) {
+                    $nuevoPrecio += $producto->precio_venta * $producto->cantidad;
+                }
+
+                DB::table('promociones')
+                    ->where('id_promocion', $promo->id_promocion)
+                    ->update([
+                        'precio' => $nuevoPrecio
+                    ]);
+            }
+
+            DB::commit();
+
+            return redirect()->back()->with(
+                'success',
+                'Precios de las promociones actualizados correctamente.'
+            );
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            return redirect()->back()->with(
+                'error',
+                'Error al actualizar los precios: ' . $e->getMessage()
+            );
+        }
+    }
+
     public function store(Request $request)
     {
         $request->validate([
