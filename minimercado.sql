@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 01-09-2026 a las 19:38:49
+-- Tiempo de generación: 25-09-2026 a las 07:10:08
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -39,7 +39,13 @@ CREATE TABLE `cache` (
 
 INSERT INTO `cache` (`key`, `value`, `expiration`) VALUES
 ('administracion@gmail.com|127.0.0.1', 'i:1;', 1787496755),
-('administracion@gmail.com|127.0.0.1:timer', 'i:1787496755;', 1787496755);
+('administracion@gmail.com|127.0.0.1:timer', 'i:1787496755;', 1787496755),
+('solucioneselectricasfsa@gmail.com|127.0.0.1', 'i:4;', 1788316191),
+('solucioneselectricasfsa@gmail.com|127.0.0.1:timer', 'i:1788316191;', 1788316191),
+('usuario1@gmail.com|127.0.0.1', 'i:4;', 1790204035),
+('usuario1@gmail.com|127.0.0.1:timer', 'i:1790204035;', 1790204035),
+('usuario2t@gmail.com|127.0.0.1', 'i:3;', 1790204065),
+('usuario2t@gmail.com|127.0.0.1:timer', 'i:1790204065;', 1790204065);
 
 -- --------------------------------------------------------
 
@@ -122,7 +128,8 @@ INSERT INTO `compras` (`id_compra`, `monto_compra`, `fecha`, `id_proveedor`) VAL
 (17, 10000.00, '2026-08-06 21:00:36', NULL),
 (18, 2000.00, '2026-08-13 17:51:30', NULL),
 (19, 3750.00, '2026-08-13 17:53:51', NULL),
-(21, 3000.00, '2026-08-13 18:01:31', 6);
+(21, 3000.00, '2026-08-13 18:01:31', 6),
+(22, 30000.00, '2026-09-01 23:30:32', 12);
 
 -- --------------------------------------------------------
 
@@ -786,8 +793,8 @@ CREATE TABLE `productos` (
 --
 
 INSERT INTO `productos` (`id_producto`, `nombre`, `codigo`, `codigo_barra`, `id_proveedor`, `stock`, `precio_lista`, `id_categoria`, `precio_venta`, `estado`) VALUES
-(39, 'Panel Led Cuadrado Aplicar 12W Frío BRINNA', 'I-PLCA12WFR-BR', 'I-PLCA12WFR-BR', 6, 2, 2847.73, 5, 5012.01, 'activo'),
-(40, 'Lámpara Led 9W Cálida BRINNA', 'I-LL9WCA-BR', 'I-LL9WCA-BR', 6, 73, 595.32, 5, 1015.03, 'activo'),
+(39, 'Panel Led Cuadrado Aplicar 12W Frío BRINNA', 'I-PLCA12WFR-BR', 'I-PLCA12WFR-BR', 6, 3, 2847.73, 5, 5012.01, 'activo'),
+(40, 'Lámpara Led 9W Cálida BRINNA', 'I-LL9WCA-BR', 'I-LL9WCA-BR', 6, -2, 595.32, 5, 1015.03, 'activo'),
 (41, 'Lámpara Led 9W Fría BRINNA', 'I-LL9WFR-BR', 'I-LL9WFR-BR', 6, 50, 595.32, 5, 1015.03, 'activo'),
 (42, 'Lámpara Led 12W Cálida BRINNA', 'I-LL12WCA-BR', 'I-LL12WCA-BR', 6, 81, 789.52, 5, 1355.14, 'activo'),
 (43, 'Lámpara Led 12W Fría BRINNA', 'I-LL12WFR-BR', 'I-LL12WFR-BR', 6, 79, 789.52, 5, 1346.14, 'activo'),
@@ -872,10 +879,10 @@ INSERT INTO `productos` (`id_producto`, `nombre`, `codigo`, `codigo_barra`, `id_
 (126, 'Caja Rectangular de Metal Liviana Galv. AG', 'D-CRM-AG', 'D-CRM-AG', 9, 130, 462.12, 3, 614.92, 'activo'),
 (127, 'Conector de PVC 7/8\" ᴓ (22mm) SISTELECTRIC', 'K-COPVC22-GE', 'K-COPVC22-GE', 9, 76, 418.34, 6, 556.67, 'activo'),
 (128, 'Conector de Metal 22mm (7/8) AG', 'K-CM23-AG', 'K-CM23-AG', 5, 73, 402.67, 6, 664.40, 'activo'),
-(129, 'Cable unipolar 1x2,5mm2 color celeste FONSECA', 'C-U1X2,5C-FO', 'C-U1X2,5C-FO', 10, 50, 671.13, 2, 1181.19, 'activo'),
+(129, 'Cable unipolar 1x2,5mm2 color celeste FONSECA', 'C-U1X2,5C-FO', 'C-U1X2,5C-FO', 10, -51, 671.13, 2, 1181.19, 'activo'),
 (130, 'Cable unipolar 1x2,5mm2 color marrón FONSECA', 'C-U1X2,5M-FO', 'C-U1X2,5M-FO', 10, 16, 671.13, 2, 1181.19, 'activo'),
-(131, 'Cable unipolar 1x2,5mm2 color verdeamarillo FONSECA', 'C-U1X2,5VA-FO', 'C-U1X2,5VA-FO', 10, 103, 671.13, 2, 1181.19, 'activo'),
-(132, 'Cable unipolar 1x1,5mm2 color marrón FONSECA', 'C-U1X1,5M-FO', 'C-U1X1,5M-FO', 10, 98, 411.34, 2, 723.95, 'activo'),
+(131, 'Cable unipolar 1x2,5mm2 color verdeamarillo FONSECA', 'C-U1X2,5VA-FO', 'C-U1X2,5VA-FO', 10, -200, 671.13, 2, 1181.19, 'activo'),
+(132, 'Cable unipolar 1x1,5mm2 color marrón FONSECA', 'C-U1X1,5M-FO', 'C-U1X1,5M-FO', 10, -3, 411.34, 2, 723.95, 'activo'),
 (133, 'Cable unipolar 1x1,5mm2 color celeste FONSECA', 'C-U1X1,5C-FO', 'C-U1X1,5C-FO', 10, 95, 411.34, 2, 723.95, 'activo'),
 (134, 'Cable unipolar 1x10mm2 color celeste FONSECA', 'C-U1X10C-FO', 'C-U1X10C-FO', 10, 0, 4500.00, 2, 5049.00, 'activo'),
 (135, 'Cable unipolar 1x10mm2 color marrón FONSECA', 'C-U1X10M-FO', 'C-U1X10M-FO', 10, 0, 4500.00, 2, 5049.00, 'activo'),
@@ -896,7 +903,7 @@ INSERT INTO `productos` (`id_producto`, `nombre`, `codigo`, `codigo_barra`, `id_
 (152, 'Protector de Tensión Monofásico Configurable SPVA-63 BRINNA', 'A-PT2X63-BRSPVA', 'A-PT2X63-BRSPVA', 7, 2, 22827.33, 1, 38806.46, 'activo'),
 (153, 'Protector y Medidor Monofasico BRINNA SPF-63', 'A-PTyM2X63-BRSPF', 'A-PTyM2X63-BRSPF', 7, 0, 36031.38, 1, 71342.13, 'activo'),
 (154, 'Cinta Pasacable de 10mts 4mm con Alma de Acero VIYILANT', 'H-CP104AA-VI', 'H-CP104AA-VI', 5, 2, 5450.50, 4, 10791.99, 'activo'),
-(155, 'Destornillador Aislado Plano PL3-100 BRINNA', 'H-DAPL3-100-BR', 'H-DAPL3-100-BR', 8, 2, 3328.71, 4, 6590.85, 'activo'),
+(155, 'Destornillador Aislado Plano PL3-100 BRINNA', 'H-DAPL3-100-BR', 'H-DAPL3-100-BR', 8, 3, 3328.71, 4, 6590.85, 'activo'),
 (156, 'Destornillador Aislado Plano PL4-100 BRINNA', 'H-DAPL4-100-BR', 'H-DAPL4-100-BR', 8, 1, 3591.88, 4, 7111.92, 'activo'),
 (157, 'Destornillador Aislado Plano PL5.5-100 BRINNA', 'H-DAPL5.5-100-BR', 'H-DAPL5.5-100-BR', 8, 2, 4379.59, 4, 8671.59, 'activo'),
 (158, 'Destornillador Aislado Philips PH1-80 BRINNA', 'H-DAPH1-80-BR', 'H-DAPH1-80-BR', 8, 2, 3855.06, 4, 7633.02, 'activo'),
@@ -1020,7 +1027,7 @@ INSERT INTO `productos` (`id_producto`, `nombre`, `codigo`, `codigo_barra`, `id_
 (282, 'Jabalina 1/2\" x 1m con tomacable', 'P-JM1/2-1-GE', 'P-JM1/2-1-GE', 9, 1, 5680.20, 8, 9070.01, 'activo'),
 (283, 'Jabalina 3/8\" x 1,5m con tomacable', 'P-JM3/8-1.5-GE', 'P-JM3/8-1.5-GE', 9, 1, 5578.91, 8, 8908.26, 'activo'),
 (284, 'Jabalina 3/8\" x 1m con tomacable', 'P-JM3/8-1-GE', 'P-JM3/8-1-GE', 9, 2, 3980.13, 8, 6355.36, 'activo'),
-(285, 'Taco Tarugo SX 6 Fischer', 'Y-TASX6-FI', 'Y-TASX6-FI', 12, 1428, 25.13, 12, 45.23, 'activo'),
+(285, 'Taco Tarugo SX 6 Fischer', 'Y-TASX6-FI', 'Y-TASX6-FI', 12, 1429, 25.13, 12, 45.23, 'activo'),
 (286, 'Taco Tarugo SX 8 Fischer', 'Y-TASX8-FI', 'Y-TASX8-FI', 12, 396, 48.53, 12, 87.35, 'activo'),
 (287, 'Tornillos Tmf Fix 5 X 45mm', 'Y-TOF5X45-SK', 'Y-TOF5X45-SK', 12, 399, 60.22, 12, 108.40, 'activo'),
 (289, 'Tornillo Autoperforante T2 Punta Aguja 6x1', 'Y-TOT2A6X1-SK', 'Y-TOT2A6X1-SK', 12, 900, 9.19, 12, 16.54, 'activo'),
@@ -1188,7 +1195,10 @@ INSERT INTO `productosxcompras` (`id_pxc`, `id_producto`, `cantidad_agregada`, `
 (43, 40, 1, 500.00, 21),
 (44, 41, 1, 500.00, 21),
 (45, 42, 2, 500.00, 21),
-(46, 43, 1, 500.00, 21);
+(46, 43, 1, 500.00, 21),
+(47, 39, 1, 800.00, 22),
+(48, 155, 1, 800.00, 22),
+(49, 285, 1, 800.00, 22);
 
 -- --------------------------------------------------------
 
@@ -1308,7 +1318,7 @@ CREATE TABLE `sessions` (
 --
 
 INSERT INTO `sessions` (`id`, `user_id`, `ip_address`, `user_agent`, `payload`, `last_activity`) VALUES
-('JgFbHzJVBdBE30ZtJs2ZEwCm8oN15KKuoaafJDIw', 11, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/152.0.0.0 Safari/537.36', 'YTo0OntzOjY6Il90b2tlbiI7czo0MDoick0zeDV2ZjdYejBhZnhIVHVXM1FrSGxsS3laNE1mckUzNW96ZjFJSiI7czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6Mjg6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC92ZW50YXMiO31zOjY6Il9mbGFzaCI7YToyOntzOjM6Im9sZCI7YTowOnt9czozOiJuZXciO2E6MDp7fX1zOjUwOiJsb2dpbl93ZWJfNTliYTM2YWRkYzJiMmY5NDAxNTgwZjAxNGM3ZjU4ZWE0ZTMwOTg5ZCI7aToxMTt9', 1787871120);
+('tjkDmylTmik7zm2A4WRvNAsXTf5Ug14GIM83KMks', 24, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/154.0.0.0 Safari/537.36', 'YTo1OntzOjY6Il90b2tlbiI7czo0MDoieWxJanBJa1Z5T0dVd3NOM3hsSGE5VWVjMHlFYUlYMEZkM1J6ZkMwNSI7czo2OiJfZmxhc2giO2E6Mjp7czozOiJvbGQiO2E6MDp7fXM6MzoibmV3IjthOjA6e319czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6OTI6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9saXN0YT9zZWFyY2g9Q2FibGUlMjB1bmlwb2xhciUyMDF4MiUyQzVtbTIlMjBjb2xvciUyMGNlbGVzdGUlMjBGT05TRUNBIjt9czo1MDoibG9naW5fd2ViXzU5YmEzNmFkZGMyYjJmOTQwMTU4MGYwMTRjN2Y1OGVhNGUzMDk4OWQiO2k6MjQ7czoxNToidXNlcl9zZXNzaW9uX2lkIjtpOjU7fQ==', 1790204238);
 
 -- --------------------------------------------------------
 
@@ -1334,10 +1344,35 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`id`, `name`, `email`, `email_verified_at`, `password`, `remember_token`, `created_at`, `updated_at`, `rol`, `estado`) VALUES
-(11, 'Admin', 'sefsa@gmail.com', NULL, '$2y$12$hpNDjfYkMgeTmfpK8bhfCesIBK19cXtlAuUT0/1v8NQXFwE574Hhe', 'mk5RC2DVEeN0FhoKaKkl7h3oZmNUSOPTJY0dWaPFb69uSXS52l4oZUdObtKP', '2024-11-25 22:48:17', '2024-11-25 22:48:17', 'administrador', 'activo'),
+(11, 'Admin', 'sefsa@gmail.com', NULL, '$2y$12$hpNDjfYkMgeTmfpK8bhfCesIBK19cXtlAuUT0/1v8NQXFwE574Hhe', 'FjbKYSoRQjTmnaa6To0re4SC7h9X6tkqrl3L6u3QOETWcdc0lOvjaHgJC0hp', '2024-11-25 22:48:17', '2024-11-25 22:48:17', 'administrador', 'activo'),
 (21, 'Usuario1', 'Usuario1@gmail.com', NULL, '$2y$12$CtT.dnseZDo88yYj4b6d6.JUFJLOFbO3241pgySwfpJAxS0GTp6Ke', 'Q7savN1M4qZjMSivR8Ua0EFiqZz0R1G5vNhFyTFhwrhUzSaXffWghSJDhLFs', '2026-06-13 21:28:16', '2026-06-13 21:28:16', 'empleado', 'activo'),
 (22, 'usuario2T', 'usuario2T@gmail.com', NULL, '$2y$12$JWpBJ5zMEiCs4bkoljuXZ.K1PoIFcXj2A0uABGncuMVaLYixVHpOG', NULL, '2026-07-10 19:32:46', '2026-07-10 19:32:46', 'empleado', 'activo'),
-(23, 'Administracion', 'Administracion@gmail.com', NULL, '$2y$12$Mhoen8lc2eACPNcF0cNpq.Izqoiosp7YZIj6/jzSlzZrsV9/7pJZO', NULL, '2026-08-03 14:45:07', '2026-08-03 14:45:07', 'administrador', 'desactivado');
+(23, 'Administracion', 'Administracion@gmail.com', NULL, '$2y$12$Mhoen8lc2eACPNcF0cNpq.Izqoiosp7YZIj6/jzSlzZrsV9/7pJZO', NULL, '2026-08-03 14:45:07', '2026-08-03 14:45:07', 'administrador', 'desactivado'),
+(24, 'prueba', 'prueba1@gmail.com', NULL, '$2y$12$WJx3oLuQRmAYYRAziBjrtuweUqJ6U/IzXct32V3H9cE6dbDDm8nU.', NULL, '2026-09-23 22:53:52', '2026-09-23 22:53:52', 'empleado', 'activo');
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `user_sessions`
+--
+
+CREATE TABLE `user_sessions` (
+  `id_session` bigint(20) UNSIGNED NOT NULL,
+  `id_usuario` bigint(20) UNSIGNED NOT NULL,
+  `session_start` datetime DEFAULT NULL,
+  `session_end` datetime DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Volcado de datos para la tabla `user_sessions`
+--
+
+INSERT INTO `user_sessions` (`id_session`, `id_usuario`, `session_start`, `session_end`) VALUES
+(1, 11, '2026-09-23 19:51:56', '2026-09-23 19:52:05'),
+(2, 11, '2026-09-23 19:52:10', '2026-09-23 19:52:41'),
+(3, 11, '2026-09-23 19:53:38', '2026-09-23 19:53:55'),
+(4, 24, '2026-09-23 19:53:59', '2026-09-23 19:54:38'),
+(5, 24, '2026-09-23 19:56:02', NULL);
 
 -- --------------------------------------------------------
 
@@ -1492,7 +1527,10 @@ INSERT INTO `ventas` (`id_venta`, `id_usuario`, `fecha_venta`, `monto_total`, `i
 (173, 11, '2026-08-06 20:11:28', 26181.19, 1, 0.00, NULL, 'Sebastian Gomez', '2131321', 'dfgfdsgsfdg'),
 (174, 11, '2026-08-06 20:16:47', 51181.19, 1, 0.00, NULL, 'el gato', '22222222', 'sdfadsfasdf'),
 (175, 11, '2026-08-27 19:28:24', 29000.00, 1, 159.68, NULL, 'Carlos', 'Mareco', 'interruptores y promo de cables para instalacion en barrio san pedro'),
-(176, 11, '2026-08-27 19:50:13', 52018.62, 1, 0.00, NULL, 'sadfadsfdsa', '4235432', 'asdf');
+(176, 11, '2026-08-27 19:50:13', 52018.62, 1, 0.00, NULL, 'sadfadsfdsa', '4235432', 'asdf'),
+(177, 24, '2026-09-23 19:56:25', 76127.25, 1, 0.00, NULL, NULL, NULL, NULL),
+(178, 24, '2026-09-23 19:56:58', 600000.00, 2, 0.00, NULL, NULL, NULL, NULL),
+(179, 24, '2026-09-23 19:57:13', 6000.00, 1, 0.00, NULL, NULL, NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -2028,7 +2066,14 @@ INSERT INTO `ventas_productos` (`id_venta_producto`, `id_venta`, `id_producto`, 
 (475, 176, 402, 1, 24000.00, 0.00),
 (476, 176, 291, 1, 1570.72, 839.96),
 (477, 176, 133, 1, 723.95, 411.34),
-(478, 176, 132, 1, 723.95, 411.34);
+(478, 176, 132, 1, 723.95, 411.34),
+(479, 177, 40, 75, 1015.03, 595.32),
+(480, 178, 129, 100, 1300.70, 671.13),
+(481, 178, 132, 100, 797.20, 411.34),
+(482, 178, 131, 300, 1300.70, 671.13),
+(483, 179, 129, 1, 1300.70, 671.13),
+(484, 179, 132, 1, 797.20, 411.34),
+(485, 179, 131, 3, 1300.70, 671.13);
 
 --
 -- Índices para tablas volcadas
@@ -2178,6 +2223,12 @@ ALTER TABLE `users`
   ADD UNIQUE KEY `users_email_unique` (`email`);
 
 --
+-- Indices de la tabla `user_sessions`
+--
+ALTER TABLE `user_sessions`
+  ADD PRIMARY KEY (`id_session`);
+
+--
 -- Indices de la tabla `ventas`
 --
 ALTER TABLE `ventas`
@@ -2222,7 +2273,7 @@ ALTER TABLE `clientes_corrientes`
 -- AUTO_INCREMENT de la tabla `compras`
 --
 ALTER TABLE `compras`
-  MODIFY `id_compra` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=22;
+  MODIFY `id_compra` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=23;
 
 --
 -- AUTO_INCREMENT de la tabla `failed_jobs`
@@ -2276,7 +2327,7 @@ ALTER TABLE `productos`
 -- AUTO_INCREMENT de la tabla `productosxcompras`
 --
 ALTER TABLE `productosxcompras`
-  MODIFY `id_pxc` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=47;
+  MODIFY `id_pxc` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=50;
 
 --
 -- AUTO_INCREMENT de la tabla `promociones`
@@ -2300,13 +2351,19 @@ ALTER TABLE `proveedores`
 -- AUTO_INCREMENT de la tabla `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=24;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
+
+--
+-- AUTO_INCREMENT de la tabla `user_sessions`
+--
+ALTER TABLE `user_sessions`
+  MODIFY `id_session` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT de la tabla `ventas`
 --
 ALTER TABLE `ventas`
-  MODIFY `id_venta` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=177;
+  MODIFY `id_venta` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=180;
 
 --
 -- AUTO_INCREMENT de la tabla `ventas_anuladas`
@@ -2318,7 +2375,7 @@ ALTER TABLE `ventas_anuladas`
 -- AUTO_INCREMENT de la tabla `ventas_productos`
 --
 ALTER TABLE `ventas_productos`
-  MODIFY `id_venta_producto` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=479;
+  MODIFY `id_venta_producto` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=486;
 
 --
 -- Restricciones para tablas volcadas

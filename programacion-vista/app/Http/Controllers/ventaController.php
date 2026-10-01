@@ -134,7 +134,17 @@ public function guardar(Request $request)
                     }
                 }
             }
+            /* activar para validar stock fisico    
+             // 3. Validar stock físico en BD para todos los artículos requeridos
+            foreach ($cantidadesTotales as $idProd => $cantRequerida) {
+                $pInfo = DB::table('productos')->where('id_producto', $idProd)->first();
 
+                if (!$pInfo || $pInfo->stock < $cantRequerida) {
+                    DB::rollBack();
+                    return redirect()->back()->with('error', 'Stock insuficiente para el producto: ' . ($pInfo ? $pInfo->nombre : 'Desconocido') . " (Requerido: {$cantRequerida}, Disponible: " . ($pInfo->stock ?? 0) . ')');
+                }
+            }
+            */
             // 3. Calcular el subtotal / monto total de la venta
             $montoTotal = 0;
             if (!empty($request->productos)) {
