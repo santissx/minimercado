@@ -197,6 +197,7 @@
                                             <tr class="bg-dark text-white border-bottom border-secondary">
                                                 <th class="border-secondary bg-dark text-white">Producto</th>
                                                 <th style="width: 100px;" class="border-secondary bg-dark text-white">Cantidad</th>
+                                                <th style="width: 120px;" class="border-secondary bg-dark text-white">Descuento (%)</th>
                                                 <th style="width: 120px;" class="border-secondary bg-dark text-white">Subtotal</th>
                                                 <th style="width: 50px;" class="text-center border-secondary bg-dark text-white">Acción</th>
                                             </tr>

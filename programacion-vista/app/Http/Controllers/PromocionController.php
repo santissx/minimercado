@@ -105,7 +105,7 @@ class PromocionController extends Controller
             'nombre' => 'required|string|max:255',
             'precio' => 'required|numeric|min:0',
             'tipo_descuento' => 'required|in:promocion,producto',
-            'descuento_porcentaje' => 'required|numeric|min:0|max:100',
+            'descuento_porcentaje' => 'required_if:tipo_descuento,promocion|nullable|numeric|min:0|max:100',
             'productos' => 'required|array|min:1',
             'productos.*.id_producto' => 'required|integer',
             'productos.*.cantidad' => 'required|integer|min:1',
