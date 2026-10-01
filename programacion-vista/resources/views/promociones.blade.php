@@ -34,18 +34,9 @@
                 <h5 class="card-title mb-0">
                     <i class="fas fa-tags me-2"></i>Gestión de Promociones
                 </h5>
-                <div class="d-flex gap-2">
-                    <form action="{{ route('promociones.actualizar-precios') }}" method="POST" class="d-inline">
-                        @csrf
-                        <button type="submit" class="btn btn-success fw-bold">
-                            <i class="fas fa-sync-alt me-1"></i> Actualizar
-                        </button>
-                    </form>
-
-                    <button type="button" class="btn btn-primary fw-bold" data-bs-toggle="modal" data-bs-target="#modalCrearPromo">
-                        <i class="fas fa-plus me-1"></i> Nueva Promoción
-                    </button>
-                </div>
+                <button type="button" class="btn btn-primary fw-bold" data-bs-toggle="modal" data-bs-target="#modalCrearPromo">
+                    <i class="fas fa-plus me-1"></i> Nueva Promoción
+                </button>
             </div>
 
             <div class="card-body d-flex flex-column p-0">
@@ -131,23 +122,6 @@
                         <input type="text" name="nombre" class="form-control bg-dark text-white border-secondary" placeholder="Ej: Combo 2 Lámparas + 2 Tomacorrientes" required>
                     </div>
 
-                    <div class="mb-3">
-                        <label class="form-label fw-bold">Tipo de descuento</label>
-
-                        <select name="tipo_descuento"
-                                id="tipo_descuento"
-                                class="form-select bg-dark text-white border-secondary"
-                                onchange="cambiarTipoDescuentoCrear()"
-                                required>
-                            <option value="promocion">Descuento sobre toda la promoción</option>
-                            <option value="producto">Descuento por producto</option>
-                        </select>
-
-                        <small class="text-muted">
-                            Elegí una sola modalidad de descuento para esta promoción.
-                        </small>
-                    </div>
-
                     <div class="card p-3 bg-dark border border-secondary mb-3">
                         <h6 class="fw-bold mb-2"><i class="fas fa-search me-1"></i> Buscar Productos para el Combo</h6>
                         
@@ -193,14 +167,10 @@
                             <table class="table table-dark table-striped mb-0 align-middle">
                                 <thead>
                                     <tr class="bg-dark text-white border-bottom border-secondary">
-                                        <thead>
-                                            <tr class="bg-dark text-white border-bottom border-secondary">
-                                                <th class="border-secondary bg-dark text-white">Producto</th>
-                                                <th style="width: 100px;" class="border-secondary bg-dark text-white">Cantidad</th>
-                                                <th style="width: 120px;" class="border-secondary bg-dark text-white">Subtotal</th>
-                                                <th style="width: 50px;" class="text-center border-secondary bg-dark text-white">Acción</th>
-                                            </tr>
-                                        </thead>
+                                        <th class="border-secondary bg-dark text-white">Producto</th>
+                                        <th style="width: 100px;" class="border-secondary bg-dark text-white">Cantidad</th>
+                                        <th style="width: 120px;" class="border-secondary bg-dark text-white">Subtotal</th>
+                                        <th style="width: 50px;" class="text-center border-secondary bg-dark text-white">Acción</th>
                                     </tr>
                                 </thead>
                                 <tbody id="tablaProductosCombo">
@@ -210,23 +180,6 @@
                                 </tbody>
                             </table>
                         </div>
-                    </div>
-
-                    <div class="mb-2" id="bloqueDescuentoPromocion">
-                        <label class="form-label fw-bold text-success">Descuento (%)</label>
-                        <input type="number"
-                            step="0.01"
-                            min="0"
-                            max="100"
-                            id="descuento_porcentaje"
-                            name="descuento_porcentaje"
-                            class="form-control form-control-lg fw-bold bg-dark text-white border-secondary"
-                            value="0"
-                            required
-                            onchange="renderizarTablaCombo()">
-                        <small class="text-muted">
-                            Ingresá el porcentaje de descuento que tendrá la promoción.
-                        </small>
                     </div>
 
                     <div class="mb-2">
@@ -312,7 +265,6 @@
                                     <tr class="bg-dark text-white border-bottom border-secondary">
                                         <th class="border-secondary bg-dark text-white">Producto</th>
                                         <th style="width: 100px;" class="border-secondary bg-dark text-white">Cantidad</th>
-                                        <th style="width: 120px;" class="border-secondary bg-dark text-white">Descuento (%)</th>
                                         <th style="width: 120px;" class="border-secondary bg-dark text-white">Subtotal</th>
                                         <th style="width: 50px;" class="text-center border-secondary bg-dark text-white">Acción</th>
                                     </tr>
@@ -321,40 +273,6 @@
                                 </tbody>
                             </table>
                         </div>
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label fw-bold">Tipo de descuento</label>
-
-                        <select name="tipo_descuento"
-                                id="edit_tipo_descuento"
-                                class="form-select bg-dark text-white border-secondary"
-                                onchange="cambiarTipoDescuentoEditar()"
-                                required>
-                            <option value="promocion">Descuento sobre toda la promoción</option>
-                            <option value="producto">Descuento por producto</option>
-                        </select>
-
-                        <small class="text-muted">
-                            Elegí una sola modalidad de descuento para esta promoción.
-                        </small>
-                    </div>
-
-                    <div class="mb-2" id="bloqueDescuentoPromocionEdit">
-                        <label class="form-label fw-bold text-success">Descuento (%)</label>
-                        <input type="number"
-                            step="0.01"
-                            min="0"
-                            max="100"
-                            id="edit_descuento_porcentaje"
-                            name="descuento_porcentaje"
-                            class="form-control form-control-lg fw-bold bg-dark text-white border-secondary"
-                            value="0"
-                            required
-                            onchange="renderizarTablaComboEdit()">
-                        <small class="text-muted">
-                            Ingresá el porcentaje de descuento que tendrá la promoción.
-                        </small>
                     </div>
 
                     <div class="mb-2">
@@ -443,40 +361,6 @@ function filtrarProductosPromo(inputId = 'inputBuscadorPromo', filaSelector = '.
         renderizarTablaCombo();
     }
 
-    function cambiarTipoDescuentoCrear() {
-        const tipoDescuento = document.getElementById('tipo_descuento').value;
-        const bloqueDescuento = document.getElementById('bloqueDescuentoPromocion');
-        const inputDescuento = document.getElementById('descuento_porcentaje');
-
-        if (tipoDescuento === 'promocion') {
-            bloqueDescuento.style.display = 'block';
-            inputDescuento.disabled = false;
-        } else {
-            bloqueDescuento.style.display = 'none';
-            inputDescuento.value = 0;
-            inputDescuento.disabled = true;
-        }
-
-        renderizarTablaCombo();
-    }
-
-    function cambiarTipoDescuentoEditar() {
-    const tipoDescuento = document.getElementById('edit_tipo_descuento').value;
-    const bloqueDescuento = document.getElementById('bloqueDescuentoPromocionEdit');
-    const inputDescuento = document.getElementById('edit_descuento_porcentaje');
-
-    if (tipoDescuento === 'promocion') {
-        bloqueDescuento.style.display = 'block';
-        inputDescuento.disabled = false;
-    } else {
-        bloqueDescuento.style.display = 'none';
-        inputDescuento.value = 0;
-        inputDescuento.disabled = true;
-    }
-
-    renderizarTablaComboEdit();
-}
-
     function renderizarTablaCombo() {
         const tbody = document.getElementById('tablaProductosCombo');
         tbody.innerHTML = '';
@@ -484,102 +368,33 @@ function filtrarProductosPromo(inputId = 'inputBuscadorPromo', filaSelector = '.
         if (productosCombo.length === 0) {
             tbody.innerHTML = `
                 <tr>
-                    <td colspan="5" class="text-center text-muted small py-3 border-secondary">
-                        Usa el buscador arriba para añadir productos al combo.
-                    </td>
+                    <td colspan="4" class="text-center text-muted small py-3 border-secondary">Usa el buscador arriba para añadir productos al combo.</td>
                 </tr>`;
-
             document.getElementById('precio').value = '';
             return;
         }
 
         let sumaDefecto = 0;
-
-        const tipoDescuento = document.getElementById('tipo_descuento').value;
-
         productosCombo.forEach((item, index) => {
             const subtotal = item.precio * item.cantidad;
             sumaDefecto += subtotal;
 
-            let descuentoProducto = parseFloat(item.descuento_porcentaje) || 0;
-            let subtotalFinal = subtotal;
-
-            if (tipoDescuento === 'producto') {
-                subtotalFinal = subtotal * (1 - descuentoProducto / 100);
-            }
-
             tbody.innerHTML += `
                 <tr class="border-secondary">
-                    <td class="border-secondary">
-                        ${item.nombre}
-                        <input type="hidden"
-                            name="productos[${index}][id_producto]"
-                            value="${item.id_producto}">
+                    <td class="border-secondary">${item.nombre}
+                        <input type="hidden" name="productos[${index}][id_producto]" value="${item.id_producto}">
                     </td>
-
-                    <td class="border-secondary">
-                        ${item.cantidad}
-                        <input type="hidden"
-                            name="productos[${index}][cantidad]"
-                            value="${item.cantidad}">
+                    <td class="border-secondary">${item.cantidad}
+                        <input type="hidden" name="productos[${index}][cantidad]" value="${item.cantidad}">
                     </td>
-
-                    <td class="border-secondary">
-                        ${
-                            tipoDescuento === 'producto'
-                            ? `
-                                <input type="number"
-                                    step="0.01"
-                                    min="0"
-                                    max="100"
-                                    class="form-control form-control-sm bg-dark text-white border-secondary"
-                                    value="${descuentoProducto}"
-                                    onchange="productosCombo[${index}].descuento_porcentaje = parseFloat(this.value) || 0; renderizarTablaCombo();">
-                                <input type="hidden"
-                                    name="productos[${index}][descuento_porcentaje]"
-                                    value="${descuentoProducto}">
-                            `
-                            : `
-                                <span class="text-muted">Sin descuento individual</span>
-                                <input type="hidden"
-                                    name="productos[${index}][descuento_porcentaje]"
-                                    value="0">
-                            `
-                        }
-                    </td>
-
-                    <td class="fw-bold text-success border-secondary">
-                        $${subtotalFinal.toFixed(2)}
-                    </td>
-
+                    <td class="fw-bold text-success border-secondary">$${subtotal.toFixed(2)}</td>
                     <td class="text-center border-secondary">
-                        <button type="button"
-                            class="btn btn-danger btn-sm px-2 py-0"
-                            onclick="eliminarProductoCombo(${index})">
-                            &times;
-                        </button>
+                        <button type="button" class="btn btn-danger btn-sm px-2 py-0" onclick="eliminarProductoCombo(${index})">&times;</button>
                     </td>
                 </tr>`;
         });
 
-        let precioFinal = sumaDefecto;
-
-        if (tipoDescuento === 'promocion') {
-            const descuento = parseFloat(
-                document.getElementById('descuento_porcentaje').value
-            ) || 0;
-
-            precioFinal = sumaDefecto * (1 - descuento / 100);
-        } else {
-            precioFinal = productosCombo.reduce((total, item) => {
-                const subtotal = item.precio * item.cantidad;
-                const descuento = parseFloat(item.descuento_porcentaje) || 0;
-
-                return total + (subtotal * (1 - descuento / 100));
-            }, 0);
-        }
-
-        document.getElementById('precio').value = precioFinal.toFixed(2);
+        document.getElementById('precio').value = sumaDefecto.toFixed(2);
     }
 
     // Modal Editar
@@ -587,27 +402,20 @@ function filtrarProductosPromo(inputId = 'inputBuscadorPromo', filaSelector = '.
         document.getElementById('formEditarPromo').action = `/promociones/${promo.id_promocion}`;
         document.getElementById('edit_nombre').value = promo.nombre;
         document.getElementById('edit_precio').value = parseFloat(promo.precio).toFixed(2);
-        document.getElementById('edit_descuento_porcentaje').value = parseFloat(promo.descuento_porcentaje) || 0;
-
-        document.getElementById('edit_tipo_descuento').value = promo.tipo_descuento || 'promocion';
 
         productosComboEdit = [];
-
         if (promo.productos) {
             promo.productos.forEach(p => {
                 productosComboEdit.push({
                     id_producto: p.id_producto,
                     nombre: p.nombre,
                     precio: parseFloat(p.precio_venta),
-                    cantidad: parseInt(p.cantidad),
-                    descuento_porcentaje: parseFloat(p.descuento_porcentaje) || 0
+                    cantidad: parseInt(p.cantidad)
                 });
             });
         }
 
-        cambiarTipoDescuentoEditar();
         renderizarTablaComboEdit(false);
-
         const modal = new bootstrap.Modal(document.getElementById('modalEditarPromo'));
         modal.show();
     }
@@ -624,107 +432,34 @@ function filtrarProductosPromo(inputId = 'inputBuscadorPromo', filaSelector = '.
         if (productosComboEdit.length === 0) {
             tbody.innerHTML = `
                 <tr>
-                    <td colspan="5" class="text-center text-muted small py-3 border-secondary">
-                        Usa el buscador arriba para añadir productos al combo.
-                    </td>
+                    <td colspan="4" class="text-center text-muted small py-3 border-secondary">Usa el buscador arriba para añadir productos al combo.</td>
                 </tr>`;
-
-            if (recalcularPrecio) {
-                document.getElementById('edit_precio').value = '';
-            }
-
+            if (recalcularPrecio) document.getElementById('edit_precio').value = '';
             return;
         }
 
         let sumaDefecto = 0;
-
-        const tipoDescuento = document.getElementById('edit_tipo_descuento').value;
-
         productosComboEdit.forEach((item, index) => {
             const subtotal = item.precio * item.cantidad;
             sumaDefecto += subtotal;
 
-            let descuentoProducto = parseFloat(item.descuento_porcentaje) || 0;
-            let subtotalFinal = subtotal;
-
-            if (tipoDescuento === 'producto') {
-                subtotalFinal = subtotal * (1 - descuentoProducto / 100);
-            }
-
             tbody.innerHTML += `
                 <tr class="border-secondary">
-                    <td class="border-secondary">
-                        ${item.nombre}
-                        <input type="hidden"
-                            name="productos[${index}][id_producto]"
-                            value="${item.id_producto}">
+                    <td class="border-secondary">${item.nombre}
+                        <input type="hidden" name="productos[${index}][id_producto]" value="${item.id_producto}">
                     </td>
-
-                    <td class="border-secondary">
-                        ${item.cantidad}
-                        <input type="hidden"
-                            name="productos[${index}][cantidad]"
-                            value="${item.cantidad}">
+                    <td class="border-secondary">${item.cantidad}
+                        <input type="hidden" name="productos[${index}][cantidad]" value="${item.cantidad}">
                     </td>
-
-                    <td class="border-secondary">
-                        ${
-                            tipoDescuento === 'producto'
-                            ? `
-                                <input type="number"
-                                    step="0.01"
-                                    min="0"
-                                    max="100"
-                                    class="form-control form-control-sm bg-dark text-white border-secondary"
-                                    value="${descuentoProducto}"
-                                    onchange="productosComboEdit[${index}].descuento_porcentaje = parseFloat(this.value) || 0; renderizarTablaComboEdit();">
-
-                                <input type="hidden"
-                                    name="productos[${index}][descuento_porcentaje]"
-                                    value="${descuentoProducto}">
-                            `
-                            : `
-                                <span class="text-muted">Sin descuento individual</span>
-                                <input type="hidden"
-                                    name="productos[${index}][descuento_porcentaje]"
-                                    value="0">
-                            `
-                        }
-                    </td>
-
-                    <td class="fw-bold text-success border-secondary">
-                        $${subtotalFinal.toFixed(2)}
-                    </td>
-
+                    <td class="fw-bold text-success border-secondary">$${subtotal.toFixed(2)}</td>
                     <td class="text-center border-secondary">
-                        <button type="button"
-                            class="btn btn-danger btn-sm px-2 py-0"
-                            onclick="eliminarProductoComboEdit(${index})">
-                            &times;
-                        </button>
+                        <button type="button" class="btn btn-danger btn-sm px-2 py-0" onclick="eliminarProductoComboEdit(${index})">&times;</button>
                     </td>
                 </tr>`;
         });
 
         if (recalcularPrecio) {
-            let precioFinal = sumaDefecto;
-
-            if (tipoDescuento === 'promocion') {
-                const descuento = parseFloat(
-                    document.getElementById('edit_descuento_porcentaje').value
-                ) || 0;
-
-                precioFinal = sumaDefecto * (1 - descuento / 100);
-            } else {
-                precioFinal = productosComboEdit.reduce((total, item) => {
-                    const subtotal = item.precio * item.cantidad;
-                    const descuento = parseFloat(item.descuento_porcentaje) || 0;
-
-                    return total + (subtotal * (1 - descuento / 100));
-                }, 0);
-            }
-
-            document.getElementById('edit_precio').value = precioFinal.toFixed(2);
+            document.getElementById('edit_precio').value = sumaDefecto.toFixed(2);
         }
     }
 
