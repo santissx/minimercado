@@ -50,8 +50,8 @@ Route::middleware(['admin'])->group(function () {
     Route::get('/compras', function () {
         return view('compras');
     }) ->name('views.compras');
-    //rutas para proveedores
 
+//rutas para proveedores
 Route::get('/proveedores', [proveedorescontroller::class, 'mostrar'])->name('views.proveedores');
 Route::POST('/proveedores', [proveedorescontroller::class, 'agregar'])->name('proveedores.agregar');
 Route::get('/proveedores/modificar', [proveedorescontroller::class, 'modificar'])->name('proveedores.modificar');
@@ -135,6 +135,8 @@ Route::get('/promociones', [PromocionController::class, 'index'])->name('promoci
 Route::post('/promociones', [PromocionController::class, 'store'])->name('promociones.store');
 Route::delete('/promociones/{id}', [PromocionController::class, 'destroy'])->name('promociones.destroy');
 Route::put('/promociones/{id}', [PromocionController::class, 'update'])->name('promociones.update');
+Route::post('/promociones/actualizar-precios', [PromocionController::class, 'actualizarPrecios'])
+    ->name('promociones.actualizar-precios');
 
 //rutas para historial
 Route::get('/historial', [HistorialController::class, 'mostrar'])->name('views.historial');
