@@ -19,7 +19,7 @@ class PromocionController extends Controller
             $promo->productos = DB::table('promocion_productos as pp')
                 ->join('productos as p', 'pp.id_producto', '=', 'p.id_producto')
                 ->where('pp.id_promocion', $promo->id_promocion)
-                ->select('p.id_producto', 'p.nombre', 'p.precio_venta', 'pp.cantidad')
+                ->select('p.id_producto', 'p.nombre', 'p.precio_venta', 'pp.cantidad', 'pp.descuento_porcentaje')
                 ->get();
         }
 
@@ -44,17 +44,32 @@ class PromocionController extends Controller
                 $productos = DB::table('promocion_productos as pp')
                     ->join('productos as p', 'pp.id_producto', '=', 'p.id_producto')
                     ->where('pp.id_promocion', $promo->id_promocion)
-                    ->select('p.precio_venta', 'pp.cantidad')
+                    ->select(
+                        'p.precio_venta',
+                        'pp.cantidad',
+                        'pp.descuento_porcentaje'
+                    )
                     ->get();
 
                 $nuevoPrecio = 0;
 
                 foreach ($productos as $producto) {
-                    $nuevoPrecio += $producto->precio_venta * $producto->cantidad;
+                    $precioProducto = $producto->precio_venta * $producto->cantidad;
+
+                    if ($promo->tipo_descuento === 'producto') {
+                        $descuentoProducto = (float) $producto->descuento_porcentaje;
+
+                        $precioProducto = $precioProducto * (1 - $descuentoProducto / 100);
+                    }
+
+                    $nuevoPrecio += $precioProducto;
                 }
 
-                $descuento = (float) $promo->descuento_porcentaje;
-                $nuevoPrecio = $nuevoPrecio * (1 - $descuento / 100);
+                if ($promo->tipo_descuento === 'promocion') {
+                    $descuentoPromocion = (float) $promo->descuento_porcentaje;
+
+                    $nuevoPrecio = $nuevoPrecio * (1 - $descuentoPromocion / 100);
+                }
 
                 DB::table('promociones')
                     ->where('id_promocion', $promo->id_promocion)
@@ -78,41 +93,67 @@ class PromocionController extends Controller
                 'Error al actualizar los precios: ' . $e->getMessage()
             );
         }
-    }
+}
 
     public function store(Request $request)
     {
+        $request->merge([
+            'tipo_descuento' => $request->tipo_descuento ?? 'promocion'
+        ]);
+
         $request->validate([
             'nombre' => 'required|string|max:255',
             'precio' => 'required|numeric|min:0',
+            'tipo_descuento' => 'required|in:promocion,producto',
             'descuento_porcentaje' => 'required|numeric|min:0|max:100',
             'productos' => 'required|array|min:1',
             'productos.*.id_producto' => 'required|integer',
             'productos.*.cantidad' => 'required|integer|min:1',
+            'productos.*.descuento_porcentaje' => 'nullable|numeric|min:0|max:100',
         ]);
 
         DB::beginTransaction();
+
         try {
+            $descuentoPromocion = $request->tipo_descuento === 'promocion'
+                ? $request->descuento_porcentaje
+                : 0;
+
             $id_promocion = DB::table('promociones')->insertGetId([
                 'nombre' => $request->nombre,
                 'precio' => $request->precio,
-                'descuento_porcentaje' => $request->descuento_porcentaje,
+                'descuento_porcentaje' => $descuentoPromocion,
+                'tipo_descuento' => $request->tipo_descuento,
                 'estado' => 'activo'
             ]);
 
             foreach ($request->productos as $item) {
+                $descuentoProducto = $request->tipo_descuento === 'producto'
+                    ? ($item['descuento_porcentaje'] ?? 0)
+                    : 0;
+
                 DB::table('promocion_productos')->insert([
                     'id_promocion' => $id_promocion,
-                    'id_producto'  => $item['id_producto'],
-                    'cantidad'     => $item['cantidad']
+                    'id_producto' => $item['id_producto'],
+                    'cantidad' => $item['cantidad'],
+                    'descuento_porcentaje' => $descuentoProducto
                 ]);
             }
 
             DB::commit();
-            return redirect()->back()->with('success', 'Promoción creada con éxito.');
+
+            return redirect()->back()->with(
+                'success',
+                'Promoción creada con éxito.'
+            );
+
         } catch (\Exception $e) {
             DB::rollBack();
-            return redirect()->back()->with('error', 'Error al crear la promoción: ' . $e->getMessage());
+
+            return redirect()->back()->with(
+                'error',
+                'Error al crear la promoción: ' . $e->getMessage()
+            );
         }
     }
 
@@ -121,43 +162,63 @@ class PromocionController extends Controller
         $request->validate([
             'nombre' => 'required|string|max:255',
             'precio' => 'required|numeric|min:0',
+            'tipo_descuento' => 'required|in:promocion,producto',
             'descuento_porcentaje' => 'required|numeric|min:0|max:100',
             'productos' => 'required|array|min:1',
             'productos.*.id_producto' => 'required|integer',
             'productos.*.cantidad' => 'required|integer|min:1',
+            'productos.*.descuento_porcentaje' => 'nullable|numeric|min:0|max:100',
         ]);
 
         DB::beginTransaction();
+
         try {
-            // Actualizar datos de la cabecera
+            $descuentoPromocion = $request->tipo_descuento === 'promocion'
+                ? $request->descuento_porcentaje
+                : 0;
+
             DB::table('promociones')
                 ->where('id_promocion', $id)
                 ->update([
                     'nombre' => $request->nombre,
                     'precio' => $request->precio,
-                    'descuento_porcentaje' => $request->descuento_porcentaje,
+                    'descuento_porcentaje' => $descuentoPromocion,
+                    'tipo_descuento' => $request->tipo_descuento,
                 ]);
 
-            // Eliminar detalle de productos anterior y reinsertar los nuevos
             DB::table('promocion_productos')
                 ->where('id_promocion', $id)
                 ->delete();
 
             foreach ($request->productos as $item) {
+                $descuentoProducto = $request->tipo_descuento === 'producto'
+                    ? ($item['descuento_porcentaje'] ?? 0)
+                    : 0;
+
                 DB::table('promocion_productos')->insert([
                     'id_promocion' => $id,
-                    'id_producto'  => $item['id_producto'],
-                    'cantidad'     => $item['cantidad']
+                    'id_producto' => $item['id_producto'],
+                    'cantidad' => $item['cantidad'],
+                    'descuento_porcentaje' => $descuentoProducto
                 ]);
             }
 
             DB::commit();
-            return redirect()->back()->with('success', 'Promoción actualizada con éxito.');
+
+            return redirect()->back()->with(
+                'success',
+                'Promoción actualizada con éxito.'
+            );
+
         } catch (\Exception $e) {
             DB::rollBack();
-            return redirect()->back()->with('error', 'Error al actualizar la promoción: ' . $e->getMessage());
+
+            return redirect()->back()->with(
+                'error',
+                'Error al actualizar la promoción: ' . $e->getMessage()
+            );
         }
-    }
+}
 
     public function destroy($id)
     {
