@@ -21,7 +21,7 @@
                     Historial de sesiones
                 </h5>
 
-                <a href="{{ route('views.empleados') }}" class="btn btn-secondary fw-bold">
+                <a href="{{ Auth::user()->rol === 'administrador' ? route('views.empleados') : route('views.ventas') }}" class="btn btn-secondary fw-bold">
                     <i class="fas fa-arrow-left me-1"></i>
                     Volver
                 </a>
