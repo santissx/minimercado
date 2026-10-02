@@ -1,6 +1,6 @@
 @auth
 
-@if(Auth::user()->rol === 'administrador')
+@if(in_array(Auth::user()->rol, ['administrador', 'empleado']))
 
 @extends('layouts.nav')
 
