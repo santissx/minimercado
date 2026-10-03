@@ -116,11 +116,15 @@
                         </div>
                         
                         <div class="d-flex justify-content-between align-items-center mt-3">
-                            <div class="d-flex gap-2">
+                            <div class="d-flex gap-2 flex-wrap">
                                 <button type="submit" class="btn btn-primary">Aplicar filtros</button>
                                 
                                 <button type="submit" formaction="{{ route('exportar.ventas') }}" class="btn btn-success">
                                     <i class="fas fa-file-excel text-white me-1"></i> Exportar Resultados a Excel
+                                </button>
+
+                                <button type="submit" formaction="{{ route('exportar.ventas_productos') }}" class="btn btn-success">
+                                    <i class="fas fa-boxes text-white me-1"></i> Exportar Ventas por Productos
                                 </button>
                             </div>
                             

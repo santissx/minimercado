@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\VentasExport;
+use App\Exports\VentasProductosExport;
 use App\Exports\StockExport;
 use App\Exports\ComprasExport;
 use App\Exports\GastosExport;
@@ -29,6 +30,23 @@ class ReporteController extends Controller
     
     // Le pasamos el array de filtros al Export
     return \Maatwebsite\Excel\Facades\Excel::download(new \App\Exports\VentasExport($filtros), $nombreArchivo);
+    }
+
+    public function exportarVentasProductos(Request $request)
+    {
+        $filtros = [
+            'vendedor'    => $request->input('vendedor'),
+            'id_cliente'  => $request->input('id_cliente'),
+            'fechainicio' => $request->input('fechainicio'),
+            'fechafin'    => $request->input('fechafin'),
+        ];
+
+        $nombreArchivo = 'reporte_ventas_productos_' . date('d-m-Y_H-i') . '.xlsx';
+
+        return Excel::download(
+            new VentasProductosExport($filtros),
+            $nombreArchivo
+        );
     }
 
     /**

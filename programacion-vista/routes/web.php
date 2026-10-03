@@ -155,6 +155,7 @@ Route::fallback([FallbackController::class, 'notFound']);
 
 // Rutas de Exportación a Excel
 Route::get('exportar/ventas', [\App\Http\Controllers\ReporteController::class, 'exportarVentas'])->name('exportar.ventas');
+Route::get('exportar/ventas-productos', [\App\Http\Controllers\ReporteController::class, 'exportarVentasProductos'])->name('exportar.ventas_productos');
 Route::get('exportar/stock', [\App\Http\Controllers\ReporteController::class, 'exportarStock'])->name('exportar.stock');
 Route::get('exportar/compras', [\App\Http\Controllers\ReporteController::class, 'exportarCompras'])->name('exportar.compras');
 Route::get('exportar/gastos', [\App\Http\Controllers\ReporteController::class, 'exportarGastos'])->name('exportar.gastos');
