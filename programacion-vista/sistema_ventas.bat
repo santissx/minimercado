@@ -11,6 +11,9 @@ if not exist .env (
     php artisan key:generate
 )
 
+echo Cerrando sesiones anteriores...
+php artisan app:close-previous-sessions
+
 start http://127.0.0.1:8000
 php artisan serve
 pause

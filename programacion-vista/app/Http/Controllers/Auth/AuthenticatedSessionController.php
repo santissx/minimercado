@@ -45,13 +45,16 @@ class AuthenticatedSessionController extends Controller
         // Regenera la sesión
         $request->session()->regenerate();
 
+        UserSession::whereNull('session_end')->update([
+            'session_end' => Carbon::now(),
+        ]);
+
         $userSession = UserSession::create([
             'id_usuario' => $user->id,
             'session_start' => Carbon::now(),
         ]);
 
         $request->session()->put('user_session_id', $userSession->id_session);
-
 
         // Redirige según el rol del usuario
         if ($user->rol === 'administrador') {
