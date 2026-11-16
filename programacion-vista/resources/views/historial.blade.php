@@ -204,28 +204,75 @@
     </div>
 </div>
 
-<div class="modal fade" id="modalAnularVenta" tabindex="-1" aria-labelledby="modalAnularVentaLabel" aria-hidden="true">
-    <div class="modal-dialog">
+<div class="modal fade" id="modalAnularVenta" tabindex="-1"
+    aria-labelledby="modalAnularVentaLabel" aria-hidden="true">
+
+    <div class="modal-dialog modal-lg">
         <div class="modal-content bg-dark text-light">
+
             <div class="modal-header">
-                <h5 class="modal-title" id="modalAnularVentaLabel">Anular Venta</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                <h5 class="modal-title" id="modalAnularVentaLabel">
+                    Anular productos de la venta
+                </h5>
+                <button type="button" class="btn-close btn-close-white"
+                    data-bs-dismiss="modal"></button>
             </div>
+
             <div class="modal-body">
-                <form id="formAnularVenta" action="{{ route('ventas.anular') }}" method="POST">
+
+                <form id="formAnularVenta"
+                    action="{{ route('ventas.anular') }}" method="POST">
+
                     @csrf
-                    <input type="hidden" name="id_venta" id="id_venta" readonly>
-                    <input type="hidden" name="id_usuario_anulador" value="{{ auth()->id() }}">
-                    <div class="mb-3">
-                        <label for="descripcion" class="form-label">Motivo de Anulación</label>
-                        <input type="text" name="descripcion" id="descripcion" class="form-control" required>
+
+                    <input type="hidden" name="id_venta" id="id_venta">
+
+                    <div class="table-responsive">
+                        <table class="table table-dark table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Seleccionar</th>
+                                    <th>Producto</th>
+                                    <th>Vendidos</th>
+                                    <th>Cantidad a anular</th>
+                                </tr>
+                            </thead>
+
+                            <tbody id="productosAnular">
+                                <tr>
+                                    <td colspan="4" class="text-center">
+                                        Seleccioná una venta para cargar sus productos.
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
+
+                    <div class="mb-3">
+                        <label for="descripcion" class="form-label">
+                            Motivo de anulación
+                        </label>
+
+                        <input type="text" name="descripcion"
+                            id="descripcion" class="form-control"
+                            maxlength="255" required>
+                    </div>
+
                 </form>
             </div>
+
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <button type="submit" class="btn btn-danger" form="formAnularVenta">Confirmar Anulación</button>
+                <button type="button" class="btn btn-secondary"
+                    data-bs-dismiss="modal">
+                    Cancelar
+                </button>
+
+                <button type="submit" class="btn btn-danger"
+                    form="formAnularVenta">
+                    Confirmar anulación
+                </button>
             </div>
+
         </div>
     </div>
 </div>
@@ -288,10 +335,135 @@
         const modalAnularVenta = document.getElementById('modalAnularVenta');
         const inputIdVenta = modalAnularVenta.querySelector('#id_venta');
 
+        const formularioAnular = modalAnularVenta.querySelector('form');
+
+        formularioAnular.addEventListener('submit', function (event) {
+
+            const filasSeleccionadas = modalAnularVenta.querySelectorAll('.producto-seleccionado:checked');
+
+            let hayCantidadValida = false;
+
+            filasSeleccionadas.forEach(checkbox => {
+                const fila = checkbox.closest('tr');
+                const cantidad = parseInt(fila.querySelector('.cantidad-anular').value);
+
+                if (cantidad > 0) {
+                    hayCantidadValida = true;
+                }
+            });
+
+            if (!hayCantidadValida) {
+                event.preventDefault();
+                alert('Seleccioná al menos un producto e ingresá una cantidad mayor a cero.');
+            }
+        });
+
         document.querySelectorAll('.btn-anular-venta').forEach(button => {
             button.addEventListener('click', function () {
+
                 const idVenta = this.getAttribute('data-id');
                 inputIdVenta.value = idVenta;
+
+                const tbody = document.getElementById('productosAnular');
+
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="4" class="text-center">
+                            Cargando productos...
+                        </td>
+                    </tr>
+                `;
+
+                fetch(`/detalle-venta/${idVenta}`)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('No se pudieron cargar los productos.');
+                        }
+                        return response.json();
+                    })
+                    .then(productos => {
+
+                        tbody.innerHTML = '';
+
+                        productos.forEach((producto, index) => {
+
+                            if (producto.cantidad_disponible <= 0) {
+                                return;
+                            }
+
+                            tbody.insertAdjacentHTML('beforeend', `
+                                <tr>
+                                    <td>
+                                        <input type="checkbox"
+                                            class="form-check-input producto-seleccionado"
+                                            data-index="${index}">
+                                    </td>
+
+                                    <td>${producto.producto}</td>
+
+                                    <td>${producto.cantidad_disponible}</td>
+
+                                    <td>
+                                        <input type="number"
+                                            class="form-control cantidad-anular"
+                                            name="productos[${index}][cantidad]"
+                                            min="0"
+                                            max="${producto.cantidad_disponible}"
+                                            step="1"
+                                            value="0"
+                                            style="background-color: #ffffff; color: #212529; -webkit-text-fill-color: #212529; opacity: 1; font-weight: 600;"
+                                            disabled>
+
+                                        <input type="hidden"
+                                            name="productos[${index}][id_venta_producto]"
+                                            value="${producto.id_venta_producto}"
+                                            disabled>
+                                    </td>
+                                </tr>
+                            `);
+
+                            const fila = tbody.lastElementChild;
+                            const checkbox = fila.querySelector('.producto-seleccionado');
+                            const cantidad = fila.querySelector('.cantidad-anular');
+                            const identificador = fila.querySelector('input[type="hidden"]');
+
+                            checkbox.addEventListener('change', function () {
+
+                                if (this.checked) {
+                                    cantidad.disabled = false;
+                                    identificador.disabled = false;
+                                    cantidad.value = '';
+                                    cantidad.focus();
+
+                                } else {
+                                    cantidad.disabled = true;
+                                    identificador.disabled = true;
+                                    cantidad.value = 0;
+                                }
+
+                            });
+                        });
+
+                        if (!tbody.children.length) {
+                            tbody.innerHTML = `
+                                <tr>
+                                    <td colspan="4" class="text-center">
+                                        No hay productos disponibles para anular.
+                                    </td>
+                                </tr>
+                            `;
+                        }
+                    })
+                    .catch(error => {
+                        console.error(error);
+                        tbody.innerHTML = `
+                            <tr>
+                                <td colspan="4" class="text-center text-danger">
+                                    Error al cargar los productos.
+                                </td>
+                            </tr>
+                        `;
+                    });
             });
         });
     });

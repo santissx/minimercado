@@ -78,16 +78,24 @@ class HistorialController extends Controller
         $productos = DB::table('ventas_productos')
             ->join('productos', 'ventas_productos.id_producto', '=', 'productos.id_producto')
             ->select(
+                'ventas_productos.id_venta_producto',
+                'productos.id_producto',
                 'productos.nombre as producto',
                 'ventas_productos.cantidad',
                 'ventas_productos.precio',
-                'ventas_productos.precio_lista' // <--- Seleccionamos el precio de lista original
+                'ventas_productos.precio_lista'
             )
             ->where('ventas_productos.id_venta', $idVenta)
             ->get();
 
-        // Adjuntamos la leyenda "- Promo" si el precio vendido es menor al precio de lista
         foreach ($productos as $p) {
+
+            $anulado = DB::table('ventas_productos_anulados')
+                ->where('id_venta_producto', $p->id_venta_producto)
+                ->sum('cantidad_anulada');
+
+            $p->cantidad_disponible = $p->cantidad - $anulado;
+
             if (isset($p->precio_lista) && $p->precio < $p->precio_lista) {
                 $p->producto .= ' - Promo';
             }
@@ -100,32 +108,130 @@ class HistorialController extends Controller
     {
         $validated = $request->validate([
             'id_venta' => 'required|exists:ventas,id_venta',
-            'id_usuario_anulador' => 'required|exists:users,id',
             'descripcion' => 'required|string|max:255',
+            'productos' => 'required|array|min:1',
+            'productos.*.id_venta_producto' => 'required|integer',
+            'productos.*.cantidad' => 'required|integer|min:1',
         ]);
 
-        $productos = DB::table('ventas_productos')
-            ->join('productos', 'ventas_productos.id_producto', '=', 'productos.id_producto')
-            ->select(
-                'productos.id_producto',
-                'ventas_productos.cantidad'
-            )
-            ->where('ventas_productos.id_venta', $validated['id_venta'])
-            ->get();
+        DB::beginTransaction();
 
-        foreach ($productos as $producto) {
-            DB::table('productos')
-                ->where('id_producto', $producto->id_producto)
-                ->increment('stock', $producto->cantidad);
+        try {
+            $venta = DB::table('ventas')
+                ->where('id_venta', $validated['id_venta'])
+                ->lockForUpdate()
+                ->first();
+
+            if (!$venta) {
+                throw new \Exception('La venta no existe.');
+            }
+
+            $ventaAnulada = DB::table('ventas_anuladas')
+                ->where('id_venta', $venta->id_venta)
+                ->exists();
+
+            if ($ventaAnulada) {
+                throw new \Exception('Esta venta ya fue anulada completamente.');
+            }
+
+            $lineas = DB::table('ventas_productos')
+                ->where('id_venta', $venta->id_venta)
+                ->lockForUpdate()
+                ->get();
+
+            $subtotalOriginal = $lineas->sum(function ($item) {
+                return $item->cantidad * $item->precio;
+            });
+
+            foreach ($validated['productos'] as $item) {
+
+                $linea = $lineas->firstWhere(
+                    'id_venta_producto',
+                    $item['id_venta_producto']
+                );
+
+                if (!$linea) {
+                    throw new \Exception('Uno de los productos no pertenece a esta venta.');
+                }
+
+                $cantidadAnuladaAnterior = DB::table('ventas_productos_anulados')
+                    ->where('id_venta_producto', $linea->id_venta_producto)
+                    ->sum('cantidad_anulada');
+
+                $cantidadDisponible = $linea->cantidad - $cantidadAnuladaAnterior;
+
+                if ($item['cantidad'] > $cantidadDisponible) {
+                    throw new \Exception('La cantidad a anular supera las unidades disponibles.');
+                }
+
+                DB::table('ventas_productos_anulados')->insert([
+                    'id_venta' => $venta->id_venta,
+                    'id_venta_producto' => $linea->id_venta_producto,
+                    'id_producto' => $linea->id_producto,
+                    'id_usuario_anulador' => $request->user()->id,
+                    'cantidad_anulada' => $item['cantidad'],
+                    'precio_unitario' => $linea->precio,
+                    'descripcion' => $validated['descripcion'],
+                    'fecha_anulacion' => now(),
+                ]);
+
+                DB::table('productos')
+                    ->where('id_producto', $linea->id_producto)
+                    ->increment('stock', $item['cantidad']);
+            }
+
+            $cantidadRestante = 0;
+            $subtotalRestante = 0;
+
+            foreach ($lineas as $linea) {
+
+                $anulada = DB::table('ventas_productos_anulados')
+                    ->where('id_venta_producto', $linea->id_venta_producto)
+                    ->sum('cantidad_anulada');
+
+                $restante = $linea->cantidad - $anulada;
+
+                $cantidadRestante += $restante;
+                $subtotalRestante += $restante * $linea->precio;
+            }
+
+            $descuentoOriginal = (float) $venta->descuento;
+            $descuentoRestante = $subtotalOriginal > 0
+                ? round($descuentoOriginal * ($subtotalRestante / $subtotalOriginal), 2)
+                : 0;
+
+            $montoRestante = max(0, $subtotalRestante - $descuentoRestante);
+
+            DB::table('ventas')
+                ->where('id_venta', $venta->id_venta)
+                ->update([
+                    'monto_total' => $montoRestante,
+                ]);
+
+            if ($cantidadRestante === 0) {
+                DB::table('ventas_anuladas')->insert([
+                    'id_venta' => $venta->id_venta,
+                    'id_usuario_anulador' => $request->user()->id,
+                    'descripcion' => $validated['descripcion'],
+                ]);
+            }
+
+            DB::commit();
+
+            return redirect()->back()->with(
+                'success',
+                'Anulación realizada correctamente.'
+            );
+
+        } catch (\Exception $e) {
+
+            DB::rollBack();
+
+            return redirect()->back()->with(
+                'error',
+                'No se pudo realizar la anulación: ' . $e->getMessage()
+            );
         }
-        
-        DB::table('ventas_anuladas')->insert([
-            'id_venta' => $validated['id_venta'],
-            'id_usuario_anulador' => $validated['id_usuario_anulador'],
-            'descripcion' => $validated['descripcion'],
-        ]);
-
-        return redirect()->back()->with('success', 'Venta anulada correctamente.');
     }
 
     public function generarTicket($idVenta)
