@@ -155,18 +155,23 @@
                 <thead><tr><th>Código</th><th>Descripción</th><th>Cant.</th><th>Precio unit.</th><th>Total</th></tr></thead>
                 <tbody>
                     @foreach ($articulos as $producto)
-                        <tr>
-                            <td>{{ $producto->codigo ?: $producto->codigo_barra }}</td>
-                            <td>
-                                {{ $producto->producto }}
-                                @if(isset($producto->precio_lista) && $producto->precio < $producto->precio_lista)
-                                    <strong style="font-size: 11px;"> - Promo</strong>
-                                @endif
-                            </td>
-                            <td>{{ $producto->cantidad }}</td>
-                            <td>${{ number_format($producto->precio, 2) }}</td>
-                            <td>${{ number_format($producto->precio * $producto->cantidad, 2) }}</td>
-                        </tr>
+                        @if($producto->cantidad_final > 0)
+                            <tr>
+                                <td>{{ $producto->codigo ?: $producto->codigo_barra }}</td>
+                                <td>
+                                    {{ $producto->producto }}
+                                    @if(isset($producto->precio_lista) && $producto->precio < $producto->precio_lista)
+                                        <strong style="font-size: 11px;"> - Promo</strong>
+                                    @endif
+                                    @if(isset($producto->cantidad_anulada) && $producto->cantidad_anulada > 0)
+                                        <br><small style="font-size: 0.8em; color: #666;">(Cant. orig: {{ $producto->cantidad }} | Devueltos: {{ $producto->cantidad_anulada }})</small>
+                                    @endif
+                                </td>
+                                <td>{{ $producto->cantidad_final }}</td>
+                                <td>${{ number_format($producto->precio, 2) }}</td>
+                                <td>${{ number_format($producto->precio * $producto->cantidad_final, 2) }}</td>
+                            </tr>
+                        @endif
                     @endforeach
                 </tbody>
             </table>
@@ -180,18 +185,23 @@
                 <thead><tr><th>Código</th><th>Descripción</th><th>Cant.</th><th>Precio unit.</th><th>Total</th></tr></thead>
                 <tbody>
                     @foreach ($servicios as $servicio)
-                        <tr>
-                            <td>{{ $servicio->codigo ?: $servicio->codigo_barra }}</td>
-                            <td>
-                                {{ $servicio->producto }}
-                                @if(isset($servicio->precio_lista) && $servicio->precio < $servicio->precio_lista)
-                                    <strong style="font-size: 11px;"> - Promo</strong>
-                                @endif
-                            </td>
-                            <td>{{ $servicio->cantidad }}</td>
-                            <td>${{ number_format($servicio->precio, 2) }}</td>
-                            <td>${{ number_format($servicio->precio * $servicio->cantidad, 2) }}</td>
-                        </tr>
+                        @if($servicio->cantidad_final > 0)
+                            <tr>
+                                <td>{{ $servicio->codigo ?: $servicio->codigo_barra }}</td>
+                                <td>
+                                    {{ $servicio->producto }}
+                                    @if(isset($servicio->precio_lista) && $servicio->precio < $servicio->precio_lista)
+                                        <strong style="font-size: 11px;"> - Promo</strong>
+                                    @endif
+                                    @if(isset($servicio->cantidad_anulada) && $servicio->cantidad_anulada > 0)
+                                        <br><small style="font-size: 0.8em; color: #666;">(Cant. orig: {{ $servicio->cantidad }} | Devueltos: {{ $servicio->cantidad_anulada }})</small>
+                                    @endif
+                                </td>
+                                <td>{{ $servicio->cantidad_final }}</td>
+                                <td>${{ number_format($servicio->precio, 2) }}</td>
+                                <td>${{ number_format($servicio->precio * $servicio->cantidad_final, 2) }}</td>
+                            </tr>
+                        @endif
                     @endforeach
                 </tbody>
             </table>

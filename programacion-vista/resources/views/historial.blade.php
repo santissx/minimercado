@@ -316,12 +316,18 @@
                         tbody.innerHTML = '';
 
                         data.forEach(producto => {
+                            // Lógica para resaltar anulaciones
+                            let claseFila = producto.cantidad_disponible === 0 ? 'text-decoration-line-through text-muted' : '';
+                            let badgeAnulado = (producto.cantidad_anulada && producto.cantidad_anulada > 0) 
+                                ? `<span class="badge bg-danger ms-2">-${producto.cantidad_anulada} Devuelto</span>` 
+                                : '';
+
                             const row = `
-                                <tr>
+                                <tr class="${claseFila}">
                                     <td>${idVenta}</td>
-                                    <td>${producto.producto}</td>
-                                    <td>${producto.cantidad}</td>
-                                    <td>${producto.precio}</td>
+                                    <td>${producto.producto} ${badgeAnulado}</td>
+                                    <td>${producto.cantidad_disponible} de ${producto.cantidad}</td>
+                                    <td>$${producto.precio}</td>
                                 </tr>
                             `;
                             tbody.innerHTML += row;

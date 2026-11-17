@@ -89,11 +89,11 @@ class HistorialController extends Controller
             ->get();
 
         foreach ($productos as $p) {
-
             $anulado = DB::table('ventas_productos_anulados')
                 ->where('id_venta_producto', $p->id_venta_producto)
                 ->sum('cantidad_anulada');
 
+            $p->cantidad_anulada = (int) $anulado; // Enviamos cuánto se anuló
             $p->cantidad_disponible = $p->cantidad - $anulado;
 
             if (isset($p->precio_lista) && $p->precio < $p->precio_lista) {
@@ -256,10 +256,12 @@ class HistorialController extends Controller
             ->where('ventas.id_venta', $idVenta)
             ->first();
 
+        // Agregamos id_venta_producto al select
         $productos = DB::table('ventas_productos')
             ->join('productos', 'ventas_productos.id_producto', '=', 'productos.id_producto')
             ->leftJoin('categorias', 'productos.id_categoria', '=', 'categorias.id_categoria')
             ->select(
+                'ventas_productos.id_venta_producto',
                 'productos.nombre as producto',
                 'productos.codigo',
                 'productos.codigo_barra',
@@ -267,10 +269,24 @@ class HistorialController extends Controller
                 'categorias.categoria as nombre_categoria',
                 'ventas_productos.cantidad',
                 'ventas_productos.precio',
-                'ventas_productos.precio_lista' // <--- Seleccionamos el precio de lista
+                'ventas_productos.precio_lista'
             )
             ->where('ventas_productos.id_venta', $idVenta)
             ->get();
+
+        foreach ($productos as $p) {
+            $anulado = DB::table('ventas_productos_anulados')
+                ->where('id_venta_producto', $p->id_venta_producto)
+                ->sum('cantidad_anulada');
+
+            // Calculamos la cantidad real que quedó después de las anulaciones
+            $p->cantidad_final = $p->cantidad - $anulado;
+            $p->cantidad_anulada = $anulado;
+
+            if (isset($p->precio_lista) && $p->precio < $p->precio_lista) {
+                $p->producto .= ' - Promo';
+            }
+        }
 
         $local = [
             'nombre'    => 'SOLUCIONES ELÉCTRICAS',
