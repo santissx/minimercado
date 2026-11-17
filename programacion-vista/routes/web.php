@@ -121,6 +121,7 @@ Route::post('/lista/aumentar-precio-lista', [listacontroller::class, 'aumentarPr
 
 
 //rutas de ventas 
+
 Route::get('/buscar-productos', [ProductoController::class, 'buscar'])->name('productos.buscar');
 // Ruta para obtener los métodos de pago
 Route::get('/ventas', [VentaController::class, 'mostrar'])->name('views.ventas');
@@ -134,7 +135,6 @@ Route::get('/promociones', [PromocionController::class, 'index'])->name('promoci
 Route::post('/promociones', [PromocionController::class, 'store'])->name('promociones.store');
 Route::delete('/promociones/{id}', [PromocionController::class, 'destroy'])->name('promociones.destroy');
 Route::put('/promociones/{id}', [PromocionController::class, 'update'])->name('promociones.update');
-
 Route::post('/promociones/actualizar-precios', [PromocionController::class, 'actualizarPrecios'])
     ->name('promociones.actualizar-precios');
 

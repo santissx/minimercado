@@ -67,7 +67,9 @@
                                     <th>Nombre</th>
                                     <th>Codigo</th>
                                     <th>Codigo de barra</th>
+                                    @if(Auth::check() && Auth::user()->rol === 'administrador')
                                     <th>Precio lista</th>
+                                    @endif
                                     <th>Precio venta</th>
                                     <th>
                                         @php
@@ -93,7 +95,9 @@
                                     <td>{{ $producto->nombre }}</td>
                                     <td>{{ $producto->codigo }}</td>
                                     <td>{{ $producto->codigo_barra }}</td>
+                                    @if(Auth::check() && Auth::user()->rol === 'administrador')
                                     <td>{{ $producto->precio_lista }}</td>
+                                    @endif
                                     <td>{{ $producto->precio_venta }}</td>
                                     <td>{{ $producto->stock }}</td>
                                     <td>{{ $producto->id_proveedor }} - {{ $producto->nombre_proveedor }}</td>
